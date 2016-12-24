@@ -27,6 +27,9 @@ block content
                     .info Attack Speed: #[span.gray=formatNumber(monster.frequency)]
                     .info Damage Type: #[span.gray=monster.damage_type]
                     .info Monster Type: #[span.gray=type]
+    .vmargin.border
+        .info Average Gold: #[span.gray=formatNumber(avggold)]
+        .info Tracked Kills: #[span.gray=formatNumber(kills)]
 
     if drops.length
         .vmargin.border
