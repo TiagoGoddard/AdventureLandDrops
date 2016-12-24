@@ -1,12 +1,12 @@
 {
-  "name": "db-land",
+  "name": "adventure-drops",
   "version": "0.0.1",
-  "description": "",
+  "description": "AdventureLand server side code from: https://gitlab.com/Draivin/adventure-drops/tree/master",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Draivin",
   "license": "ISC",
   "dependencies": {
     "hapi": "^15.2.0",
@@ -14,5 +14,17 @@
     "pug": "^2.0.0-beta6",
     "sqlite3": "^3.1.8",
     "vision": "^4.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/TiagoGoddard/AdventureLandDrops.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TiagoGoddard/AdventureLandDrops/issues"
+  },
+  "homepage": "https://github.com/TiagoGoddard/AdventureLandDrops#readme",
+  "devDependencies": {},
+  "keywords": [
+    "AdventureLand"
+  ]
 }

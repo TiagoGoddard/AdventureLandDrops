@@ -1,3 +1,5 @@
 node_modules/
 db/drops.sqlite
 collection/keys.json
+
+*.zip

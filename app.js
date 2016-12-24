@@ -9,7 +9,7 @@ const server = new Hapi.Server({
     debug: { request: ['error'] }
 });
 
-server.connection({ port: 80 });
+server.connection({ port: 8081 });
 
 const defaultContext = {
     formatNumber(number, precision = 0) {
@@ -54,4 +54,3 @@ server.start((err) => {
     console.log('Web server running at:', server.info.uri);
     collection.server.start();
 });
-
