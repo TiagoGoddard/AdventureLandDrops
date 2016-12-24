@@ -13,6 +13,7 @@ block content
             ['attack', 'Damage'],
             ['range', 'Range'],
             ['hp', 'Health'],
+            ['mp', 'Mana'],
             ['str', 'Strength'],
             ['int', 'Intelligence'],
             ['dex', 'Dexterity'],
@@ -33,6 +34,12 @@ block content
                     ['attr0', 'Stun Chance'],
                     ['attr1', 'Stun Duration']
                 ])
+            ],
+            [
+                'secondchance',
+                new Map([
+                    ['attr0', 'Second Chance']
+                ])
             ]
         ])
 
@@ -40,6 +47,10 @@ block content
             [
                 'bash',
                 'Stuns the opponent for %attr1 seconds with %attr0% chance.'
+            ],
+            [
+                'secondchance',
+                'Prevent death with %attr0% chance.'
             ]
         ])
 

@@ -13,7 +13,11 @@ server.connection({ port: 8081 });
 
 const defaultContext = {
     formatNumber(number, precision = 0) {
-        return number.toLocaleString('en-US', { maximumFractionDigits: precision });
+        if(number){
+          return number.toLocaleString('en-US', { maximumFractionDigits: precision });
+        } else {
+          return 0;
+        }
     }
 };
 
