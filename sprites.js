@@ -1,48 +1,35 @@
 const data = require('./data');
 
 const monsterSprite = function(type, size = 64) {
-    console.log(type);
     const skin = data.skins[type];
 
-    if(typeof data.skins[type] === 'undefined' || skin.dimensions.length < 2) {
-      return '';
-    } else {
-      let width = 0;
-      let height = 0;
+    let width = skin.dimensions[2]
+    let height = skin.dimensions[3]
+    let shOffset = 0;
+    let svOffset = 0;
 
-      if(skin.dimensions.length > 2 && typeof skin.dimensions[2] !== 'undefined') {
-        width = skin.dimensions[2];      
-      }
-      if(skin.dimensions.length > 3 && typeof skin.dimensions[3] !== 'undefined') {
-        height = skin.dimensions[3];      
-      }
+    if (skin.rdimensions) {
+        let newWidth = skin.rdimensions[0];
+        let newHeight = skin.rdimensions[1];
 
-      let shOffset = 0;
-      let svOffset = 0;
+        shOffset = (width - newWidth) / 2 + (skin.rdimensions[2] || 0);
+        svOffset = height - newHeight + (skin.rdimensions[3] || 0);
 
-      if (skin.rdimensions) {
-          let newWidth = skin.rdimensions[0];
-          let newHeight = skin.rdimensions[1];
-
-          shOffset = (width - newWidth) / 2 + (skin.rdimensions[2] || 0);
-          svOffset = height - newHeight + (skin.rdimensions[3] || 0);
-
-          width = newWidth;
-          height = newHeight;
-      }
-
-      const hOffset = -(skin.dimensions[0] + shOffset);
-      const vOffset = -(skin.dimensions[1] + svOffset);
-
-      const hScale = size / width;
-      const vScale = size / height;
-
-      const scale = Math.min(hScale, vScale);
-
-      const url = `http://adventure.land${skin.file}`;
-      const position = `${hOffset}px ${vOffset}px`;
-      return `background: url(${url}) ${position}; min-width: ${width}px; min-height: ${height}px; transform: scale(${scale});`;
+        width = newWidth;
+        height = newHeight;
     }
+
+    const hOffset = -(skin.dimensions[0] + shOffset);
+    const vOffset = -(skin.dimensions[1] + svOffset);
+
+    const hScale = size / width;
+    const vScale = size / height;
+
+    const scale = Math.min(hScale, vScale);
+
+    const url = `http://adventure.land${skin.file}`;
+    const position = `${hOffset}px ${vOffset}px`;
+    return `background: url(${url}) ${position}; min-width: ${width}px; min-height: ${height}px; transform: scale(${scale});`;
 };
 
 const itemSprite = function(item, size = 64) {
