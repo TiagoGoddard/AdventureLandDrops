@@ -1,0 +1,60 @@
+extends layout.pug
+
+block title
+    title DB Land - #{monster.name}
+
+block content
+    .horizontal-flex.vmargin
+        .static-column.rmargin.border.vertical-flex(class=monster.hp > 100000 ? 'boss' : '')
+                .sprite-container
+                    div(style=sprites.monster(type, 64))
+                .title=monster.name
+
+        .column.border
+            .subtitle Monster Information
+            .horizontal-flex
+                .column
+                    .info Health: #[span.gray=formatNumber(monster.hp)]
+                    .info Experience: #[span.gray=formatNumber(monster.xp)]
+                    .info Speed: #[span.gray=formatNumber(monster.speed)]
+                    if monster.respawn
+                        .info Respawn Time: #[span.gray #{monster.respawn} seconds]
+                    else
+                        .info Respawn Time: #[span.gray none]
+
+                .column
+                    .info Attack: #[span.gray=formatNumber(monster.attack)]
+                    .info Attack Speed: #[span.gray=formatNumber(monster.frequency)]
+                    .info Damage Type: #[span.gray=monster.damage_type]
+                    .info Monster Type: #[span.gray=type]
+
+    if drops.length
+        .vmargin.border
+            table.drops#drops
+                thead
+                    tr
+                        th
+                        th.sort(data-sort='name') Name
+                        th.sort(data-sort='map') Map
+                        th Count
+                        th.align-right.sort(data-sort='rate') %
+                tr
+                    td.dashed(colspan=5)
+                tbody.list
+                    each drop in drops
+                        tr
+                            td
+                                a(href=`/items/${drop.item}`).sprite-container.small
+                                    div(style=sprites.item(drop.item, 32))
+                            td
+                                a.name(href=`/items/${drop.item}`)=drop.name
+                            td.map=drop.mapName
+                            td.count #{formatNumber(drop.drops)} out of #{formatNumber(drop.kills)}
+                            td.rate.align-right #{formatNumber(drop.rate, 3)}
+
+        script.
+            var options = {
+                valueNames: ['name', 'map', 'count', 'rate']
+            };
+            var list = new List('drops', options);
+            list.sort('name', { order: 'asc'});

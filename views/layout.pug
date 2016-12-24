@@ -1,0 +1,30 @@
+doctype html
+html
+    head
+        block title
+            title DB Land
+
+        link(rel='apple-touch-icon' sizes='120x120' href='/static/favicon/apple-touch-icon.png')
+        link(rel='icon' type='image/png' href='/static/favicon/favicon-32x32.png' sizes='32x32')
+        link(rel='icon' type='image/png' href='/static/favicon/favicon-16x16.png' sizes='16x16')
+        link(rel='manifest' href='/static/favicon/manifest.json')
+        link(rel='mask-icon' href='/static/favicon/safari-pinned-tab.svg' color='#5bbad5')
+        link(rel='shortcut icon' href='/static/favicon/favicon.ico')
+        meta(name='msapplication-config' content='/static/favicon/browserconfig.xml')
+        meta(name='theme-color' content='#2b5797')
+
+        link(href='/static/css/style.css' rel='stylesheet')
+        script(src='/static/js/list.min.js')
+    body
+        .content
+            #header.border.vmargin.horizontal-flex
+                a.static-column.vertical-flex.rmargin(href='/')
+                    img.logo(src='/static/images/logo.png')
+                .divider.rmargin
+                .static-column.vertical-flex.rmargin
+                    a(href='/monsters') Monsters
+                .divider.rmargin
+                .static-column.vertical-flex.rmargin
+                    a(href='/items') Items
+                .divider
+            block content

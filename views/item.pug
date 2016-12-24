@@ -1,0 +1,182 @@
+extends layout.pug
+
+block title
+    title DB Land - #{item.name}
+
+block content
+    -
+        const propNames = new Map([
+            ['lifesteal', 'Lifesteal'],
+            ['evasion', 'Evasion'],
+            ['reflection', 'Reflection'],
+            ['crit', 'Crit'],
+            ['attack', 'Damage'],
+            ['range', 'Range'],
+            ['hp', 'Health'],
+            ['str', 'Strength'],
+            ['int', 'Intelligence'],
+            ['dex', 'Dexterity'],
+            ['vit', 'Vitality'],
+            ['stat', 'Stat'],
+            ['armor', 'Armor'],
+            ['apiercing', 'A. Piercing'],
+            ['resistance', 'Resistance'],
+            ['rpiercing', 'R. Piercing'],
+            ['speed', 'Speed'],
+            ['xp', 'XP'],
+        ])
+
+        const attrNames = new Map([
+            [
+                'bash',
+                new Map([
+                    ['attr0', 'Stun Chance'],
+                    ['attr1', 'Stun Duration']
+                ])
+            ]
+        ])
+
+        const abilityText = new Map([
+            [
+                'bash',
+                'Stuns the opponent for %attr1 seconds with %attr0% chance.'
+            ]
+        ])
+
+        const propOrder = new Map([...propNames.keys()].map((k, i) => [k, i]))
+
+    //-
+    .horizontal-flex.vmargin
+        .static-column.rmargin.border.vertical-flex
+                .sprite-container.small
+                    div(style=sprites.item(type, 32))
+                .title=item.name
+
+        .column.border
+            .subtitle Item Information
+            .horizontal-flex
+                .column
+                    mixin attribute(prop)
+                        - let value = item[prop]
+
+                        if value
+                            mixin n
+                                | #{propNames.get(prop)}
+                            mixin v(precision = -1)
+                                if precision == -1
+                                    | #{value}
+                                else
+                                    | #{formatNumber(value, precision)}
+
+                            .info
+                                block
+
+                    +attribute('lifesteal') #[+n]: #[span.gray #[+v]%]
+                    +attribute('evasion') #[+n]: #[span.gray #[+v]%]
+                    +attribute('reflection') #[+n]: #[span.gray #[+v]%]
+                    +attribute('crit') #[+n]: #[span.gray #[+v]%]
+                    +attribute('attack') #[+n]: #[span.gray #[+v]]
+                    +attribute('range') #[+n]: #[span.gray +#[+v]]
+                    +attribute('hp') #[+n]: #[span.gray #[+v]]
+                    +attribute('str') #[+n]: #[span.gray #[+v]]
+                    +attribute('int') #[+n]: #[span.gray #[+v]]
+                    +attribute('dex') #[+n]: #[span.gray #[+v]]
+                    +attribute('vit') #[+n]: #[span.gray #[+v]]
+                    +attribute('stat') #[+n]: #[span.gray #[+v]]
+                    +attribute('armor') #[+n]: #[span.gray #[+v]]
+                    +attribute('apiercing') #[+n]: #[span.gray #[+v]]
+                    +attribute('resistance') #[+n]: #[span.gray #[+v]]
+                    +attribute('rpiercing') #[+n]: #[span.gray #[+v]]
+                    +attribute('speed') #[+n]: #[span.gray +#[+v]]
+
+                    if item.ability
+                        - let text = abilityText.get(item.ability)
+                        - text = text.replace('%attr0', item.attr0)
+                        - text = text.replace('%attr1', item.attr1)
+                        div.gray.rmargin=text
+
+                    +attribute('explanation') #[div.gray.rmargin #[+v]]
+
+                .column
+                    .info Type: #[span.gray=item.type]
+                    .info Value: #[span.gray #{formatNumber(item.g)} GOLD]
+                    if item.grades
+                        .info Grades: #[span.gray #{item.grades.join(', ')}]
+
+
+    - let scaling = item.upgrade || item.compound
+    if scaling
+        .vmargin.border
+            table.scaling
+                -
+                    let levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                    let multipliers = [1, 1, 1, 1, 1, 1, 1.25, 1.5, 2, 3]
+                    let unrounded = ['evasion', 'reflection', 'lifesteal', 'attr0', 'attr1']
+
+                    if (item.compound)
+                        multipliers = [1, 1, 1, 1, 1.25, 1.5, 2, 3, 3, 3]
+
+                thead
+                    tr
+                        th
+                        each i in levels
+                            th.align-right +#{i}
+
+                tbody
+                    - let properties = Object.keys(scaling)
+                    - properties.sort((a, b) => propOrder.get(a) - propOrder.get(b))
+
+                    each property in properties
+                        - let isRounded = !unrounded.includes(property)
+                        - let acc = item[property]
+
+                        tr
+                            if item.ability && property.startsWith('attr')
+                                td=attrNames.get(item.ability).get(property)
+                            else
+                                td=propNames.get(property)
+
+                            each i in levels
+                                if isRounded
+                                    td.gray.align-right=formatNumber(acc)
+                                else
+                                    td.gray.align-right=formatNumber(acc, 3)
+
+                                -
+                                    if (property == 'stat') {
+                                        acc += Math.round(scaling[property] * multipliers[i])
+                                        if (i >= 6) acc++;
+                                    } else {
+                                        acc += scaling[property] * multipliers[i]
+                                    }
+
+    if dropped.length
+        .vmargin.border
+            table.drops#drops
+                thead
+                    tr
+                        th
+                        th.sort(data-sort='monster') Monster
+                        th.sort(data-sort='map') Map
+                        th Count
+                        th.align-right.sort(data-sort='rate') %
+                tr
+                    td.dashed(colspan=5)
+                tbody.list
+                    each drop in dropped
+                        tr
+                            td
+                                a(href=`/monsters/${drop.monster}`).sprite-container.small
+                                    div(style=sprites.monster(drop.monster, 32))
+                            td
+                                a.monster(href=`/monsters/${drop.monster}`)=drop.name
+                            td.map=drop.mapName
+                            td.count #{formatNumber(drop.drops)} out of #{formatNumber(drop.kills)}
+                            td.rate.align-right #{formatNumber(drop.rate, 3)}
+
+        script.
+            var options = {
+                valueNames: ['monster', 'map', 'count', 'rate']
+            };
+            var list = new List('drops', options);
+            list.sort('rate', { order: 'desc'});

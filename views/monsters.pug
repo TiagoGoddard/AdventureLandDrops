@@ -1,0 +1,9 @@
+extends layout.pug
+
+block content
+    .horizontal-flex.spread.vmargin
+        each monster in monsters
+            a.box.border.margin.vertical-flex(href=`/monsters/${monster.type}`)
+                .sprite-container
+                    div(style=sprites.monster(monster.type, 64))
+                span.align-center=monster.name

@@ -1,0 +1,57 @@
+const Hapi = require('hapi');
+const Vision = require('vision');
+const Inert = require('inert');
+
+const routes = require('./routes');
+const collection = require('./collection');
+
+const server = new Hapi.Server({
+    debug: { request: ['error'] }
+});
+
+server.connection({ port: 80 });
+
+const defaultContext = {
+    formatNumber(number, precision = 0) {
+        return number.toLocaleString('en-US', { maximumFractionDigits: precision });
+    }
+};
+
+server.register(Vision, (err) => {
+    server.views({
+        engines: { pug: require('pug') },
+        context: defaultContext,
+        path: __dirname + '/views',
+        compileOptions: {
+            pretty: true
+        },
+        isCached: process.env.NODE_ENV == 'production',
+    });
+
+    server.route({ method: 'GET', path: '/', handler: routes.root });
+
+    server.route({ method: 'GET', path: '/monsters', handler: routes.monsters });
+    server.route({ method: 'GET', path: '/monsters/{monster}', handler: routes.monster });
+
+    server.route({ method: 'GET', path: '/items', handler: routes.items });
+    server.route({ method: 'GET', path: '/items/{item}', handler: routes.item });
+});
+
+server.register(Inert, (err) => {
+    server.route({
+        method: 'GET',
+        path: '/static/{param*}',
+        handler: {
+            directory: {
+                path: 'static'
+            }
+        }
+    });
+});
+
+server.start((err) => {
+    if (err) throw err;
+    console.log('Web server running at:', server.info.uri);
+    collection.server.start();
+});
+

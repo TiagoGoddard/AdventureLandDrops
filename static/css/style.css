@@ -1,0 +1,184 @@
+@font-face{
+    font-family: pixel;
+    src: url(/static/fonts/m5x7.ttf);
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    background: #354149;
+    color: #F4F4F4;
+    font-family: pixel;
+    font-size: 24px;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.content {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+#header {
+    font-size: 32px;
+}
+
+.logo {
+    display: block;
+    width: 110px;
+    margin: 0 auto;
+    image-rendering: pixelated;
+}
+
+.sprite-container {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    image-rendering: pixelated;
+}
+
+.sprite-container.small {
+    width: 32px;
+    height: 32px;
+}
+
+.border {
+    border: 4px solid gray;
+    padding: 5px 10px;
+    background: black;
+}
+
+.border.boss {
+    border-color: darkgoldenrod;
+}
+
+.margin {
+    margin: 10px;
+}
+
+.vmargin {
+    margin: 10px 0;
+}
+
+.hmargin {
+    margin: 0 10px;
+}
+
+.vpadding {
+    padding: 10px 0;
+}
+
+.rmargin {
+    margin-right: 10px;
+}
+
+.title {
+    display: inline-block;
+    font-size: 35px;
+    text-align: center;
+}
+
+.subtitle {
+    color: #E4E4E4;
+    display: inline-block;
+    border-bottom: 2px dashed gray;
+    margin-bottom: 5px;
+    font-size: 28px;
+}
+
+.gray {
+    color: gray;
+}
+
+.horizontal-flex {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.horizontal-flex.spread {
+    justify-content: space-around;
+}
+
+.vertical-flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.static-column {
+    flex-grow: 0;
+}
+
+.column {
+    min-width: 1px;
+    width: 1px;
+    flex-grow: 1;
+}
+
+.divider {
+    width: 1px;
+    flex-grow: 0;
+    background-color: gray;
+}
+
+th {
+    text-align: left;
+    font-weight: normal;
+}
+
+.drops, .scaling {
+    width: 100%;
+    border-collapse: separate;
+}
+
+.scaling {
+    table-layout: fixed;
+    white-space: nowrap;
+}
+
+.drops td:first-child {
+    width: 40px;
+}
+
+.dashed {
+    border-bottom: 2px dashed gray;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.sort {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sort.asc::after {
+    content:  url(/static/images/sort-asc.png);
+    position: relative;
+    left: 4px;
+    top: -2px;
+}
+
+.sort.desc::after {
+    content:  url(/static/images/sort-desc.png);
+    position: relative;
+    left: 4px;
+    top: -2px;
+}
+
+.box {
+    width: 120px;
+}
