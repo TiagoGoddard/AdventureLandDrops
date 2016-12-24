@@ -4,7 +4,7 @@ AdventureLand server side code from: https://gitlab.com/Draivin/adventure-drops/
 ## To update data.js
 http://adventure.land/data.js
 
-## To update skins.js
+## To update skins.json
 ```javascript
 var returnSkin = {};
 Object.keys(parent.G.sprites).forEach(function(key,index) {
@@ -22,7 +22,7 @@ Object.keys(parent.G.sprites).forEach(function(key,index) {
 show_json(returnSkin);
 ```
 
-## To update dimensions.js
+## To update dimensions.json
 ```
 show_json(parent.D)
 ```
