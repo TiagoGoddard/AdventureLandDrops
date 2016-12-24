@@ -23,6 +23,7 @@ block content
             ['apiercing', 'A. Piercing'],
             ['resistance', 'Resistance'],
             ['rpiercing', 'R. Piercing'],
+            ['dreturn', 'D. Return'],
             ['speed', 'Speed'],
             ['xp', 'XP'],
         ])
@@ -89,6 +90,7 @@ block content
                     +attribute('attack') #[+n]: #[span.gray #[+v]]
                     +attribute('range') #[+n]: #[span.gray +#[+v]]
                     +attribute('hp') #[+n]: #[span.gray #[+v]]
+                    +attribute('mp') #[+n]: #[span.gray #[+v]]
                     +attribute('str') #[+n]: #[span.gray #[+v]]
                     +attribute('int') #[+n]: #[span.gray #[+v]]
                     +attribute('dex') #[+n]: #[span.gray #[+v]]
@@ -98,6 +100,7 @@ block content
                     +attribute('apiercing') #[+n]: #[span.gray #[+v]]
                     +attribute('resistance') #[+n]: #[span.gray #[+v]]
                     +attribute('rpiercing') #[+n]: #[span.gray #[+v]]
+                    +attribute('dreturn') #[+n]: #[span.gray #[+v]]
                     +attribute('speed') #[+n]: #[span.gray +#[+v]]
 
                     if item.ability
@@ -122,7 +125,7 @@ block content
                 -
                     let levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                     let multipliers = [1, 1, 1, 1, 1, 1, 1.25, 1.5, 2, 3]
-                    let unrounded = ['evasion', 'reflection', 'lifesteal', 'attr0', 'attr1']
+                    let unrounded = ['evasion', 'reflection', 'lifesteal', 'dreturn', 'rpiercing', 'apiercing', 'attr0', 'attr1']
 
                     if (item.compound)
                         multipliers = [1, 1, 1, 1, 1.25, 1.5, 2, 3, 3, 3]
