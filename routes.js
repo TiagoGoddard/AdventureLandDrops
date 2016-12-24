@@ -62,7 +62,7 @@ const monsterHandler = function (request, reply) {
         monster: monsterData,
         type: monsterType,
         drops: dropTable.get(monsterType) || [],
-        avggold : mgt ? mgt.avggold : "None Killed",
+        avggold : mgt ? mgt.avggold : 0,
         kills : mgt ? mgt.kills : 0,
         sprites
     });
