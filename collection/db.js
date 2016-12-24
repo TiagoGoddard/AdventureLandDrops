@@ -71,7 +71,7 @@ const addUpgrade = function(upgradeData) {
             );
         });
     }
-}
+};
 
 const getDropTable = function() {
     return new Promise((res) => {
@@ -102,6 +102,30 @@ const getDropTable = function() {
     });
 };
 
+const getGoldTable = function() {
+    return new Promise((res) => {
+        runCommand((cmdRes) => {
+            let avgGoldQuery = `SELECT monster, COUNT(*) AS kills, AVG(gold) AS avggold FROM drops GROUP BY monster`;
+
+            db.prepare(avgGoldQuery).all((err, rows) => {
+                cmdRes();
+
+                const monstergold = new Map();
+                for (let row of rows) {
+                    let monster = row.monster;
+                    let avggold = row.avggold;
+                    let kills = row.kills;
+
+                    monstergold.set(monster, { avggold : avggold, kills : kills });
+                }
+
+                res(monstergold);
+            });
+        });
+    });
+};
+
 exports.addDrop = addDrop;
 exports.addUpgrade = addUpgrade;
 exports.getDropTable = getDropTable;
+exports.getGoldTable = getGoldTable;
