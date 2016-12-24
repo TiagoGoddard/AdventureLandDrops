@@ -2,13 +2,9 @@
 AdventureLand server side code from: https://gitlab.com/Draivin/adventure-drops/tree/master
 
 ## To update data.js
-Connect to server and change "var G" to "module.exports"
-```
 http://adventure.land/data.js
-```
 
-## To update skins.json
-Paste the code on http://adventure.land/ console and copy/paste the results
+## To update skins.js
 ```javascript
 var returnSkin = {};
 Object.keys(parent.G.sprites).forEach(function(key,index) {
@@ -28,5 +24,5 @@ show_json(returnSkin);
 
 ## To update dimensions.js
 ```
-show_json(parent.G.actual_dimensions)
+show_json(parent.D)
 ```

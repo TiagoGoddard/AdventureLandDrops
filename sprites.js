@@ -2,9 +2,13 @@ const data = require('./data');
 
 const monsterSprite = function(type, size = 64) {
     const skin = data.skins[type];
+    if(!skin.dimensions) {
+        skin.dimensions = [ 0, 0 ];
+        skin.rdimensions = [ 0, 0 ];
+    }
 
-    let width = skin.dimensions[2]
-    let height = skin.dimensions[3]
+    let width = skin.dimensions[2];
+    let height = skin.dimensions[3];
     let shOffset = 0;
     let svOffset = 0;
 
@@ -35,7 +39,7 @@ const monsterSprite = function(type, size = 64) {
 const itemSprite = function(item, size = 64) {
     const itemInfo = data.items[item];
 
-    const positions = data.positions[itemInfo.skin];
+    const positions = data.positions[itemInfo.skin] || data.positions["test"];
 
     const itemsetName = positions[0] || "pack_1a";
     const x = positions[1];
@@ -55,7 +59,7 @@ const itemSprite = function(item, size = 64) {
     const url = `http://adventure.land${itemSet.file}`;
     const position = `${hOffset}px ${vOffset}px`;
     return `background: url(${url}) ${position}; min-width: ${iconSize}px; min-height: ${iconSize}px; transform: scale(${scale});`;
-}
+};
 
 exports.monster = monsterSprite;
 exports.item = itemSprite;
