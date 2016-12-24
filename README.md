@@ -79,7 +79,7 @@ function drop_handler(drop) {
 }
 
 let LOG_GOLD_REGEX = /^(\d+) gold$/;
-let LOG_ITEM_REGEX = /^(\w+) found an? (.*)$/;
+let LOG_ITEM_REGEX = /(\w*)\s*[Ff]ound an? (.*)$/;
 function log_handler(log) {
     if (!tracked_drops || tracked_drops.finished || tracked_drops.time + DROP_TIMEOUT < Date.now()) {
         tracked_drops = { gold: 0, items: [], time: Date.now(), finished: false };
