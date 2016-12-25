@@ -9,7 +9,7 @@ const listDropsQuery = fs.readFileSync(__dirname + '/queries/droprate.sql', 'utf
 
 db.exec(createQuery);
 
-const dropStatement = db.prepare('INSERT INTO drops VALUES (null, ?, ?, ?, ?, ?, ?, ?)');
+const dropStatement = db.prepare('INSERT INTO drops (id, type, monster, map, gold, items, player, userkey, time) VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)');
 const itemStatement = db.prepare('INSERT INTO items VALUES (null, ?, ?)');
 const upgradeStatement = db.prepare('INSERT INTO upgrades VALUES (null, ?, ?, ?, ?, ?, ?, ?)');
 const listDropsStatement = db.prepare(listDropsQuery);
@@ -36,6 +36,7 @@ const addDrop = function(dropData) {
             dropData.map,
             dropData.gold,
             dropData.items.length,
+            dropData.player,
             dropData.key,
             time,
 
@@ -125,7 +126,31 @@ const getGoldTable = function() {
     });
 };
 
+const getContribTable = function() {
+    return new Promise((res) => {
+        runCommand((cmdRes) => {
+            let playerContribQuery = `SELECT monster, COUNT(*) AS kills, player FROM drops GROUP BY monster, player ORDER BY monster, kills DESC`;
+
+            db.prepare(playerContribQuery).all((err, rows) => {
+                cmdRes();
+
+                const contribs = new Map();
+                for (let row of rows) {
+                    let monster = row.monster;
+                    if (!contribs.has(monster)) {
+                        contribs.set(monster, []);
+                    }
+                    contribs.get(monster).push({ kills : row.kills, player : row.player });
+                }
+
+                res(contribs);
+            });
+        });
+    });
+};
+
 exports.addDrop = addDrop;
 exports.addUpgrade = addUpgrade;
 exports.getDropTable = getDropTable;
 exports.getGoldTable = getGoldTable;
+exports.getContribTable = getContribTable;

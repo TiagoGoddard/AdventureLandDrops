@@ -1,3 +1,4 @@
+/* eslint indent: 0 */
 (function() {
 let DROP_SERVER = 'http://adventurecode.club:13726';
 let DROP_SERVER2 = window.aldc_second_server;
@@ -116,6 +117,7 @@ function chest_handler(chest) {
     }
 
     let payload = {
+        player: character.name,
         type: chest_data.type,
         monster: chest_data.monster,
         map: chest_data.map,
