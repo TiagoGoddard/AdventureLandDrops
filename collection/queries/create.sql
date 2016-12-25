@@ -7,8 +7,7 @@ CREATE TABLE IF NOT EXISTS drops (
     items INTEGER NOT NULL,
     player TEXT NOT NULL,
     userkey INTEGER NOT NULL,
-    time DATETIME NOT NULL,
-    player TEXT DEFAULT '__unknown'
+    time DATETIME NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS monster_idx ON drops(monster);
