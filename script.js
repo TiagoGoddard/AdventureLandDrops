@@ -89,7 +89,7 @@ function log_handler(log) {
 
         let gold = Number(gold_info[1]);
         // PS: parent.party_list.length can become corrupted!
-        tracked_drops.gold = (gold / character.goldm) * (character.party ? parent.party_list : 1);
+        tracked_drops.gold = (gold / character.goldm) * (character.party ? parent.party_list.length : 1);
         tracked_drops.finished = true;
     } else if (log.color == '#4BAEAA') {
         let drop_info = LOG_ITEM_REGEX.exec(log.message);
