@@ -14,9 +14,9 @@ server.connection({ port: 8081 });
 const defaultContext = {
     formatNumber(number, precision = 0) {
         if(number){
-          return number.toLocaleString('en-US', { maximumFractionDigits: precision });
+            return number.toLocaleString('en-US', { maximumFractionDigits: precision });
         } else {
-          return 0;
+            return 0;
         }
     }
 };
@@ -39,6 +39,22 @@ server.register(Vision, (err) => {
 
     server.route({ method: 'GET', path: '/items', handler: routes.items });
     server.route({ method: 'GET', path: '/items/{item}', handler: routes.item });
+
+    server.route({
+        method: 'GET',
+        path: '/script',
+        handler: {
+            file: "script.js"
+        }
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/upgradescript',
+        handler: {
+            file: "upgrade.js"
+        }
+    });
 });
 
 server.register(Inert, (err) => {

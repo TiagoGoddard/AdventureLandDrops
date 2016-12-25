@@ -58,4 +58,4 @@ module.exports.start = function() {
     fs.watch(__dirname + '/keys.json', { persistent: false }, () => {
         keys = JSON.parse(fs.readFileSync(keyFile, 'utf-8'));
     });
-}
+};
