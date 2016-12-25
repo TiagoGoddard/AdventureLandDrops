@@ -30,6 +30,12 @@ block content
     .vmargin.border
         .info Average Gold: #[span.gray=formatNumber(avggold)]
         .info Tracked Kills: #[span.gray=formatNumber(kills)]
+        - let unknown = 0
+        each contrib in contribs
+            if !contrib.player || contrib.player == '__unknown'
+                - unknown += contrib.kills
+
+        .info.gray.small Unknown Kills: #[span.gray.small=formatNumber(unknown)]
 
     if drops.length
         .vmargin.border
@@ -73,6 +79,7 @@ block content
                     td.dashed(colspan=5)
                 tbody.list
                     each contrib in contribs
-                        tr
-                            td #{contrib.player}
-                            td #{contrib.kills}
+                        if contrib.player && contrib.player != '__unknown'
+                            tr
+                                td #{contrib.player}
+                                td #{contrib.kills}

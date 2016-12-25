@@ -182,3 +182,7 @@ th {
 .box {
     width: 120px;
 }
+
+.small {
+    font-size: 12px;
+}
