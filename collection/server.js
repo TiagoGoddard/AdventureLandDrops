@@ -10,7 +10,7 @@ const server = new Hapi.Server({
     debug: { request: ['error'] }
 });
 
-server.connection({ port: 25326, routes: { cors: true }});
+server.connection({ port: 13726, routes: { cors: true }});
 
 const itemTypeByName = {};
 for (let itemType of Object.keys(data.items)) {
@@ -58,4 +58,4 @@ module.exports.start = function() {
     fs.watch(__dirname + '/keys.json', { persistent: false }, () => {
         keys = JSON.parse(fs.readFileSync(keyFile, 'utf-8'));
     });
-}
+};

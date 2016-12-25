@@ -2,7 +2,7 @@
 AdventureLand server side code from: https://gitlab.com/Draivin/adventure-drops/tree/master
 
 ## Adventure Land CODE to contribute drop rates
-[Available here](script.js)
+[Javascript code to contribute available here](script.js)
 
 # To update and configure server
 

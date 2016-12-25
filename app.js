@@ -14,9 +14,9 @@ server.connection({ port: 8081 });
 const defaultContext = {
     formatNumber(number, precision = 0) {
         if(number){
-          return number.toLocaleString('en-US', { maximumFractionDigits: precision });
+            return number.toLocaleString('en-US', { maximumFractionDigits: precision });
         } else {
-          return 0;
+            return 0;
         }
     }
 };
