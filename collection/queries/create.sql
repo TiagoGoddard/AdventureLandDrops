@@ -35,3 +35,8 @@ CREATE TABLE IF NOT EXISTS upgrades (
 );
 
 CREATE INDEX IF NOT EXISTS level_idx on upgrades(level);
+
+ALTER TABLE drops ADD player TEXT DEFAULT '__unknown';
+
+CREATE INDEX IF NOT EXISTS player_idx ON drops(player);
+CREATE INDEX IF NOT EXISTS player_monster_idx ON drops(player, monster);
