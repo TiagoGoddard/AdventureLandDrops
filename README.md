@@ -6,7 +6,7 @@ Contribute your drop collection to the http://adventurecode.club/ database.
 Auto updated code:
 ```javacript
 window.aldc_apikey = 'API_KEY'; // Replace API_KEY with your API key => Ask me for one, on discord, PM or email
-$.getScript('http://adventurecode.club/script'+(new Date).getTime(), function() {
+$.getScript('http://adventurecode.club/script?t='+(new Date).getTime(), function() {
 	game_log('Thank you for contributing your data!', '#FFFF00');
 });
 ```
