@@ -85,7 +85,9 @@ function log_handler(log) {
     if (log.color == 'gold') {
         let gold_info = LOG_GOLD_REGEX.exec(log.message);
         if (!gold_info) return;
-        tracked_drops.gold = Number(gold_info[1]) * (parent.party_list.length || 1);
+
+        let gold = Number(gold_info[1]);
+        tracked_drops.gold = (gold / character.goldm) * (parent.party_list.length || 1);
         tracked_drops.finished = true;
     } else if (log.color == '#4BAEAA') {
         let drop_info = LOG_ITEM_REGEX.exec(log.message);
