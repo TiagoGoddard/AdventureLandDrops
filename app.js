@@ -47,6 +47,14 @@ server.register(Vision, (err) => {
             file: "script.js"
         }
     });
+
+    server.route({
+        method: 'GET',
+        path: '/upgradescript',
+        handler: {
+            file: "upgrade.js"
+        }
+    });
 });
 
 server.register(Inert, (err) => {
