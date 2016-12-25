@@ -7,12 +7,15 @@ CREATE TABLE IF NOT EXISTS drops (
     items INTEGER NOT NULL,
     player TEXT NOT NULL,
     userkey INTEGER NOT NULL,
-    time DATETIME NOT NULL
+    time DATETIME NOT NULL,
+    player TEXT DEFAULT '__unknown'
 );
 
 CREATE INDEX IF NOT EXISTS monster_idx ON drops(monster);
 CREATE INDEX IF NOT EXISTS monster_map_idx ON drops(monster, map);
 CREATE INDEX IF NOT EXISTS time_idx ON drops(time);
+CREATE INDEX IF NOT EXISTS player_idx ON drops(player);
+CREATE INDEX IF NOT EXISTS player_monster_idx ON drops(player, monster);
 
 CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY,
@@ -35,8 +38,3 @@ CREATE TABLE IF NOT EXISTS upgrades (
 );
 
 CREATE INDEX IF NOT EXISTS level_idx on upgrades(level);
-
---ALTER TABLE drops ADD player TEXT DEFAULT '__unknown';
-
-CREATE INDEX IF NOT EXISTS player_idx ON drops(player);
-CREATE INDEX IF NOT EXISTS player_monster_idx ON drops(player, monster);
