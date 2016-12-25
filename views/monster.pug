@@ -61,3 +61,18 @@ block content
             };
             var list = new List('drops', options);
             list.sort('name', { order: 'asc'});
+
+    if contribs.length
+        .vmargin.border
+            table.contrib#contrib
+                thead
+                    tr
+                        th.scaling  Player
+                        th Amount
+                tr
+                    td.dashed(colspan=5)
+                tbody.list
+                    each contrib in contribs
+                        tr
+                            td #{contrib.player}
+                            td #{contrib.kills}

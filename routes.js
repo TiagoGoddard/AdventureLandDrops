@@ -47,6 +47,7 @@ const itemsHandler = function (request, reply) {
 let dropTable = new Map();
 let monsterGoldTable = new Map();
 let reverseDropTable = new Map();
+let contribTable = new Map();
 
 const monsterHandler = function (request, reply) {
     const monsterType = request.params.monster;
@@ -64,6 +65,7 @@ const monsterHandler = function (request, reply) {
         drops: dropTable.get(monsterType) || [],
         avggold : mgt ? mgt.avggold : 0,
         kills : mgt ? mgt.kills : 0,
+        contribs : contribTable.get(monsterType) || [],
         sprites
     });
 };
@@ -117,6 +119,10 @@ function updateDropTable() {
 
     collection.db.getGoldTable().then((table) => {
         monsterGoldTable = table;
+    });
+
+    collection.db.getContribTable().then((table) => {
+        contribTable = table;
     });
 }
 

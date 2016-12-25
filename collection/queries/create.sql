@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS drops (
     map TEXT NOT NULL,
     gold INTEGER NOT NULL,
     items INTEGER NOT NULL,
+    player TEXT NOT NULL,
     userkey INTEGER NOT NULL,
     time DATETIME NOT NULL
 );
