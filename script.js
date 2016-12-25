@@ -1,9 +1,10 @@
 (function() {
 let DROP_SERVER = 'http://adventurecode.club:13726';
-let DROP_SERVER2 = window.al.second_server;
+let DROP_SERVER2 = window.aldc_second_server;
+let DROP_SERVER2_USE = window.aldc_second_use;
 let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
-let DROP_API_KEY = window.al.apikey; // Ask me for one, on discord, PM or email
+let DROP_API_KEY = window.aldc_apikey; // Ask me for one, on discord, PM or email
 let tracked_entities = [];
 let tracked_chests = {};
 let tracked_drops = null;
@@ -128,7 +129,7 @@ function chest_handler(chest) {
         body: data
     }).catch(() => {});
 
-    if(window.al.second_server) {
+    if(DROP_SERVER2_USE) {
         fetch(`${DROP_SERVER2}/drop`, {
             method: 'POST',
             body: data
