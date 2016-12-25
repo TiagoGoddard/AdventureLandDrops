@@ -4,7 +4,7 @@ let DROP_SERVER2 = window.aldc_second_server;
 let DROP_SERVER2_USE = window.aldc_second_use;
 let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
-let DROP_API_KEY = window.aldc_apikey; // Ask me for one, on discord, PM or email
+let DROP_API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
 let tracked_entities = [];
 let tracked_chests = {};
 let tracked_drops = null;
