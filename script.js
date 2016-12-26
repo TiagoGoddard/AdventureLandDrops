@@ -7,6 +7,7 @@ let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
 let DROP_API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
 let tracked_entities = [];
+let tracked_entities_times = {};
 let tracked_chests = {};
 let tracked_drops = null;
 
@@ -23,14 +24,19 @@ function register_handler(event, handler) {
     parent.socket.on(event, handler);
 }
 
+// death -> log "xx killed yy" -> drop
+
 function death_handler(data) {
+    if(!parent) return;
     let entity = parent.entities[data.id];
     if (!entity) return;
 
     let entity_data = {
         x: entity.real_x,
         y: entity.real_y,
-        type: entity.mtype
+        type: entity.mtype,
+        seen: Date.now(),
+        ours: false
     };
 
     tracked_entities.push(entity_data);
@@ -44,6 +50,7 @@ function death_handler(data) {
 }
 
 function drop_handler(drop) {
+    if(!parent) return;
     let min_distance = Infinity;
     let best_entity = null;
 
@@ -55,7 +62,7 @@ function drop_handler(drop) {
         }
     }
 
-    if (min_distance > 8) return;
+    if (min_distance > 8 || !best_entity.ours) return;
 
     let index = tracked_entities.indexOf(best_entity);
     tracked_entities.splice(index, 1);
@@ -76,9 +83,15 @@ function drop_handler(drop) {
     }, TRACKING_TIMEOUT);
 }
 
+let LOG_KILL_REGEX = /^(\w*) killed an? (.*)$/;
 let LOG_GOLD_REGEX = /^(\d+) gold$/;
 let LOG_ITEM_REGEX = /(\w*)\s*[Ff]ound an? (.*)$/;
 function log_handler(log) {
+    if(!parent) return;
+    if (typeof log == "string") {
+        determineResponsibility(log);
+    }
+
     if (!tracked_drops || tracked_drops.finished || tracked_drops.time + DROP_TIMEOUT < Date.now()) {
         tracked_drops = { gold: 0, items: [], time: Date.now(), finished: false };
     }
@@ -88,8 +101,7 @@ function log_handler(log) {
         if (!gold_info) return;
 
         let gold = Number(gold_info[1]);
-        // PS: parent.party_list.length can become corrupted!
-        tracked_drops.gold = (gold / character.goldm) * (character.party ? parent.party_list.length : 1);
+        tracked_drops.gold = (gold / character.goldm);
         tracked_drops.finished = true;
     } else if (log.color == '#4BAEAA') {
         let drop_info = LOG_ITEM_REGEX.exec(log.message);
@@ -99,14 +111,29 @@ function log_handler(log) {
     }
 }
 
+function determineResponsibility(logMessage) {
+    let kill_info = LOG_KILL_REGEX.exec(logMessage);
+    if(kill_info) {
+        let now = Date.now();
+        let ours = kill_info[1] == character.name || logMessage.startsWith("You killed ");
+        if(ours)                {
+            for(let entity_data of tracked_entities) {
+                if(Math.abs(now - entity_data.seen) < 10) {
+                    entity_data.ours = true;
+                }
+            }
+        }
+    }
+}
+
 function chest_handler(chest) {
+    if(!parent) return;
     if (!tracked_drops || tracked_drops.time + DROP_TIMEOUT < Date.now()) {
         tracked_drops = null;
         return;
     }
 
     if (!tracked_drops.finished) return;
-    if (character.party && character.party != character.name) return;
 
     let chest_data = tracked_chests[chest.id];
     if (!chest_data) return;
@@ -118,6 +145,7 @@ function chest_handler(chest) {
 
     let payload = {
         player: character.name,
+        members: (character.party ? parent.party_list.length : 1),
         type: chest_data.type,
         monster: chest_data.monster,
         map: chest_data.map,
@@ -125,6 +153,8 @@ function chest_handler(chest) {
         items: tracked_drops.items,
         key: DROP_API_KEY,
     };
+
+    console.log(`Reporting kill of ${chest_data.monster} by ${character.name} for ${tracked_drops.gold} and ${tracked_drops.items} items`);
 
     let data = new FormData();
     data.append('json', JSON.stringify(payload));
