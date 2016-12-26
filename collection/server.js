@@ -1,10 +1,12 @@
 const fs = require('fs');
 const Hapi = require('hapi');
+const Request = require('request');
 const data = require('../data');
 const db = require('./db');
 
 const keyFile = __dirname + '/keys.json';
 let keys = require(keyFile);
+let SCRIPT_VERSION = -1;
 
 const server = new Hapi.Server({
     debug: { request: ['error'] }
@@ -26,6 +28,7 @@ server.route({
         const dropData = JSON.parse(request.payload.json);
 
         if (!keys.includes(dropData.key)) return reply().code(403);
+        if (SCRIPT_VERSION != dropData.version) return reply().code(426);
 
         dropData.items = dropData.items.map(name => itemTypeByName[name]);
         const dataValid = dropData.items.every(name => name != null);
@@ -48,6 +51,16 @@ server.route({
         db.addUpgrade(upgradeData);
     }
 });
+
+function checkVersionNumber() {
+    Request('https://raw.githubusercontent.com/TiagoGoddard/AdventureLandDrops/master/script_version',
+    function(err, resp, body) {
+        SCRIPT_VERSION = body;
+        console.log("SCRIPT_VERSION refreshed to " + SCRIPT_VERSION);
+    });
+}
+checkVersionNumber();
+setInterval(checkVersionNumber, 1000 * 60);
 
 module.exports.start = function() {
     server.start((err) => {

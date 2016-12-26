@@ -6,8 +6,9 @@ let DROP_SERVER2_USE = window.aldc_second_use;
 let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
 let DROP_API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
+let SCRIPT_VERSION = 1;
+
 let tracked_entities = [];
-let tracked_entities_times = {};
 let tracked_chests = {};
 let tracked_drops = null;
 
@@ -152,9 +153,10 @@ function chest_handler(chest) {
         gold: tracked_drops.gold,
         items: tracked_drops.items,
         key: DROP_API_KEY,
+        version: SCRIPT_VERSION
     };
 
-    console.log(`Reporting kill of ${chest_data.monster} by ${character.name} for ${tracked_drops.gold} and ${tracked_drops.items} items`);
+    console.log(`Reporting kill of ${chest_data.monster} by ${character.name} for ${tracked_drops.gold} and ${tracked_drops.items} items (v${SCRIPT_VERSION})`);
 
     let data = new FormData();
     data.append('json', JSON.stringify(payload));
@@ -162,16 +164,29 @@ function chest_handler(chest) {
     fetch(`${DROP_SERVER}/drop`, {
         method: 'POST',
         body: data
-    }).catch(() => {});
+    })
+    .then((response) => handleDropServerResponse(response))
+    .catch(() => {});
 
     if(DROP_SERVER2_USE) {
         fetch(`${DROP_SERVER2}/drop`, {
             method: 'POST',
             body: data
-        }).catch(() => {});
+        })
+        .then((response) => handleDropServerResponse(response))
+        .catch(() => {});
     }
 
     tracked_drops = null;
+}
+
+function handleDropServerResponse(response) {
+    if(response.status == 403) { //api key
+        console.error("DROP DATA COLLECTION : The API key provided is not recongized.");
+    }
+    else if(response.status == 426) { // upgrade
+        console.error("DROP DATA COLLECTION : There is a newer version of the script available, reload the external script!");
+    }
 }
 
 register_handler('death', death_handler);
