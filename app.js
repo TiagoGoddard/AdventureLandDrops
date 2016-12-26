@@ -1,6 +1,7 @@
 const Hapi = require('hapi');
 const Vision = require('vision');
 const Inert = require('inert');
+const Request = require('request');
 
 const routes = require('./routes');
 const collection = require('./collection');
@@ -42,11 +43,27 @@ server.register(Vision, (err) => {
 
     server.route({
         method: 'GET',
-        path: '/script',
+        path: '/scriptlocal',
         handler: {
             file: "script.js"
         }
     });
+
+    server.route({
+        method: 'GET',
+        path: '/script',
+        handler: function (request, reply) {
+            reply(
+                new Promise((res) => {
+                    Request('https://raw.githubusercontent.com/TiagoGoddard/AdventureLandDrops/master/script.js',
+                    function(err, resp, body) { res(body); });
+                })
+            )
+            .type('script/javascript');
+        }
+    });
+
+
 
     server.route({
         method: 'GET',
