@@ -6,7 +6,7 @@ let DROP_SERVER2_USE = window.aldc_second_use;
 let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
 let DROP_API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
-let SCRIPT_VERSION = 1;
+let SCRIPT_VERSION = 2;
 
 let tracked_entities = [];
 let tracked_chests = {};
@@ -84,7 +84,7 @@ function drop_handler(drop) {
     }, TRACKING_TIMEOUT);
 }
 
-let LOG_KILL_REGEX = /^(\w*) killed an? (.*)$/;
+let LOG_KILL_REGEX = /(\w*) killed /; // If monster name needed:  /^(\w*) killed (?:an? )?(\w*)$/;
 let LOG_GOLD_REGEX = /^(\d+) gold$/;
 let LOG_ITEM_REGEX = /(\w*)\s*[Ff]ound an? (.*)$/;
 function log_handler(log) {
@@ -107,7 +107,7 @@ function log_handler(log) {
     } else if (log.color == '#4BAEAA') {
         let drop_info = LOG_ITEM_REGEX.exec(log.message);
         if (!drop_info) return;
-
+        console.debug("DROPTRAK: " + drop_info[1] + " found " + drop_info[2]);
         tracked_drops.items.push(drop_info[2]);
     }
 }
@@ -156,7 +156,12 @@ function chest_handler(chest) {
         version: SCRIPT_VERSION
     };
 
-    console.log(`Reporting kill of ${chest_data.monster} by ${character.name} for ${tracked_drops.gold} and ${tracked_drops.items} items (v${SCRIPT_VERSION})`);
+    if(tracked_drops.items.length) {
+        console.info(`%cReporting kill of ${chest_data.monster} by ${character.name} for ${Math.round(tracked_drops.gold)} and [${tracked_drops.items}] items (v${SCRIPT_VERSION})`, 'color: green');
+    }
+    else {
+        console.debug(`Reporting kill of ${chest_data.monster} by ${character.name} for ${Math.round(tracked_drops.gold)} and [${tracked_drops.items}] items (v${SCRIPT_VERSION})`);
+    }
 
     let data = new FormData();
     data.append('json', JSON.stringify(payload));
