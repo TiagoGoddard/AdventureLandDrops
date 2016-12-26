@@ -8,6 +8,7 @@ let DROP_TIMEOUT = 500;
 let DROP_API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
 let SCRIPT_VERSION = 2;
 
+let last_error_time = 0;
 let tracked_entities = [];
 let tracked_chests = {};
 let tracked_drops = null;
@@ -163,6 +164,11 @@ function chest_handler(chest) {
         console.debug(`Reporting kill of ${chest_data.monster} by ${character.name} for ${Math.round(tracked_drops.gold)} and [${tracked_drops.items}] items (v${SCRIPT_VERSION})`);
     }
 
+    let seconds_since_last_error = (Date.now() - last_error_time / 1000);
+    if(seconds_since_last_error < 15) {
+        console.debug("Drop data sending paused due to error that occured " + Math.round(seconds_since_last_error) + " seconds ago");
+    }
+    else {
     let data = new FormData();
     data.append('json', JSON.stringify(payload));
 
@@ -181,6 +187,7 @@ function chest_handler(chest) {
         .then((response) => handleDropServerResponse(response))
         .catch(() => {});
     }
+    }
 
     tracked_drops = null;
 }
@@ -188,9 +195,13 @@ function chest_handler(chest) {
 function handleDropServerResponse(response) {
     if(response.status == 403) { //api key
         console.error("DROP DATA COLLECTION : The API key provided is not recongized.");
+        parent.ui_error("DROP DATA COLLECTION : The API key provided is not recongized.");
+        last_error_time = Date.now();
     }
     else if(response.status == 426) { // upgrade
         console.error("DROP DATA COLLECTION : There is a newer version of the script available, reload the external script!");
+        parent.ui_error("DROP DATA COLLECTION : There is a newer version of the script available, reload the external script!");
+        last_error_time = Date.now();
     }
 }
 
