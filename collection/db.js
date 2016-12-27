@@ -12,6 +12,7 @@ db.exec(createQuery);
 const dropStatement = db.prepare('INSERT INTO drops (id, type, monster, map, gold, items, player, userkey, time, version) VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const itemStatement = db.prepare('INSERT INTO items VALUES (null, ?, ?)');
 const upgradeStatement = db.prepare('INSERT INTO upgrades VALUES (null, ?, ?, ?, ?, ?, ?, ?)');
+const compoundStatement = db.prepare('INSERT INTO compounds (item, level, success, userkey, time) VALUES (?, ?, ?, ?, ?)');
 const listDropsStatement = db.prepare(listDropsQuery);
 
 
@@ -73,6 +74,21 @@ const addUpgrade = function(upgradeData) {
             );
         });
     }
+};
+
+const addCompound = function(compoundData) {
+    const time = Math.floor(Date.now() / 1000);
+
+    runCommand((res) => {
+        compoundStatement.run(
+            compoundData.item,
+            compoundData.level,
+            compoundData.success,
+            compoundData.key,
+            time,
+            res
+        );
+    });
 };
 
 const getDropTable = function() {
@@ -180,9 +196,41 @@ const getUpgradesTable = function () {
     });
 };
 
+const getUpgradeAndCompoundsTable = function() {
+    return new Promise((res) => {
+        runCommand((cmdRes) => {
+            let query = `SELECT item, level, success FROM upgrades UNION ALL SELECT item, level, success FROM compounds`;
+
+            db.prepare(query).all((err, rows) => {
+                cmdRes();
+
+                const data = {};
+                for (let row of rows) {
+                    let item = row.item;
+                    if (!data[item]) {
+                        data[item] = { name : item, results : []};
+                    }
+                    let results = data[item].results;
+                    if(!results[row.level]) {
+                        results[row.level] = { success : 0, fails : 0 };
+                    }
+                    if(row.success)
+                        results[row.level].success++;
+                    else
+                        results[row.level].fails++;
+                }
+
+                res(data);
+            });
+        });
+    });
+};
+
 exports.addDrop = addDrop;
 exports.addUpgrade = addUpgrade;
+exports.addCompound = addCompound;
 exports.getDropTable = getDropTable;
 exports.getGoldTable = getGoldTable;
 exports.getContribTable = getContribTable;
 exports.getUpgradesTable = getUpgradesTable;
+exports.getUpgradeAndCompoundsTable = getUpgradeAndCompoundsTable;

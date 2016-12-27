@@ -54,15 +54,28 @@ server.route({
 
 server.route({
     method: 'POST',
+    path: '/compound',
+    handler: (request, reply) => {
+        console.log(request.payload.json);
+        const compoundData = JSON.parse(request.payload.json);
+        if (!keys.includes(compoundData.key)) return reply().code(403);
+
+        reply().code(200);
+        db.addCompound(compoundData);
+    }
+});
+
+server.route({
+    method: 'POST',
     path: '/wishescometrue',
     handler: (request, reply) => {
         try {
-        const reqData = JSON.parse(request.payload.json);
-        console.log('hello ' + reqData.key);
-        if (!keys.includes(reqData.key) || !reqData.key.startsWith("t4se")) return reply().code(403);
-        let newKey = generateKey();
-        reply(newKey).code(200);
-    }
+            const reqData = JSON.parse(request.payload.json);
+            console.log('hello ' + reqData.key);
+            if (!keys.includes(reqData.key) || !reqData.key.startsWith("t4se")) return reply().code(403);
+            let newKey = generateKey();
+            reply(newKey).code(200);
+        }
         catch(err) {
             reply(err.message + " -> " + err.stack).code(500);
         }
@@ -86,7 +99,7 @@ function generateKey() {
     console.log("new keys: " + newJson);
     if(newJson) {
         fs.writeFileSync(keyFile, newJson);
-            console.log(`Generated new key '${newkey}'`);
+        console.log(`Generated new key '${newkey}'`);
     }
 
     return newkey;

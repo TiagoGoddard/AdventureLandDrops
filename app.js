@@ -65,13 +65,19 @@ server.register(Vision, (err) => {
         }
     });
 
-
-
     server.route({
         method: 'GET',
         path: '/upgradescript',
         handler: {
             file: "upgrade.js"
+        }
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/compoundscript',
+        handler: {
+            file: "compounder.js"
         }
     });
 });
