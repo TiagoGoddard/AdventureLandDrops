@@ -55,32 +55,26 @@ parent.compoundit = (function() {
         if(!parent) return;
         if (data &&
             (data.message == 'Item upgrade succeeded' || data.message == 'Item combination succeeded')) {
-
-            report_result('success');
-
-            startitem.level++;
-            console.log(startitem.name + " is at " + startitem.level + ", max is " + startitem.max_level);
-
-            if (startitem.level == startitem.max_level) {
-                console.info(`%cAUTOUPGRADE: Upgraded ${startitem.name} to +${startitem.max_level} successfully!`, 'color: green');
+            if(startitem) {
+                report_result('success');
+                startitem.level++;
+                console.info(`%cAUTOUPGRADE: Upgraded ${startitem.name} to +${startitem.level} successfully!`, 'color: green');
+                startitem = undefined;
             }
-            else {
-                console.info(`%cAUTOUPGRADE: Upgraded ${startitem.name} from ${startitem.level-1} to +${startitem.level} successfully!`, 'color: green');
-            }
-            startitem = undefined;
             parent.socket.removeListener("game_log", success_listener);
+            parent.socket.removeListener("game_error", failure_listener);
             parent.waiting_for_log = false;
         }
     };
 
     let failure_listener = (data) => {
         if (data == 'Item upgrade failed' || data == 'Item combination failed') {
-
-            report_result('failed');
-
-            console.info(`%cItem upgrade failed going from +${startitem.level} to +${startitem.level + 1}`, 'color: red');
-
-            startitem = undefined;
+            if(startitem) {
+                report_result('failed');
+                console.info(`%cItem upgrade failed going from +${startitem.level} to +${startitem.level + 1}`, 'color: red');
+                startitem = undefined;
+            }
+            parent.socket.removeListener("game_log", success_listener);
             parent.socket.removeListener("game_error", failure_listener);
             parent.waiting_for_log = false;
         }
