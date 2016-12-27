@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS drops (
     items INTEGER NOT NULL,
     player TEXT NOT NULL,
     userkey INTEGER NOT NULL,
+    version INTEGER NOT NULL,
     time DATETIME NOT NULL
 );
 
