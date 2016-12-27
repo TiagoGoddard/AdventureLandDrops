@@ -186,3 +186,7 @@ th {
 .small {
     font-size: 12px;
 }
+
+hr {
+    border: 1px dashed gray;
+}

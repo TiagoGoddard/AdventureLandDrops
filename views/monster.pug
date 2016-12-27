@@ -27,6 +27,15 @@ block content
                     .info Attack Speed: #[span.gray=formatNumber(monster.frequency)]
                     .info Damage Type: #[span.gray=monster.damage_type]
                     .info Monster Type: #[span.gray=type]
+            hr
+            .horizontal-flex
+                .column
+                    .info Armor: #[span.gray=formatNumber(monster.rpiercing)]
+                    .info Resistance: #[span.gray=formatNumber(monster.resistance)]
+                    .info Evasion: #[span.gray=formatNumber(monster.evasion)]
+                .column
+                    .info Reflect: #[span.gray=formatNumber(monster.reflection)]
+                    .info Damage Return: #[span.gray=formatNumber(monster.dreturn)]
     .vmargin.border
         .info Average Gold: #[span.gray=formatNumber(avggold)]
         .info Tracked Kills: #[span.gray=formatNumber(kills)]
