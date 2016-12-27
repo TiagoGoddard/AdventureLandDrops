@@ -48,6 +48,7 @@ let dropTable = new Map();
 let monsterGoldTable = new Map();
 let reverseDropTable = new Map();
 let contribTable = new Map();
+let upgradeTable = {};
 
 const monsterHandler = function (request, reply) {
     const monsterType = request.params.monster;
@@ -80,68 +81,20 @@ const itemHandler = function (request, reply) {
 
     collection.db.getUpgradeInfo(itemType)
     .then((table) => {
-    reply.view('item', {
-        item: itemData,
-        type: itemType,
-        dropped: reverseDropTable.get(itemType) || [],
+        reply.view('item', {
+            item: itemData,
+            type: itemType,
+            dropped: reverseDropTable.get(itemType) || [],
             upgrades: table,
-        sprites
-    });
+            sprites
+        });
     });
 };
 
 const upgradesHandler = function(request, reply) {
-    collection.db.getUpgradeAndCompoundsTable()
-    .then((table) => {
-
-        let group_types = ['Weapons','Armor','Accessories', 'Misc'];
-        let slot_grouping = {
-            weapon: 'Weapons',
-            quiver: 'Weapons',
-            shield: 'Weapons',
-
-            helmet: 'Armor',
-            chest : 'Armor',
-            pants : 'Armor',
-            gloves: 'Armor',
-            shoes : 'Armor',
-            cape:   'Armor',
-
-            amulet: 'Accessories',
-            ring :  'Accessories',
-            earring:'Accessories',
-            tome :  'Accessories'
-        };
-        let misc_group = 'Misc';
-
-        let upgradeData = {
-            'Weapons' : { max_level : 10, data : [] },
-            'Armor' : { max_level : 10, data : [] },
-            'Accessories' : { max_level : 5, data : [] },
-            'Misc' : { max_level : 10, data : [] },
-        };
-
-        for(let key in table) {
-            let upgrade_info = table[key];
-            let item = data.items[upgrade_info.name];
-            let group_type = slot_grouping[item.type] ? slot_grouping[item.type] : misc_group;
-
-            let new_info = {
-                name : item.name,
-                item : upgrade_info.name,
-                group : group_type,
-                results : []
-            };
-
-            for(let level in upgrade_info.results) {
-                new_info.results[level] = upgrade_info.results[level];
-            }
-            upgradeData[group_type].data.push(new_info);
-        }
-        reply.view('upgrades', {
-            upgrades: upgradeData,
-            sprites
-        });
+    reply.view('upgrades', {
+        upgrades: upgradeTable,
+        sprites
     });
 };
 
@@ -185,8 +138,63 @@ function updateDropTable() {
     });
 }
 
+function updateUpgradeTable() {
+    collection.db.getUpgradeAndCompoundsTable()
+    .then((table) => {
+
+        let upgradeData = {
+            'Weapons' : {
+                types : ['weapon', 'quiver', 'shield'],
+                max_level : 10,
+                data : []
+            },
+            'Armor' : {
+                types : ['helmet', 'chest', 'pants', 'gloves', 'shoes', 'cape'],
+                max_level : 10,
+                data : []
+            },
+            'Accessories' : {
+                types : ['amulet', 'ring', 'earring', 'tome'],
+                max_level : 5,
+                data : []
+            },
+            'Misc' : {
+                types : [],
+                max_level : 10,
+                data : []
+            },
+        };
+
+        for(let key in table) {
+            let upgrade_info = table[key];
+            let item = data.items[upgrade_info.name];
+
+            let group_type = 'Misc';
+            for(let group in upgradeData) {
+                if(upgradeData[group].types.indexOf(item.type) > -1)
+                    group_type = group;
+            }
+
+            let new_info = {
+                name : item.name,
+                item : upgrade_info.name,
+                results : []
+            };
+
+            for(let level in upgrade_info.results) {
+                new_info.results[level] = upgrade_info.results[level];
+            }
+            upgradeData[group_type].data.push(new_info);
+        }
+
+        upgradeTable = upgradeData;
+    });
+}
+
 setInterval(updateDropTable, 1000 * 60 * 10);
+setInterval(updateUpgradeTable, 1000 * 60);
 updateDropTable();
+updateUpgradeTable();
 
 exports.root = rootHandler;
 
