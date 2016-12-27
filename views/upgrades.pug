@@ -35,6 +35,8 @@ block content
                                     while lvl <= group.max_level
                                         - var result = item.results[(lvl++)-1]
                                         if result
-                                            td.info.align-center #{Math.round((result.success / (result.success + result.fails)) * 100)}% <br/> (#{result.success}/#{result.success + result.fails})
+                                            td.info.align-center #{Math.round((result.success / (result.success + result.fails)) * 100)}%
+                                            br
+                                            span.gray (#{result.success}/#{result.success + result.fails})
                                         else
                                             td.info.align-center N/A
