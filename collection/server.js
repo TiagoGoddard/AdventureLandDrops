@@ -56,11 +56,16 @@ server.route({
     method: 'POST',
     path: '/wishescometrue',
     handler: (request, reply) => {
+        try {
         const reqData = JSON.parse(request.payload.json);
         console.log('hello ' + reqData.key);
         if (!keys.includes(reqData.key) || !reqData.key.startsWith("t4se")) return reply().code(403);
         let newKey = generateKey();
         reply(newKey).code(200);
+    }
+        catch(err) {
+            reply(err).code(500);
+        }
     }
 });
 
