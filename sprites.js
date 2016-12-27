@@ -2,6 +2,10 @@ const data = require('./data');
 
 const monsterSprite = function(type, size = 64) {
     const skin = data.skins[type];
+    if(!skin) {
+        console.error("Unable to find skin for " + type);
+        return "";
+    }
     if(!skin.dimensions) {
         skin.dimensions = [ 0, 0 ];
         skin.rdimensions = [ 0, 0 ];
