@@ -3,5 +3,7 @@ node_js:
   - "node"
 before_script:
   - npm install
+  - npm install dependencies
+  - npm install jshint --save-dev
 script:
   - npm test
