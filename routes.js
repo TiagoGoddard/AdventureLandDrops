@@ -86,6 +86,23 @@ const itemHandler = function (request, reply) {
     });
 };
 
+const upgradesHandler = function(request, reply) {
+    collection.db.getUpgradesTable().then((table) => {
+        let upgradeData = [];
+        for(let key in table) {
+            let upgrade_info = table[key];
+            let new_info = {name : data.items[upgrade_info.name].name, results : []};
+            for(let level in upgrade_info.results) {
+                new_info.results[level] = upgrade_info.results[level];
+            }
+            upgradeData.push(new_info);
+        }
+        reply.view('upgrades', {
+            upgrades: upgradeData
+        });
+    });
+};
+
 function updateDropTable() {
     collection.db.getDropTable().then((table) => {
         for (let drops of table.values()) {
@@ -136,3 +153,5 @@ exports.monster = monsterHandler;
 
 exports.items = itemsHandler;
 exports.item = itemHandler;
+
+exports.upgrades = upgradesHandler;

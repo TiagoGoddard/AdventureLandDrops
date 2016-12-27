@@ -150,8 +150,39 @@ const getContribTable = function() {
     });
 };
 
+const getUpgradesTable = function () {
+    return new Promise((res) => {
+        runCommand((cmdRes) => {
+            let upgradesQuery = `SELECT * FROM upgrades ORDER BY item`;
+
+            db.prepare(upgradesQuery).all((err, rows) => {
+                cmdRes();
+
+                const upgrades = {};
+                for (let row of rows) {
+                    let item = row.item;
+                    if (!upgrades[item]) {
+                        upgrades[item] = { name : item, results : []};
+                    }
+                    let results = upgrades[item].results;
+                    if(!results[row.level]) {
+                        results[row.level] = { success : 0, fails : 0 };
+                    }
+                    if(row.success)
+                        results[row.level].success++;
+                    else
+                        results[row.level].fails++;
+                }
+
+                res(upgrades);
+            });
+        });
+    });
+};
+
 exports.addDrop = addDrop;
 exports.addUpgrade = addUpgrade;
 exports.getDropTable = getDropTable;
 exports.getGoldTable = getGoldTable;
 exports.getContribTable = getContribTable;
+exports.getUpgradesTable = getUpgradesTable;

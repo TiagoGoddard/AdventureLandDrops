@@ -148,6 +148,14 @@ th {
     width: 40px;
 }
 
+.upgrades td {
+    min-width: 60px;
+    width: 60px;
+}
+.upgrades td:first-child {
+    width: 160px;
+}
+
 .dashed {
     border-bottom: 2px dashed gray;
 }
