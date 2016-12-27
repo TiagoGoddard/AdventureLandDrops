@@ -16,6 +16,12 @@
     "vision": "^4.1.0",
     "request": "^2.79.0"
   },
+  "devDependencies": {
+    "jshint": "^2.6.0"
+  },
+  "scripts": {
+    "test": "./node_modules/jshint/bin/jshint app.js"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/TiagoGoddard/AdventureLandDrops.git"
