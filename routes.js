@@ -133,8 +133,7 @@ const upgradesHandler = function(request, reply) {
             upgradeData[group_type].data.push(new_info);
         }
         reply.view('upgrades', {
-            upgrades: upgradeData,
-            group_types: group_types
+            upgrades: upgradeData
         });
     });
 };

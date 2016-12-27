@@ -14,24 +14,22 @@ block content
             .column.border
                 .subtitle #{group_type}
                 .horizontal-flex
-            table.upgrades
-                thead
-                    tr
-                        th.align-center Item
+                table.upgrades
+                    thead
+                        tr
+                            th.align-center Item
                                 - var lvl = 1;
                                 while lvl <= group.max_level
                                     th.align-center +#{lvl++}
-                tr
-                    td.dashed(colspan=11)
-                tbody.list
-                            each item in group.data
-                        tr
-                            td.info #{item.name}
+                        td.dashed(colspan=11)
+                    tbody.list
+                        each item in group.data
+                            tr
+                                td.info #{item.name}
                                     - var lvl = 1;
                                     while lvl <= group.max_level
                                         - var result = item.results[(lvl++)-1]
-
-                                if result
-                                    td.info.align-center #{Math.round((result.success / (result.success + result.fails)) * 100)}% <br/> (#{result.success}/#{result.success + result.fails})
-                                else
-                                    td.info.align-center N/A
+                                        if result
+                                            td.info.align-center #{Math.round((result.success / (result.success + result.fails)) * 100)}% <br/> (#{result.success}/#{result.success + result.fails})
+                                        else
+                                            td.info.align-center N/A
