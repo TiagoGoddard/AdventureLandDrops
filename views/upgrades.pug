@@ -33,6 +33,6 @@ block content
                                 - var result = item.results[level]
 
                                 if result
-                                    td.info.align-center #{Math.round((result.success / (result.success + result.fails)) * 100)}% <br/> (#{result.success + result.fails})
+                                    td.info.align-center #{Math.round((result.success / (result.success + result.fails)) * 100)}% <br/> (#{result.success}/#{result.success + result.fails})
                                 else
                                     td.info.align-center N/A
