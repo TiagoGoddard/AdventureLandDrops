@@ -81,7 +81,7 @@ function generateKey() {
     console.log("new keys: " + newJson);
     if(newJson) {
         fs.writeFileSync(keyFile, newJson, function (err) {
-            if (err) return console.log(err);
+            if (err) return err;
             console.log(`Generated new key '${newkey}'`);
         });
     }
