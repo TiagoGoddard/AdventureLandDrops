@@ -21,20 +21,7 @@ http://adventure.land/data.js
 
 ## To update skins.json
 ```javascript
-var returnSkin = {};
-Object.keys(parent.G.sprites).forEach(function(key,index) {
-    var sprite = parent.G.sprites[key].matrix;
-    var file = parent.G.sprites[key].file;
-    Object.keys(sprite).forEach(function(mkey,mindex) {
-		var m = sprite[mkey];
-		Object.keys(m).forEach(function(jkey,jindex) {
-			if(m[jkey]) {
-				returnSkin[m[jkey]] = file;
-			}
-		});
-    });
-});
-show_json(returnSkin);
+show_json(parent.FC);
 ```
 
 ## To update dimensions.json
