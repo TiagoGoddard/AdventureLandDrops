@@ -11,8 +11,6 @@ parent.compoundit = (function() {
             console.log("Waiting for log... (parent.waiting_for_log == true)");
         }
         let [slots,items] = find_all_items_namelevel(name, level);
-        if(slots.length > 0 )
-            console.log("AUTOUPGRADE: Found " + slots.length + " of " + name + " of level " + level);
         if(slots.length >= 3) {
             console.info("%cAUTOUPGRADE: Found " + slots.length + " of " + name + " of level " + level, "color : dimgray");
             compoundItems(slots);

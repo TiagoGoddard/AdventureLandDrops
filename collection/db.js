@@ -214,12 +214,11 @@ const getUpgradeAndCompoundsTable = function() {
                     if(!results[row.level]) {
                         results[row.level] = { success : 0, fails : 0 };
                     }
-                    if(row.success)
+                    if(row.success == '1')
                         results[row.level].success++;
                     else
                         results[row.level].fails++;
                 }
-
                 res(data);
             });
         });

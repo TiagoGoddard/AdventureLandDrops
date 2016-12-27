@@ -130,7 +130,8 @@ const upgradesHandler = function(request, reply) {
                 name : item.name,
                 item : upgrade_info.name,
                 group : group_type,
-                results : []};
+                results : []
+            };
 
             for(let level in upgrade_info.results) {
                 new_info.results[level] = upgrade_info.results[level];
