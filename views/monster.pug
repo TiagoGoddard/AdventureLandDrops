@@ -51,7 +51,7 @@ block content
                     td.dashed(colspan=5)
                 tbody.list
                     each drop in drops
-                        if(formatNumber(drop.drops) > 1)
+                        if(drop.drops > 1)
                             tr
                                 td
                                     a(href=`/items/${drop.item}`).sprite-container.small
