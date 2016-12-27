@@ -188,6 +188,26 @@ block content
                             td.count #{formatNumber(drop.drops)} out of #{formatNumber(drop.kills)}
                             td.rate.align-right #{formatNumber(drop.rate, 3)}
 
+    if upgrades.length
+        .vmargin.border
+            table.upgrades#upgrades
+                thead
+                    tr
+                        th
+                        - var lvl = 1;
+                        while lvl <= 10
+                            th.align-center +#{lvl++}
+                    td.dashed(colspan=11)
+                tbody.list
+                    tr
+                        td.info Chance
+                        - var lvl = 1;
+                        while lvl <= 10
+                            - var result = upgrades[(lvl++)-1]
+                            if result
+                                td.info.align-center #{Math.round((result.success / (result.success + result.fails)) * 100)}% <br/> (#{result.success}/#{result.success + result.fails})
+                            else
+                                td.info.align-center N/A
         script.
             var options = {
                 valueNames: ['monster', 'map', 'count', 'rate']

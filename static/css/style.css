@@ -148,11 +148,13 @@ th {
     width: 40px;
 }
 
-.upgrades td {
-    min-width: 60px;
+.upgrades th {
     width: 60px;
 }
-.upgrades td:first-child {
+.upgrades th:first-child {
+    width: 16px;
+}
+.upgrades th:nth-child(2) {
     width: 200px;
 }
 

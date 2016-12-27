@@ -78,11 +78,15 @@ const itemHandler = function (request, reply) {
         return reply().code(404);
     }
 
+    collection.db.getUpgradeInfo(itemType)
+    .then((table) => {
     reply.view('item', {
         item: itemData,
         type: itemType,
         dropped: reverseDropTable.get(itemType) || [],
+            upgrades: table,
         sprites
+    });
     });
 };
 
@@ -124,6 +128,7 @@ const upgradesHandler = function(request, reply) {
 
             let new_info = {
                 name : item.name,
+                item : upgrade_info.name,
                 group : group_type,
                 results : []};
 
@@ -133,7 +138,8 @@ const upgradesHandler = function(request, reply) {
             upgradeData[group_type].data.push(new_info);
         }
         reply.view('upgrades', {
-            upgrades: upgradeData
+            upgrades: upgradeData,
+            sprites
         });
     });
 };

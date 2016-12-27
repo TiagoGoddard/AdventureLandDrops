@@ -226,6 +226,31 @@ const getUpgradeAndCompoundsTable = function() {
     });
 };
 
+const getUpgradeInfo = function(item) {
+    return new Promise((res) => {
+        runCommand((cmdRes) => {
+            let query = `SELECT level, success FROM compounds WHERE item="${item}"`;
+
+            db.prepare(query).all((err, rows) => {
+                cmdRes();
+
+                const results = [];
+                for (let row of rows) {
+
+                    if(!results[row.level]) {
+                        results[row.level] = { success : 0, fails : 0 };
+                    }
+                    if(row.success)
+                        results[row.level].success++;
+                    else
+                        results[row.level].fails++;
+                }
+                res(results);
+            });
+        });
+    });
+};
+
 exports.addDrop = addDrop;
 exports.addUpgrade = addUpgrade;
 exports.addCompound = addCompound;
@@ -234,3 +259,4 @@ exports.getGoldTable = getGoldTable;
 exports.getContribTable = getContribTable;
 exports.getUpgradesTable = getUpgradesTable;
 exports.getUpgradeAndCompoundsTable = getUpgradeAndCompoundsTable;
+exports.getUpgradeInfo = getUpgradeInfo;

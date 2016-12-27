@@ -17,15 +17,20 @@ block content
                 table.upgrades
                     thead
                         tr
+                            th
                             th.align-center Item
-                                - var lvl = 1;
-                                while lvl <= group.max_level
-                                    th.align-center +#{lvl++}
+                            - var lvl = 1;
+                            while lvl <= group.max_level
+                                th.align-center +#{lvl++}
                         td.dashed(colspan=11)
                     tbody.list
                         each item in group.data
                             tr
-                                td.info #{item.name}
+                                td
+                                    a(href=`/items/${item.item}`).sprite-container.small
+                                        div(style=sprites.item(item.item, 32))
+                                td
+                                    a.name(href=`/items/${item.item}`)=item.name
                                     - var lvl = 1;
                                     while lvl <= group.max_level
                                         - var result = item.results[(lvl++)-1]
