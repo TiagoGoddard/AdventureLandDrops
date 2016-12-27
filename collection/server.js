@@ -64,7 +64,7 @@ server.route({
         reply(newKey).code(200);
     }
         catch(err) {
-            reply(err.message).code(500);
+            reply(err.message + " -> " + err.stack).code(500);
         }
     }
 });
