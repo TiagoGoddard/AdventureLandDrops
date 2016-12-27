@@ -87,18 +87,54 @@ const itemHandler = function (request, reply) {
 };
 
 const upgradesHandler = function(request, reply) {
-    collection.db.getUpgradesTable().then((table) => {
-        let upgradeData = [];
+    collection.db.getUpgradeAndCompoundsTable()
+    .then((table) => {
+
+        let group_types = ['Weapons','Armor','Accessories', 'Misc'];
+        let slot_grouping = {
+            weapon: 'Weapons',
+            quiver: 'Weapons',
+            shield: 'Weapons',
+
+            helmet: 'Armor',
+            chest : 'Armor',
+            pants : 'Armor',
+            gloves: 'Armor',
+            shoes : 'Armor',
+            cape:   'Armor',
+
+            amulet: 'Accessories',
+            ring :  'Accessories',
+            earring:'Accessories',
+            tome :  'Accessories'
+        };
+        let misc_group = 'Misc';
+
+        let upgradeData = {
+            'Weapons' : { max_level : 10, data : [] },
+            'Armor' : { max_level : 10, data : [] },
+            'Accessories' : { max_level : 5, data : [] },
+            'Misc' : { max_level : 10, data : [] },
+        };
+
         for(let key in table) {
             let upgrade_info = table[key];
-            let new_info = {name : data.items[upgrade_info.name].name, results : []};
+            let item = data.items[upgrade_info.name];
+            let group_type = slot_grouping[item.type] ? slot_grouping[item.type] : misc_group;
+
+            let new_info = {
+                name : item.name,
+                group : group_type,
+                results : []};
+
             for(let level in upgrade_info.results) {
                 new_info.results[level] = upgrade_info.results[level];
             }
-            upgradeData.push(new_info);
+            upgradeData[group_type].data.push(new_info);
         }
         reply.view('upgrades', {
-            upgrades: upgradeData
+            upgrades: upgradeData,
+            group_types: group_types
         });
     });
 };

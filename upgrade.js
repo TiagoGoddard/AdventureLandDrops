@@ -198,6 +198,6 @@ parent.upgradeit = (function() {
             preemptive_upgrades(item_slot, scrolls.map(([s]) => s), max_level);
         }
     }
-    parent.ui_success("Upgrade script loaded. Use parent.upgradeit in the console.");
+    parent.ui_success("Loaded. Use the upgrade script with parent.upgradeit");
     return upgrade;
 }());
