@@ -270,9 +270,16 @@ const getExchangesTable = function() {
     return new Promise((res) => {
         runCommand((cmdRes) => {
             let query = `
-            SELECT item, result, AVG(amount) AS avg_amount FROM exchanges WHERE result <> 'gold' GROUP BY item, result
-            UNION ALL
-            SELECT item, result, AVG(amount) AS avg_amount FROM exchanges WHERE result == 'gold' GROUP BY item;`;
+                SELECT exchanges.item, exchanges.result, COUNT(*) AS seen, AVG(amount) AS avg_amount, S.total FROM exchanges
+                LEFT OUTER JOIN (SELECT item, COUNT(*) AS total FROM exchanges GROUP BY item) S
+                ON exchanges.item=S.item
+                WHERE exchanges.result <> 'gold' GROUP BY exchanges.item, exchanges.result
+                UNION ALL
+                SELECT exchanges.item, exchanges.result, COUNT(*) AS seen, AVG(amount) AS avg_amount, S.total FROM exchanges
+                LEFT OUTER JOIN (SELECT item, COUNT(*) AS total FROM exchanges GROUP BY item) S
+                ON exchanges.item=S.item
+                WHERE exchanges.result == 'gold' GROUP BY exchanges.item
+                `;
 
             db.prepare(query).all((err, rows) => {
                 cmdRes();
@@ -282,16 +289,14 @@ const getExchangesTable = function() {
                     let item = row.item;
                     if(!exchanges[item])
                         exchanges[item] = [];
-                    let result = row.result;
-                    let avg_amount = row.avg_amount;
-                    exchanges[item].push({result: result, amount : avg_amount});
+                    exchanges[item].push({result: row.result, amount : row.avg_amount, seen : row.seen, total : row.total});
                 }
 
                 res(exchanges);
             });
         });
     });
-}
+};
 
 exports.addDrop = addDrop;
 exports.addUpgrade = addUpgrade;

@@ -18,6 +18,8 @@ block content
                             th
                             th.align-center Item
                             th.align-center Average Amount
+                            th.align-center Times Seen
+                            th.align-center Chance
                         td.dashed(colspan=11)
                     tbody.list
                         each record in itemdata
@@ -30,4 +32,6 @@ block content
                                         .info Gold
                                     else
                                         a.name(href=`/items/${record.result}`)=items_data[record.result].name
-                                td #{Math.round(record.amount)}
+                                td.align-center #{Math.round(record.amount)}
+                                td.align-center #{record.seen}
+                                td.align-center #{ Math.round(record.seen/record.total * 10000)/100}%
