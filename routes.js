@@ -102,16 +102,20 @@ const exchangesHandler = function(request, reply) {
 
     collection.db.getExchangesTable()
     .then((table) => {
-        /*let html = "";
-        for(let itemkey in table) {
-            let iteminfo = table[itemkey];
-            html += itemkey + "<br>";
-            for(let record of iteminfo) {
-                html += " ---- " + record.result + " x " + record.amount + "<br>";
-            }
+        if(Object.keys(table).length == 0) {
+            reply("No exchange data");
         }
-        reply(html);*/
-        reply(JSON.stringify(table));
+        else {
+            let html = "";
+            for(let itemkey in table) {
+                let iteminfo = table[itemkey];
+                html += itemkey + "<br>";
+                for(let record of iteminfo) {
+                    html += " ---- " + record.result + " x " + record.amount + "<br>";
+                }
+            }
+            reply(html);
+        }
         /*reply.view('exchanges', {
             upgrades: table,
             sprites
