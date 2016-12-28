@@ -108,7 +108,7 @@ function log_handler(log) {
     } else if (log.color == '#4BAEAA') {
         let drop_info = LOG_ITEM_REGEX.exec(log.message);
         if (!drop_info) return;
-        console.debug("DROPTRAK: " + drop_info[1] + " found " + drop_info[2]);
+        console.info("%cDROPTRAK: " + drop_info[1] + " found " + drop_info[2], 'color: green');
         tracked_drops.items.push(drop_info[2]);
     }
 }
@@ -169,24 +169,24 @@ function chest_handler(chest) {
         console.debug("Drop data sending paused due to error that occured " + Math.round(seconds_since_last_error) + " seconds ago");
     }
     else {
-    let data = new FormData();
-    data.append('json', JSON.stringify(payload));
+        let data = new FormData();
+        data.append('json', JSON.stringify(payload));
 
-    fetch(`${DROP_SERVER}/drop`, {
-        method: 'POST',
-        body: data
-    })
-    .then((response) => handleDropServerResponse(response))
-    .catch(() => {});
-
-    if(DROP_SERVER2_USE) {
-        fetch(`${DROP_SERVER2}/drop`, {
+        fetch(`${DROP_SERVER}/drop`, {
             method: 'POST',
             body: data
         })
         .then((response) => handleDropServerResponse(response))
         .catch(() => {});
-    }
+
+        if(DROP_SERVER2_USE) {
+            fetch(`${DROP_SERVER2}/drop`, {
+                method: 'POST',
+                body: data
+            })
+            .then((response) => handleDropServerResponse(response))
+            .catch(() => {});
+        }
     }
 
     tracked_drops = null;
@@ -209,4 +209,13 @@ register_handler('death', death_handler);
 register_handler('drop', drop_handler);
 register_handler('game_log', log_handler);
 register_handler('chest_opened', chest_handler);
+
+//load extra features
+if(window.aldc_use_upgrade)
+    $.getScript('http://adventurecode.club/upgradescript?t='+(new Date).getTime(), function() { game_log('Thank you for contributing your upgrade data!', '#FFFF00'); });
+if(window.aldc_use_compound)
+    $.getScript('http://adventurecode.club/compoundscript?t='+(new Date).getTime(), function() { game_log('Thank you for contributing your compound data!', '#FFFF00'); });
+if(window.aldc_use_exchange)
+    $.getScript('http://adventurecode.club/exchangescript?t='+(new Date).getTime(), function() { game_log('Thank you for contributing your exchange data!', '#FFFF00'); });
+
 }());

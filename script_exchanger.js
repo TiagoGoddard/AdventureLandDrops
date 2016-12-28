@@ -143,6 +143,6 @@ parent.exchangeit = (function() {
         }
     }
 
-    parent.ui_success("Loaded. Use the exchange script with parent.exchangeit");
+    parent.ui_success("Use the exchange script with parent.exchangeit(inventory_slot)");
     return exchange;
 }());

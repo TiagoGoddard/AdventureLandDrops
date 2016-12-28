@@ -126,6 +126,6 @@ parent.compoundit = (function() {
         return [item_slots, items];
     }
 
-    parent.ui_success("Loaded. Use the compound script with parent.compoundit");
+    parent.ui_success("Use the compound script with parent.compoundit(item_name, level_to_compound)");
     return compound;
 }());
