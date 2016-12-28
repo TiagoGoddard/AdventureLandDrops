@@ -7,8 +7,13 @@ parent.exchangeit = (function() {
     var startitem, oldinventory = {};
 
     function exchange(slot) {
+        if(Object.values(socket.listeners("game_log")).filter(l => l.name == "exchange_listener").length) {
+            console.error("Can't exchange yet, there are still exchange listeners present. If this persists, refresh the web page.");
+            return;
+        }
         if(parent.waiting_for_log) {
-            console.log("Waiting for log... (parent.waiting_for_log == true)");
+            console.log("Waiting for log... (parent.waiting_for_log == true). If this persists, refresh the web page.");
+            return;
         }
         startitem = character.items[slot];
         if(!startitem) {
@@ -23,6 +28,9 @@ parent.exchangeit = (function() {
                 item_num: slot,
                 q: startitem.q
             });
+            setTimeout(() => {
+                parent.socket.removeListener("game_log", exchange_listener);
+            }, 500);
         }
     }
 
@@ -36,7 +44,6 @@ parent.exchangeit = (function() {
     let GOLD_REGEX = /([\d,]+) gold/;
 
     let exchange_listener = (data) => {
-        console.log(data);
         if(!parent) return;
         if (data.message.startsWith("Received")) {
             let result_data = { source : startitem.name };
