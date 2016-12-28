@@ -2,7 +2,6 @@
 (function() {
 let DROP_SERVER = 'http://adventurecode.club:13726';
 let DROP_SERVER2 = window.aldc_second_server;
-let DROP_SERVER2_USE = window.aldc_second_use;
 let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
 let DROP_API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
@@ -179,7 +178,7 @@ function chest_handler(chest) {
         .then((response) => handleDropServerResponse(response))
         .catch(() => {});
 
-        if(DROP_SERVER2_USE) {
+        if(DROP_SERVER2) {
             fetch(`${DROP_SERVER2}/drop`, {
                 method: 'POST',
                 body: data
