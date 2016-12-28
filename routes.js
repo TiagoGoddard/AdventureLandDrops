@@ -102,7 +102,7 @@ const exchangesHandler = function(request, reply) {
 
     collection.db.getExchangesTable()
     .then((table) => {
-        let html = "";
+        /*let html = "";
         for(let itemkey in table) {
             let iteminfo = table[itemkey];
             html += itemkey + "<br>";
@@ -110,10 +110,10 @@ const exchangesHandler = function(request, reply) {
                 html += " ---- " + record.result + " x " + record.amount + "<br>";
             }
         }
-        reply(html);
-        //reply(JSON.stringify(table));
-        /*reply.view('upgrades', {
-            upgrades: upgradeTable,
+        reply(html);*/
+        reply(JSON.stringify(table));
+        /*reply.view('exchanges', {
+            upgrades: table,
             sprites
         });*/
     });
