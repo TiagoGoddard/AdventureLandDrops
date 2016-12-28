@@ -98,6 +98,27 @@ const upgradesHandler = function(request, reply) {
     });
 };
 
+const exchangesHandler = function(request, reply) {
+
+    collection.db.getExchangesTable()
+    .then((table) => {
+        let html = "";
+        for(let itemkey in table) {
+            let iteminfo = table[itemkey];
+            html += itemkey + "<br>";
+            for(let record of iteminfo) {
+                html += " ---- " + record.result + " x " + record.amount + "<br>";
+            }
+        }
+        reply(html);
+        //reply(JSON.stringify(table));
+        /*reply.view('upgrades', {
+            upgrades: upgradeTable,
+            sprites
+        });*/
+    });
+};
+
 function updateDropTable() {
     collection.db.getDropTable().then((table) => {
         for (let drops of table.values()) {
@@ -205,3 +226,4 @@ exports.items = itemsHandler;
 exports.item = itemHandler;
 
 exports.upgrades = upgradesHandler;
+exports.exchanges = exchangesHandler;

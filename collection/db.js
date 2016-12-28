@@ -266,6 +266,30 @@ const getUpgradeInfo = function(item) {
     });
 };
 
+const getExchangesTable = function() {
+    return new Promise((res) => {
+        runCommand((cmdRes) => {
+            let query = `SELECT * FROM exchanges ORDER BY item`;
+
+            db.prepare(query).all((err, rows) => {
+                cmdRes();
+
+                const exchanges = {};
+                for (let row of rows) {
+                    let item = row.item;
+                    if(!exchanges[item])
+                        exchanges[item] = [];
+                    let result = row.result;
+                    let amount = row.amount;
+                    exchanges[item].push({result: result, amount : amount});
+                }
+
+                res(exchanges);
+            });
+        });
+    });
+}
+
 exports.addDrop = addDrop;
 exports.addUpgrade = addUpgrade;
 exports.addCompound = addCompound;
@@ -276,3 +300,4 @@ exports.getContribTable = getContribTable;
 exports.getUpgradesTable = getUpgradesTable;
 exports.getUpgradeAndCompoundsTable = getUpgradeAndCompoundsTable;
 exports.getUpgradeInfo = getUpgradeInfo;
+exports.getExchangesTable = getExchangesTable;
