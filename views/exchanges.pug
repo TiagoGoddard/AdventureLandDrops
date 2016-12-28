@@ -1,0 +1,33 @@
+extends layout.pug
+
+block content
+    each itemdata, itemkey in exchanges
+        .horizontal-flex.vmargin
+            .column.border
+                table
+                    tbody
+                        tr
+                            td
+                                a(href=`/items/${itemkey}`).sprite-container.small
+                                    span(style=sprites.item(itemkey, 32))
+                            td #{items_data[itemkey].name}
+                hr
+                table.exchanges
+                    thead
+                        tr
+                            th
+                            th.align-center Item
+                            th.align-center Average Amount
+                        td.dashed(colspan=11)
+                    tbody.list
+                        each record in itemdata
+                            tr
+                                td
+                                    a(href=`/items/${record.result}`).sprite-container.small
+                                        div(style=sprites.item(record.result, 32))
+                                td
+                                    if (record.result == "gold")
+                                        .info Gold
+                                    else
+                                        a.name(href=`/items/${record.result}`)=items_data[record.result].name
+                                td #{Math.round(record.amount)}

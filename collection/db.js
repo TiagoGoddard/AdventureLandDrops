@@ -269,7 +269,10 @@ const getUpgradeInfo = function(item) {
 const getExchangesTable = function() {
     return new Promise((res) => {
         runCommand((cmdRes) => {
-            let query = `SELECT * FROM exchanges ORDER BY item`;
+            let query = `
+            SELECT item, result, AVG(amount) AS avg_amount FROM exchanges WHERE result <> 'gold' GROUP BY item, result
+            UNION ALL
+            SELECT item, result, AVG(amount) AS avg_amount FROM exchanges WHERE result == 'gold' GROUP BY item;`;
 
             db.prepare(query).all((err, rows) => {
                 cmdRes();
@@ -280,8 +283,8 @@ const getExchangesTable = function() {
                     if(!exchanges[item])
                         exchanges[item] = [];
                     let result = row.result;
-                    let amount = row.amount;
-                    exchanges[item].push({result: result, amount : amount});
+                    let avg_amount = row.avg_amount;
+                    exchanges[item].push({result: result, amount : avg_amount});
                 }
 
                 res(exchanges);

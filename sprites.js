@@ -42,6 +42,10 @@ const monsterSprite = function(type, size = 64) {
 
 const itemSprite = function(item, size = 64) {
     const itemInfo = data.items[item];
+    if(!itemInfo) {
+        console.error("Unable to find itemInfo for " + item);
+        return "";
+    }
 
     const positions = data.positions[itemInfo.skin] || data.positions["test"];
 

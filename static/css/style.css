@@ -158,6 +158,13 @@ th {
     width: 200px;
 }
 
+.exchanges th {
+    width: 150px;
+}
+.exchanges th:first-child {
+    width: 16px;
+}
+
 .dashed {
     border-bottom: 2px dashed gray;
 }

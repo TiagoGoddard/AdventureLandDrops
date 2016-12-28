@@ -105,21 +105,11 @@ const exchangesHandler = function(request, reply) {
         if(Object.keys(table).length == 0) {
             reply("No exchange data");
         }
-        else {
-            let html = "";
-            for(let itemkey in table) {
-                let iteminfo = table[itemkey];
-                html += itemkey + "<br>";
-                for(let record of iteminfo) {
-                    html += " ---- " + record.result + " x " + record.amount + "<br>";
-                }
-            }
-            reply(html);
-        }
-        /*reply.view('exchanges', {
-            upgrades: table,
+        reply.view('exchanges', {
+            exchanges: table,
+            items_data : data.items,
             sprites
-        });*/
+        });
     });
 };
 
