@@ -66,19 +66,18 @@ server.register(Vision, (err) => {
     });
 
     server.route({
-        method: 'GET',
-        path: '/upgradescript',
-        handler: {
-            file: "upgrade.js"
-        }
+        method: 'GET', path: '/upgradescript',
+        handler: { file: "script_upgrade.js" }
     });
 
     server.route({
-        method: 'GET',
-        path: '/compoundscript',
-        handler: {
-            file: "compounder.js"
-        }
+        method: 'GET', path: '/compoundscript',
+        handler: { file: "script_compounder.js" }
+    });
+
+    server.route({
+        method: 'GET', path: '/exchangescript',
+        handler: { file: "script_exchanger.js" }
     });
 });
 

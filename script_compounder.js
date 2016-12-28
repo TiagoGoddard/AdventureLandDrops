@@ -38,9 +38,6 @@ parent.compoundit = (function() {
         parent.socket.on('game_log', success_listener);
         parent.socket.on('game_error', failure_listener);
 
-        console.log("Compounding 3x " + startitem.name + " +" + startitem.level);
-        console.log("Source items " + slots.join("-") + " with scroll at " + scroll_slot);
-
         parent.socket.emit("compound", {
             items: slots,
             scroll_num: scroll_slot,
@@ -59,6 +56,9 @@ parent.compoundit = (function() {
                 console.info(`%cAUTOUPGRADE: Upgraded ${startitem.name} to +${startitem.level} successfully!`, 'color: green');
                 startitem = undefined;
             }
+            else {
+                console.log("Log handler still present but startitem undefined?");
+            }
             parent.socket.removeListener("game_log", success_listener);
             parent.socket.removeListener("game_error", failure_listener);
             parent.waiting_for_log = false;
@@ -69,8 +69,11 @@ parent.compoundit = (function() {
         if (data == 'Item upgrade failed' || data == 'Item combination failed') {
             if(startitem) {
                 report_result('failed');
-                console.info(`%cItem upgrade failed going from +${startitem.level} to +${startitem.level + 1}`, 'color: red');
+                console.info(`%cAUTOUPGRADE: Item upgrade of ${startitem.name} failed going from +${startitem.level} to +${startitem.level + 1}`, 'color: red');
                 startitem = undefined;
+            }
+            else {
+                console.log("Log handler still present but startitem undefined?");
             }
             parent.socket.removeListener("game_log", success_listener);
             parent.socket.removeListener("game_error", failure_listener);

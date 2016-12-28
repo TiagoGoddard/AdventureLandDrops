@@ -37,13 +37,22 @@ CREATE TABLE IF NOT EXISTS upgrades (
     time DATETIME NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS level_idx on upgrades(level);
+
 CREATE TABLE IF NOT EXISTS compounds (
     id INTEGER PRIMARY KEY,
     item TEXT NOT NULL,
     level INTEGER NOT NULL,
-    success TEXT NOT NULL,
+    success BOOLEAN NOT NULL,
     userkey INTEGER NOT NULL,
     time DATETIME NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS level_idx on upgrades(level);
+CREATE TABLE IF NOT EXISTS exchanges (
+    id INTEGER PRIMARY KEY,
+    item TEXT NOT NULL,
+    result TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    userkey INTEGER NOT NULL,
+    time DATETIME NOT NULL
+);

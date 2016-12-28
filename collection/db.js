@@ -13,6 +13,7 @@ const dropStatement = db.prepare('INSERT INTO drops (id, type, monster, map, gol
 const itemStatement = db.prepare('INSERT INTO items VALUES (null, ?, ?)');
 const upgradeStatement = db.prepare('INSERT INTO upgrades VALUES (null, ?, ?, ?, ?, ?, ?, ?)');
 const compoundStatement = db.prepare('INSERT INTO compounds (item, level, success, userkey, time) VALUES (?, ?, ?, ?, ?)');
+const exchangeStatement = db.prepare('INSERT INTO exchanges (item, result, amount, userkey, time) VALUES (?, ?, ?, ?, ?)');
 const listDropsStatement = db.prepare(listDropsQuery);
 
 
@@ -85,6 +86,21 @@ const addCompound = function(compoundData) {
             compoundData.level,
             compoundData.success,
             compoundData.key,
+            time,
+            res
+        );
+    });
+};
+
+const addExchange = function(exchangeData) {
+    const time = Math.floor(Date.now() / 1000);
+    //(item, result, amount, userkey, time)
+    runCommand((res) => {
+        exchangeStatement.run(
+            exchangeData.item,
+            exchangeData.result,
+            exchangeData.amount,
+            exchangeData.key,
             time,
             res
         );
@@ -253,6 +269,7 @@ const getUpgradeInfo = function(item) {
 exports.addDrop = addDrop;
 exports.addUpgrade = addUpgrade;
 exports.addCompound = addCompound;
+exports.addExchange = addExchange;
 exports.getDropTable = getDropTable;
 exports.getGoldTable = getGoldTable;
 exports.getContribTable = getContribTable;

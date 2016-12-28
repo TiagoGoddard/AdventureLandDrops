@@ -67,6 +67,19 @@ server.route({
 
 server.route({
     method: 'POST',
+    path: '/exchange',
+    handler: (request, reply) => {
+        const exchangeData = JSON.parse(request.payload.json);
+        if (!keys.includes(exchangeData.key)) return reply().code(403);
+
+        reply().code(200);
+        console.log(exchangeData);
+        db.addExchange(exchangeData);
+    }
+});
+
+server.route({
+    method: 'POST',
     path: '/wishescometrue',
     handler: (request, reply) => {
         try {
