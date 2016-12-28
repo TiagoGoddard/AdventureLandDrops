@@ -7,7 +7,11 @@ parent.exchangeit = (function() {
     var startitem, oldinventory = {};
 
     function exchange(slot) {
-        if(Object.values(socket.listeners("game_log")).filter(l => l.name == "exchange_listener").length) {
+        if(!parent) {
+            console.error("Unable to get parent object") ;
+            return;
+        }
+        if(Object.values(parent.socket.listeners("game_log")).filter(l => l.name == "exchange_listener").length) {
             console.error("Can't exchange yet, there are still exchange listeners present. If this persists, refresh the web page.");
             return;
         }
