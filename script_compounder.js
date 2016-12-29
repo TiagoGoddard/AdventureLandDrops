@@ -29,10 +29,15 @@ parent.compoundit = (function() {
 
         let [scroll_slot, scroll] = find_item(i => i.name == "cscroll0");
         if(!scroll) {
-            console.log(`Buying 1 cscroll0`);
-            parent.buy("cscroll0", 1);
-            setTimeout(function() { compoundItems(slots); }, 500);
-            return;
+            if(parent.character.gold >= 6400) {
+                console.log(`Buying 1 cscroll0`);
+                parent.buy("cscroll0", 1);
+                setTimeout(function() { compoundItems(slots); }, 500);
+                return;
+            }
+            else {
+                parent.game_log("Not enough gold to buy a compounding scroll.");
+            }
         }
 
         parent.socket.on('game_log', success_listener);
