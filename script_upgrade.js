@@ -175,9 +175,14 @@ parent.upgradeit = (function() {
         let [item_slot, item] = find_item(i => i.name == item_name && i.level < max_level);
         let item_found = item_slot != -1;
         if (!item_found) {
-            if (options.buy_item) parent.buy(item_name);
-            item = { name : item_name, level : 0 };
-            // create a theoretical item so we can buy the item + buy the scrolls at the same time
+            if (options.buy_item) {
+                parent.buy(item_name);
+                item = { name : item_name, level : 0 };
+                // create a theoretical item so we can buy the item + buy the scrolls at the same time
+            }
+            else {
+                return;
+            }
         }
 
         let scrolls = [0, 1, 2].map(i => find_item(it => it.name == `scroll${i}`));
