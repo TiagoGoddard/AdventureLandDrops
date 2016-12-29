@@ -63,7 +63,6 @@ const addDrops = function(dataArray, key, version) {
 
     runCommand((res) => {
         for(let dropData of dataArray) {
-            console.log(`INSERTING ${dropData.type}, ${dropData.monster}, ${dropData.map}, ${dropData.gold}, ${JSON.stringify(dropData.items)}, ${dropData.player}, ${key}, ${version}`);
             dropStatement.run(
                 dropData.type,
                 dropData.monster,
