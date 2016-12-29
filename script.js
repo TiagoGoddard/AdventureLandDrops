@@ -210,11 +210,28 @@ register_handler('game_log', log_handler);
 register_handler('chest_opened', chest_handler);
 
 //load extra features
-if(window.aldc_use_upgrade)
-    $.getScript('http://adventurecode.club/upgradescript?t='+(new Date).getTime(), function() { game_log('Thank you for contributing your upgrade data!', '#FFFF00'); });
-if(window.aldc_use_compound)
-    $.getScript('http://adventurecode.club/compoundscript?t='+(new Date).getTime(), function() { game_log('Thank you for contributing your compound data!', '#FFFF00'); });
-if(window.aldc_use_exchange)
-    $.getScript('http://adventurecode.club/exchangescript?t='+(new Date).getTime(), function() { game_log('Thank you for contributing your exchange data!', '#FFFF00'); });
-
+if(window.aldc_use_upgrade) {
+    $.ajax({
+        url: 'http://adventurecode.club/upgradescript?t='+(new Date).getTime(),
+        dataType: 'script',
+        success: () => game_log('Thank you for contributing your upgrade data!', '#FFFF00'),
+        async: false
+    });
+}
+if(window.aldc_use_compound) {
+    $.ajax({
+        url: 'http://adventurecode.club/compoundscript?t='+(new Date).getTime(),
+        dataType: 'script',
+        success: () => game_log('Thank you for contributing your compound data!', '#FFFF00'),
+        async: false
+    });
+}
+if(window.aldc_use_exchange) {
+    $.ajax({
+        url: 'http://adventurecode.club/exchangescript?t='+(new Date).getTime(),
+        dataType: 'script',
+        success: () => game_log('Thank you for contributing your exchange data!', '#FFFF00'),
+        async: false
+    });
+}
 }());
