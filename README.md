@@ -6,7 +6,7 @@ Contribute your drop collection to the http://adventurecode.club/ database.
 Auto updated code:
 ```javacript
 window.aldc_apikey = 'API_KEY'; // Replace API_KEY with your API key => Ask me for one, on discord, PM or email
-window.aldc_use_upgrade = true
+window.aldc_use_upgrade = true;
 window.aldc_use_compound = true;
 window.aldc_use_exchange = true;
 // USAGE INFORMATION:
