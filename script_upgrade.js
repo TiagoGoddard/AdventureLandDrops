@@ -176,7 +176,15 @@ parent.upgradeit = (function() {
         let item_found = item_slot != -1;
         if (!item_found) {
             if (options.buy_item) {
+                let not_enough = false;
+                if( 16000 > parent.character.gold) {
+                    not_enough = true;
+                    // let the game say "Insufficient" but return here so it doesn't get caught in a setTimeout loop
+                }
+
                 parent.buy(item_name);
+                if(not_enough) return;
+
                 item = { name : item_name, level : 0 };
                 // create a theoretical item so we can buy the item + buy the scrolls at the same time
             }
