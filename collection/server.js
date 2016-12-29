@@ -26,17 +26,29 @@ server.route({
     path: '/drop',
     handler: (request, reply) => {
         const dropData = JSON.parse(request.payload.json);
-
         if (!keys.includes(dropData.key)) return reply().code(403);
         if (SCRIPT_VERSION != dropData.version) return reply().code(426);
+        reply().code(200);
 
+        if(dropData.hasOwnProperty("data")) { // bulk multi-drop send
+            let dataArray = [];
+            for(let entry of dropData.data) {
+                entry.items = entry.items.map(name => itemTypeByName[name]);
+                const dataValid = entry.items.every(name => name != null);
+                if (dataValid) {
+                    dataArray.push(entry);
+                }
+            }
+            db.addDrops(dataArray, dropData.key, dropData.version);
+        }
+        else { // deprec old single-drop send
         dropData.items = dropData.items.map(name => itemTypeByName[name]);
         const dataValid = dropData.items.every(name => name != null);
 
-        reply().code(200);
         if (!dataValid) return;
 
         db.addDrop(dropData);
+    }
     }
 });
 

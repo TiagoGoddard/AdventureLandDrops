@@ -58,6 +58,39 @@ const addDrop = function(dropData) {
     });
 };
 
+const addDrops = function(dataArray, key, version) {
+    const time = Math.floor(Date.now() / 1000);
+
+    runCommand((res) => {
+        for(let dropData of dataArray) {
+            console.log(`INSERTING ${dropData.type}, ${dropData.monster}, ${dropData.map}, ${dropData.gold}, ${JSON.stringify(dropData.items)}, ${dropData.player}, ${key}, ${version}`);
+            dropStatement.run(
+                dropData.type,
+                dropData.monster,
+                dropData.map,
+                dropData.gold,
+                dropData.items.length,
+                dropData.player,
+                dropData.key,
+                dropData.version,
+                time,
+
+                function() {
+                    const lastID = this.lastID;
+
+                    for (let item of dropData.items) {
+                        runCommand((res) => {
+                            itemStatement.run(item, lastID, res);
+                        });
+                    }
+                    res();
+                }
+            );
+        }
+        res();
+    });
+};
+
 const addUpgrade = function(upgradeData) {
     const time = Math.floor(Date.now() / 1000);
 
@@ -301,6 +334,7 @@ const getExchangesTable = function() {
 };
 
 exports.addDrop = addDrop;
+exports.addDrops = addDrops;
 exports.addUpgrade = addUpgrade;
 exports.addCompound = addCompound;
 exports.addExchange = addExchange;

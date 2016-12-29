@@ -127,6 +127,9 @@ function determineResponsibility(logMessage) {
     }
 }
 
+var data_package = { key: DROP_API_KEY, version: SCRIPT_VERSION, data : []};
+var data_lastsend = 0;
+
 function chest_handler(chest) {
     if(!parent) return;
     if (!tracked_drops || tracked_drops.time + DROP_TIMEOUT < Date.now()) {
@@ -151,16 +154,12 @@ function chest_handler(chest) {
         monster: chest_data.monster,
         map: chest_data.map,
         gold: tracked_drops.gold,
-        items: tracked_drops.items,
-        key: DROP_API_KEY,
-        version: SCRIPT_VERSION
+        items: tracked_drops.items
     };
+    data_package.data.push(payload);
 
     if(tracked_drops.items.length) {
         console.info(`%cReporting kill of ${chest_data.monster} by ${character.name} for ${Math.round(tracked_drops.gold)} and [${tracked_drops.items}] items (v${SCRIPT_VERSION})`, 'color: green');
-    }
-    else {
-        console.debug(`Reporting kill of ${chest_data.monster} by ${character.name} for ${Math.round(tracked_drops.gold)} and [${tracked_drops.items}] items (v${SCRIPT_VERSION})`);
     }
 
     let seconds_since_last_error = (Date.now() - last_error_time / 1000);
@@ -168,8 +167,19 @@ function chest_handler(chest) {
         console.debug("Drop data sending paused due to error that occured " + Math.round(seconds_since_last_error) + " seconds ago");
     }
     else {
+        sendIfReady();
+    }
+
+    tracked_drops = null;
+}
+
+function sendIfReady() {
+        //send at 10 entries or if its been more than 10 seconds since data_lastsend
+        if(data_package.length > 10 || Date.now() - data_lastsend > 10000) {
+            data_lastsend = Date.now();
+
         let data = new FormData();
-        data.append('json', JSON.stringify(payload));
+            data.append('json', JSON.stringify(data_package));
 
         fetch(`${DROP_SERVER}/drop`, {
             method: 'POST',
@@ -186,10 +196,10 @@ function chest_handler(chest) {
             .then((response) => handleDropServerResponse(response))
             .catch(() => {});
         }
-    }
 
-    tracked_drops = null;
-}
+            data_package.data = [];
+        }
+    }
 
 function handleDropServerResponse(response) {
     if(response.status == 403) { //api key
