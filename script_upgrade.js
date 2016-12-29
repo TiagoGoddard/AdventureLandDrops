@@ -194,15 +194,26 @@ parent.upgradeit = (function() {
         for (let i = 0; i < scroll_nums.length; i++) {
             let num = scroll_nums[i];
             let needed = scrolls_needed[i];
-
             if (num < needed) {
                 missing_scrolls = true;
+                let pricePer = 1000 * Math.pow(40, i);
+                let not_enough = false;
+                if( (needed - num) * pricePer > parent.character.gold) {
+                    not_enough = true;
+                    // let the game say "Insufficient" but return here so it doesn't get caught in a setTimeout loop
+                }
                 if (options.buy_scrolls) parent.buy(`scroll${i}`, needed - num);
+                if(not_enough) return;
             }
         }
 
         if (!missing_scrolls && item_found) {
             preemptive_upgrades(item_slot, scrolls.map(([s]) => s), max_level);
+        }
+        else if((!item_found && options.buy_item) || (missing_scrolls && options.buy_scrolls)){
+            setTimeout(() => {
+                upgrade(item_name, max_level, options);
+            }, 500);
         }
     }
     parent.ui_success("Use the upgrade script with parent.upgradeit(item_name, max_level, options)");
