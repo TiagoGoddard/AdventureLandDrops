@@ -189,6 +189,7 @@ parent.upgradeit = (function() {
                 // create a theoretical item so we can buy the item + buy the scrolls at the same time
             }
             else {
+                console.log("options.buy_item = false, but item not found.")
                 return;
             }
         }
@@ -210,7 +211,9 @@ parent.upgradeit = (function() {
                     not_enough = true;
                     // let the game say "Insufficient" but return here so it doesn't get caught in a setTimeout loop
                 }
-                if (options.buy_scrolls) parent.buy(`scroll${i}`, needed - num);
+                if (options.buy_scrolls) {
+                    parent.buy(`scroll${i}`, needed - num);
+                }
                 if(not_enough) return;
             }
         }
