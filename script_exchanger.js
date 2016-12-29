@@ -63,7 +63,7 @@ parent.exchangeit = (function() {
             if(gold) {
                 // ["650,000 gold", "650,000"]
                 result_data.result = "gold";
-                result_data.amount = gold[1].replace(",", "");
+                result_data.amount = gold[1].replace(/,/g, "");
             }
             else if(amount) {
                 // ["8x Compound Scrolls", "8", "Compound Scrolls"]
