@@ -221,7 +221,7 @@ parent.upgradeit = (function() {
         if (!missing_scrolls && item_found) {
             preemptive_upgrades(item_slot, scrolls.map(([s]) => s), max_level);
         }
-        else if((!item_found && options.buy_item) || (missing_scrolls && options.buy_scrolls)){
+        else if((!item_found && options.buy_item) || (missing_scrolls && options.buy_scrolls) && !G.maps[parent.current_map].mount){
             setTimeout(() => {
                 upgrade(item_name, max_level, options);
             }, 500);
