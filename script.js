@@ -5,7 +5,7 @@ let DROP_SERVER2 = window.aldc_second_server;
 let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
 let DROP_API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
-let SCRIPT_VERSION = 2;
+let SCRIPT_VERSION = 3;
 
 let last_error_time = 0;
 let tracked_entities = [];
@@ -174,12 +174,12 @@ function chest_handler(chest) {
 }
 
 function sendIfReady() {
-        //send at 10 entries or if its been more than 10 seconds since data_lastsend
-        if(data_package.length > 10 || Date.now() - data_lastsend > 10000) {
-            data_lastsend = Date.now();
+    //send at 10 entries or if its been more than 10 seconds since data_lastsend
+    if(data_package.length > 10 || Date.now() - data_lastsend > 10000) {
+        data_lastsend = Date.now();
 
         let data = new FormData();
-            data.append('json', JSON.stringify(data_package));
+        data.append('json', JSON.stringify(data_package));
 
         fetch(`${DROP_SERVER}/drop`, {
             method: 'POST',
@@ -197,9 +197,9 @@ function sendIfReady() {
             .catch(() => {});
         }
 
-            data_package.data = [];
-        }
+        data_package.data = [];
     }
+}
 
 function handleDropServerResponse(response) {
     if(response.status == 403) { //api key

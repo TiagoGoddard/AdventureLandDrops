@@ -56,3 +56,5 @@ CREATE TABLE IF NOT EXISTS exchanges (
     userkey INTEGER NOT NULL,
     time DATETIME NOT NULL
 );
+
+UPDATE exchanges SET amount = replace(amount, ',', '') WHERE result='gold';
