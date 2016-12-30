@@ -32,6 +32,6 @@ block content
                                         .info Gold
                                     else
                                         a.name(href=`/items/${record.result}`)=items_data[record.result].name
-                                td.align-center #{Math.round(record.amount)}
+                                td.align-center #{formatNumber(record.amount)}
                                 td.align-center #{record.seen}
                                 td.align-center #{ Math.round(record.seen/record.total * 10000)/100}%
