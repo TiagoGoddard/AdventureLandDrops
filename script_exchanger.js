@@ -24,7 +24,7 @@ parent.exchangeit = (function() {
         if(!startitem) {
             console.error("EXCHANGER: Nothing found at slot " + slot);
         }
-        else if(baseitem.s && baseitem.e <= startitem.q) {
+        else if(!baseitem.s || baseitem.e > startitem.q) {
             console.error(`EXCHANGER: You can't exchange ${startitem.q}x${baseitem.name}`);
         }
         else {
