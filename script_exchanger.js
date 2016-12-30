@@ -20,8 +20,12 @@ parent.exchangeit = (function() {
             return;
         }
         startitem = character.items[slot];
+        let baseitem = parent.G.items[startitem.name];
         if(!startitem) {
             console.error("EXCHANGER: Nothing found at slot " + slot);
+        }
+        else if(baseitem.s && baseitem.e <= startitem.q) {
+            console.error(`EXCHANGER: You can't exchange ${startitem.q}x${baseitem.name}`);
         }
         else {
             oldinventory = {};
