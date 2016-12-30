@@ -12,7 +12,6 @@ parent.compoundit = (function() {
         }
         let [slots,items] = find_all_items_namelevel(name, level);
         if(slots.length >= 3) {
-            console.info("%COMPOUNDER: Found " + slots.length + " of " + name + " of level " + level, "color : dimgray");
             compoundItems(slots);
         }
     }
@@ -30,7 +29,6 @@ parent.compoundit = (function() {
         let [scroll_slot, scroll] = find_item(i => i.name == "cscroll0");
         if(!scroll) {
             if(parent.character.gold >= 6400) {
-                console.log(`Buying 1 cscroll0`);
                 parent.buy("cscroll0", 1);
                 setTimeout(function() { compoundItems(slots); }, 500);
                 return;
@@ -58,11 +56,11 @@ parent.compoundit = (function() {
             if(startitem) {
                 report_result('success');
                 startitem.level++;
-                console.info(`%COMPOUNDER: Upgraded ${startitem.name} to +${startitem.level} successfully!`, 'color: green');
+                console.info(`%cCOMPOUNDER: Upgraded ${startitem.name} to +${startitem.level} successfully!`, 'color: green');
                 startitem = undefined;
             }
             else {
-                console.log("Log handler still present but startitem undefined?");
+                console.error("Log handler still present but startitem undefined?");
             }
             parent.socket.removeListener("game_log", success_listener);
             parent.socket.removeListener("game_error", failure_listener);
@@ -74,11 +72,11 @@ parent.compoundit = (function() {
         if (data == 'Item upgrade failed' || data == 'Item combination failed') {
             if(startitem) {
                 report_result('failed');
-                console.info(`%COMPOUNDER: Item upgrade of ${startitem.name} failed going from +${startitem.level} to +${startitem.level + 1}`, 'color: red');
+                console.info(`%cCOMPOUNDER: Item upgrade of ${startitem.name} failed going from +${startitem.level} to +${startitem.level + 1}`, 'color: red');
                 startitem = undefined;
             }
             else {
-                console.log("Log handler still present but startitem undefined?");
+                console.error("Log handler still present but startitem undefined?");
             }
             parent.socket.removeListener("game_log", success_listener);
             parent.socket.removeListener("game_error", failure_listener);
