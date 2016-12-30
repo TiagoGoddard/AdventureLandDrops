@@ -204,6 +204,10 @@ th {
     font-size: 12px;
 }
 
+.medsmall {
+    font-size: 17px;
+}
+
 hr {
     border: 1px dashed gray;
 }
