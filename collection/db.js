@@ -9,7 +9,7 @@ const listDropsQuery = fs.readFileSync(__dirname + '/queries/droprate.sql', 'utf
 
 db.exec(createQuery);
 
-const dropStatement = db.prepare('INSERT INTO drops (id, type, monster, map, gold, items, player, userkey, time, version) VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+const dropStatement = db.prepare('INSERT INTO drops (type, monster, map, gold, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const itemStatement = db.prepare('INSERT INTO items VALUES (null, ?, ?)');
 const upgradeStatement = db.prepare('INSERT INTO upgrades VALUES (null, ?, ?, ?, ?, ?, ?, ?)');
 const compoundStatement = db.prepare('INSERT INTO compounds (item, level, success, userkey, time) VALUES (?, ?, ?, ?, ?)');
@@ -70,11 +70,16 @@ const addDrops = function(dataArray, key, version) {
                 dropData.gold,
                 dropData.items.length,
                 dropData.player,
-                dropData.key,
-                dropData.version,
+                key,
+                version,
                 time,
 
-                function() {
+                function(err) {
+                    if(err) {
+                        console.error(err);
+                        res();
+                        return;
+                    }
                     const lastID = this.lastID;
 
                     for (let item of dropData.items) {

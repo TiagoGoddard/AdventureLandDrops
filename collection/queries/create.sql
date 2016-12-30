@@ -57,4 +57,4 @@ CREATE TABLE IF NOT EXISTS exchanges (
     time DATETIME NOT NULL
 );
 
-UPDATE exchanges SET amount = replace(amount, ',', '') WHERE result='gold';
+UPDATE drops SET version = time, time = version WHERE version > 1000;
