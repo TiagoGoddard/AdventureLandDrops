@@ -46,6 +46,8 @@ block content
                                                 br
                                                 span.gray #{Math.round(cumul_chance*10000)/100}%
                                                 br
-                                                span.gray.medsmall (#{result.success + result.fails})
+                                                span.gray.medsmall (#{result.success} / #{result.success + result.fails})
+                                                br
+                                                span.gray.small #{formatNumber(Math.round(item_level_cost(item.item, lvl) / cumul_chance))}
                                         else
                                             td.info.align-center N/A

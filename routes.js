@@ -91,9 +91,20 @@ const itemHandler = function (request, reply) {
     });
 };
 
+function item_level_cost(item, level) {
+    let scroll0_cost = 1000, scroll1_cost = 40000, scroll2_cost = 1600000;
+    let item_cost = data.items[item].g ? data.items[item].g : 500000;
+    let item_grades = data.items[item].grades;
+    let cost_sc0 = (level > item_grades[0] ? item_grades[0] : level) * scroll0_cost;
+    let cost_sc1 = (level > item_grades[0] ? level - item_grades[0] : 0) * scroll1_cost;
+    let cost_sc2 = (level > item_grades[1] ? 1 : 0) * scroll2_cost;
+    return item_cost + cost_sc0 + cost_sc1 + cost_sc2;
+}
+
 const upgradesHandler = function(request, reply) {
     reply.view('upgrades', {
         upgrades: upgradeTable,
+        item_level_cost : item_level_cost,
         sprites
     });
 };
