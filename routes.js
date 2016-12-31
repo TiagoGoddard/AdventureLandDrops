@@ -93,7 +93,7 @@ const itemHandler = function (request, reply) {
 
 function scroll_cost(item, level) {
     let scroll0_cost = 1000, scroll1_cost = 40000, scroll2_cost = 1600000;
-    let item_cost = data.items[item].g ? data.items[item].g : 500000;
+    let item_cost = data.items[item].g;
     let item_grades = data.items[item].grades;
     if(level == 1) return item_cost + scroll0_cost;
     else {
