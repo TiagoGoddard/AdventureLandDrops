@@ -3,7 +3,7 @@ AdventureLand server side code from: https://gitlab.com/Draivin/adventure-drops/
 Contribute your drop collection to the http://adventurecode.club/ database.
 
 ## Adventure Land CODE to contribute drop rates
-Auto updated code:
+Once you have an API key (request one on the Discord), put this code block in your CODE, _**outside**_ of any kind of loop like setInterval:
 ```javacript
 window.aldc_apikey = 'API_KEY'; // Replace API_KEY with your API key => Ask me for one, on discord, PM or email
 window.aldc_use_upgrade = true;
@@ -18,6 +18,8 @@ $.getScript('http://adventurecode.club/script?t='+(new Date).getTime(), function
     game_log('Thank you for contributing your drop data!', '#FFFF00');
 });
 ```
+
+Then you will be reporting kill/drops to the database and you can use `parent.upgradeit`, `parent.compoundit` and `parent.exchangeit` functions.
 
 Or do it yourself:
 [Javascript code to contribute available here](script.js)
