@@ -172,7 +172,7 @@ block content
                         th
                         th.sort(data-sort='monster') Monster
                         th.sort(data-sort='map') Map
-                        th Count
+                        th.sort(data-sort='count')  Count
                         th.align-right.sort(data-sort='rate') %
                 tr
                     td.dashed(colspan=5)
@@ -187,6 +187,12 @@ block content
                             td.map=drop.mapName
                             td.count #{formatNumber(drop.drops)} out of #{formatNumber(drop.kills)}
                             td.rate.align-right #{formatNumber(drop.rate, 3)}
+        script.
+            var options = {
+                valueNames: ['monster', 'map', 'count', 'rate']
+            };
+            var list = new List('drops', options);
+            list.sort('rate', { order: 'desc'});
 
     if upgrades.length
         .vmargin.border

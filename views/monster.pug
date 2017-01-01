@@ -54,7 +54,7 @@ block content
                         th
                         th.sort(data-sort='name') Name
                         th.sort(data-sort='map') Map
-                        th Count
+                        th.sort(data-sort='count') Count
                         th.align-right.sort(data-sort='rate') %
                 tr
                     td.dashed(colspan=5)
@@ -76,7 +76,7 @@ block content
                 valueNames: ['name', 'map', 'count', 'rate']
             };
             var list = new List('drops', options);
-            list.sort('name', { order: 'asc'});
+            list.sort('rate', { order: 'desc'});
 
     if contribs.length
         .vmargin.border

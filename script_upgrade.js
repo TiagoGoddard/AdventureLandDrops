@@ -189,7 +189,7 @@ parent.upgradeit = (function() {
                 // create a theoretical item so we can buy the item + buy the scrolls at the same time
             }
             else {
-                console.log("options.buy_item = false, but item not found.")
+                console.log("options.buy_item = false, but item not found.");
                 return;
             }
         }
