@@ -10,10 +10,12 @@ window.aldc_use_upgrade = true;
 window.aldc_use_compound = true;
 window.aldc_use_exchange = true;
 // USAGE INFORMATION:
-// When aldc_use_upgrade = true, send upgrade data when using parent.upgradeit(item_name, max_level, options_object).
+// When aldc_use_upgrade = true, use parent.upgradeit(item_name, max_level, options_object) to upgrade items.
 //      options_object defaults to { buy_item: false, buy_scrolls: true, stop_on_success: false }
-// When aldc_use_compound = true, send compound data when using parent.compoundit(item_name, item_level_to_compound); i.e compoundit('hpbelt', 0) tries to create an hpbelt+1
-// When aldc_use_exchange = true, send exchange data when using parent.exchangeit(inventory_slot)
+// When aldc_use_compound = true, use parent.compoundit(item_name, item_level_to_compound); to compound items togeter. 
+//      i.e parent.compoundit('hpbelt', 0) tries to create an hpbelt+1 with 3 hpbelt+0
+// When aldc_use_exchange = true, use parent.exchangeit(inventory_slot) to exchange 1 item in that inventory slot
+
 $.getScript('http://adventurecode.club/script', function() {
     game_log('Thank you for contributing your drop data!', '#FFFF00');
 });
