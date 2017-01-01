@@ -34,7 +34,7 @@ parent.compoundit = (function() {
                 return;
             }
             else {
-                parent.game_log("Can't buy a compounding scroll.");
+                parent.ui_log("Can't buy a compounding scroll.");
             }
         }
 
