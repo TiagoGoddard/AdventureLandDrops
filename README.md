@@ -12,7 +12,7 @@ window.aldc_use_exchange = true;
 // USAGE INFORMATION:
 // When aldc_use_upgrade = true, use parent.upgradeit(item_name, max_level, options_object) to upgrade items.
 //      options_object defaults to { buy_item: false, buy_scrolls: true, stop_on_success: false }
-// When aldc_use_compound = true, use parent.compoundit(item_name, item_level_to_compound); to compound items togeter. 
+// When aldc_use_compound = true, use parent.compoundit(item_name, item_level_to_compound); to compound items togeter.
 //      i.e parent.compoundit('hpbelt', 0) tries to create an hpbelt+1 with 3 hpbelt+0
 // When aldc_use_exchange = true, use parent.exchangeit(inventory_slot) to exchange 1 item in that inventory slot
 
@@ -26,7 +26,7 @@ Then you will be reporting kill/drops to the database and you can use `parent.up
 # To update and configure server
 
 ## To update data.js
-http://adventure.land/data.js
+Get the file data.js from: http://adventure.land/data.js and replace `var G` with `module.exports`
 
 ## To update skins.json
 ```javascript
@@ -35,5 +35,5 @@ show_json(parent.FC);
 
 ## To update dimensions.json
 ```
-show_json(parent.D)
+show_json(parent.D);
 ```
