@@ -231,6 +231,15 @@ function updateUpgradeTable() {
             upgradeData[group_type].data.push(new_info);
         }
 
+        function compare(a,b) {
+            if(a.name < b.name) return -1;
+            if(a.name > b.name) return 1;
+            return 0;
+        }
+        upgradeData['Weapons'].data.sort(compare);
+        upgradeData['Armor'].data.sort(compare);
+        upgradeData['Accessories'].data.sort(compare);
+        upgradeData['Misc'].data.sort(compare);
         upgradeTable = upgradeData;
     });
 }
