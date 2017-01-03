@@ -23,6 +23,72 @@ $.getScript('http://adventurecode.club/script', function() {
 
 Then you will be reporting kill/drops to the database and you can use `parent.upgradeit`, `parent.compoundit` and `parent.exchangeit` functions.
 
+## Example scripts for `upgradeit`/`compoundit`/`exchangeit`
+
+### Upgrade xmas items to the desired level
+Note the `i_am_sure_i_want_to_do_upgrade_my_xmas_items` variable
+```
+let xmas_items = ['xmashat', 'xmassweater', 'xmaspants', 'xmasshoes', 'mittens' ];
+let level_desired = 6;
+let i_am_sure_i_want_to_do_upgrade_my_xmas_items = false;
+
+function seekAndUpgrade() {
+    if(!i_am_sure_i_want_to_do_upgrade_my_xmas_items) return;
+    
+    for(let slot in character.items) {
+        let item = character.items[slot];
+        if(item && xmas_items.indexOf(item.name) != -1) {
+            parent.upgradeit(item.name, level_desired);
+            setTimeout(seekAndUpgrade, 1000);
+            return;
+        }
+    }
+}
+
+setTimeout(seekAndUpgrade, 2000);
+```
+
+### Auto compound white-listed items as they appear in the inventory
+```
+setInterval(() => {
+    if(parent.compoundit) {
+        let compound_whitelist = {
+            //item name : max level to compound from, i.e 1 = will find 3x +1 and try to make it +2
+            "ringsj"    : 1,
+            "hpbelt"    : 1,
+            "hpamulet"  : 1,
+            "wbook0"    : 1
+        };
+
+        Object.keys(compound_whitelist).some(function(item) {
+            let maxLevel = compound_whitelist[item];
+            for(let level = 0; level < maxLevel; level++) {
+                let [found_slots,] = util.find_all_items_namelevel(item, level);
+                if(found_slots.length >= 3) {
+                    parent.compoundit(item, level);
+                    return true;
+                }
+            }
+        });
+    }
+}, 5000);
+```
+
+### Exchange all exchangable items in the inventory
+```
+function exchangeAll() {
+    for(let slot in character.items) {
+        let item = character.items[slot];
+        if(item && G.items[item.name].e && G.items[item.name].e <= item.q) {
+            parent.exchangeit(slot);
+            setTimeout(exchangeAll, 750);
+            return;
+        }
+    }
+}
+setTimeout(exchangeAll, 1000);
+```
+
 # To update and configure server
 
 ## To update data.js
