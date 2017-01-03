@@ -63,10 +63,16 @@ setInterval(() => {
         Object.keys(compound_whitelist).some(function(item) {
             let maxLevel = compound_whitelist[item];
             for(let level = 0; level < maxLevel; level++) {
-                let [found_slots,] = util.find_all_items_namelevel(item, level);
-                if(found_slots.length >= 3) {
-                    parent.compoundit(item, level);
-                    return true;
+                let count = 0;
+                for(let slot of character.items) {
+                    let anitem = character.items[slot];
+                    if(anitem.name == item && anitem.level == level) {
+                        count++;
+                        if(count == 3) {
+                            parent.compoundit(item, level);
+                            return true;
+                        }
+                    }
                 }
             }
         });
