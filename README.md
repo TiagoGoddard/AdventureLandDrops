@@ -53,7 +53,7 @@ setTimeout(seekAndUpgrade, 2000);
 setInterval(() => {
     if(parent.compoundit) {
         let compound_whitelist = {
-            //item name : max level to compound from, i.e 1 = will find 3x +1 and try to make it +2
+            //item name : max level to compound into, i.e 1 = will find 3x +0 and try to make it +1
             "ringsj"    : 1,
             "hpbelt"    : 1,
             "hpamulet"  : 1,
@@ -66,7 +66,7 @@ setInterval(() => {
                 let count = 0;
                 for(let slot of character.items) {
                     let anitem = character.items[slot];
-                    if(anitem.name == item && anitem.level == level) {
+                    if(anitem && anitem.name == item && anitem.level == level) {
                         count++;
                         if(count == 3) {
                             parent.compoundit(item, level);
