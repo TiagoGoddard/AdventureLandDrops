@@ -228,7 +228,6 @@ fetch(`${DROP_SERVER2}/apic`, {
 })
 .then((res) =>  {
     if(res.ok) {
-        console.log("Loading scripts");
         if(window.aldc_use_upgrade) {
             $.ajax({
                 url: 'http://adventurecode.club/upgradescript?t='+(new Date).getTime(),
