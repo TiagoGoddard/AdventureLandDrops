@@ -25,6 +25,8 @@ Then you will be reporting kill/drops to the database and you can use `parent.up
 
 ## Example scripts for `upgradeit`/`compoundit`/`exchangeit`
 
+All of these examples require that the code be loaded via the block mentioned above, and have the corresponding component set to `true`
+
 ### Upgrade xmas items to the desired level
 Note the `i_am_sure_i_want_to_do_upgrade_my_xmas_items` variable
 ```
@@ -44,8 +46,12 @@ function seekAndUpgrade() {
         }
     }
 }
-
-setTimeout(seekAndUpgrade, 2000);
+if(parent.upgradeit) {
+    setTimeout(seekAndUpgrade, 2000);
+}
+else {
+    console.error("parent.upgradeit not available for the auto-compound script");
+}
 ```
 
 ### Auto compound white-listed items as they appear in the inventory
@@ -59,23 +65,19 @@ setInterval(() => {
             "hpamulet"  : 1,
             "wbook0"    : 1
         };
-
+        
         Object.keys(compound_whitelist).some(function(item) {
             let maxLevel = compound_whitelist[item];
-            for(let level = 0; level < maxLevel; level++) {
-                let count = 0;
-                for(let slot of character.items) {
-                    let anitem = character.items[slot];
-                    if(anitem && anitem.name == item && anitem.level == level) {
-                        count++;
-                        if(count == 3) {
-                            parent.compoundit(item, level);
-                            return true;
-                        }
-                    }
+            for(let level = 0; level <= maxLevel; level++) {
+                if(character.items.filter(i => i && i.name == item && i.level == level).length >= 3) {
+                    parent.compoundit(item, level);
+                    return true;
                 }
             }
         });
+    }
+    else {
+        console.error("parent.compoundit not available for the auto-compound script");
     }
 }, 5000);
 ```
@@ -92,7 +94,12 @@ function exchangeAll() {
         }
     }
 }
-setTimeout(exchangeAll, 1000);
+if(parent.exchangeit) {
+    setTimeout(exchangeAll, 1000);
+}
+else {
+    console.error("parent.exchangeit not available for the auto-compound script");
+}
 ```
 
 # To update and configure server
