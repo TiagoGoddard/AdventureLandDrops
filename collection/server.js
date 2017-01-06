@@ -23,6 +23,17 @@ for (let itemType of Object.keys(data.items)) {
 
 server.route({
     method: 'POST',
+    path: '/apic',
+    handler: (request, reply) => {
+        const data = JSON.parse(request.payload.json);
+        if (!keys.includes(data.key)) return reply().code(403);
+        if (SCRIPT_VERSION != data.version) return reply().code(426);
+        reply().code(200);
+    }
+});
+
+server.route({
+    method: 'POST',
     path: '/drop',
     handler: (request, reply) => {
         const dropData = JSON.parse(request.payload.json);

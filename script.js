@@ -4,7 +4,7 @@ let DROP_SERVER = 'http://adventurecode.club:13726';
 let DROP_SERVER2 = window.aldc_second_server;
 let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
-let DROP_API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
+let API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
 let SCRIPT_VERSION = 3;
 
 let last_error_time = 0;
@@ -127,7 +127,7 @@ function determineResponsibility(logMessage) {
     }
 }
 
-var data_package = { key: DROP_API_KEY, version: SCRIPT_VERSION, data : []};
+var data_package = { key: API_KEY, version: SCRIPT_VERSION, data : []};
 var data_lastsend = 0;
 
 function chest_handler(chest) {
@@ -203,8 +203,8 @@ function sendIfReady() {
 
 function handleDropServerResponse(response) {
     if(response.status == 403) { //api key
-        console.error("DROP DATA COLLECTION : The API key provided is not recongized.");
-        parent.ui_error("DROP DATA COLLECTION : The API key provided is not recongized.");
+        console.error("DROP DATA COLLECTION : The API key provided is not recognized.");
+        parent.ui_error("DROP DATA COLLECTION : The API key provided is not recognized.");
         last_error_time = Date.now();
     }
     else if(response.status == 426) { // upgrade
@@ -220,28 +220,42 @@ register_handler('game_log', log_handler);
 register_handler('chest_opened', chest_handler);
 
 //load extra features
-if(window.aldc_use_upgrade) {
-    $.ajax({
-        url: 'http://adventurecode.club/upgradescript?t='+(new Date).getTime(),
-        dataType: 'script',
-        success: () => game_log('Thank you for contributing your upgrade data!', '#FFFF00'),
-        async: false
-    });
-}
-if(window.aldc_use_compound) {
-    $.ajax({
-        url: 'http://adventurecode.club/compoundscript?t='+(new Date).getTime(),
-        dataType: 'script',
-        success: () => game_log('Thank you for contributing your compound data!', '#FFFF00'),
-        async: false
-    });
-}
-if(window.aldc_use_exchange) {
-    $.ajax({
-        url: 'http://adventurecode.club/exchangescript?t='+(new Date).getTime(),
-        dataType: 'script',
-        success: () => game_log('Thank you for contributing your exchange data!', '#FFFF00'),
-        async: false
-    });
-}
+let scriptLoad = new FormData();
+scriptLoad.append('json', JSON.stringify({ key: data_package.key, version: data_package.version }));
+fetch(`${DROP_SERVER2}/apic`, {
+    method: 'POST',
+    body: scriptLoad
+})
+.then((res) =>  {
+    if(res.ok) {
+        console.log("Loading scripts");
+        if(window.aldc_use_upgrade) {
+            $.ajax({
+                url: 'http://adventurecode.club/upgradescript?t='+(new Date).getTime(),
+                dataType: 'script',
+                success: () => game_log('Thank you for contributing your upgrade data!', '#FFFF00'),
+                async: false
+            });
+        }
+        if(window.aldc_use_compound) {
+            $.ajax({
+                url: 'http://adventurecode.club/compoundscript?t='+(new Date).getTime(),
+                dataType: 'script',
+                success: () => game_log('Thank you for contributing your compound data!', '#FFFF00'),
+                async: false
+            });
+        }
+        if(window.aldc_use_exchange) {
+            $.ajax({
+                url: 'http://adventurecode.club/exchangescript?t='+(new Date).getTime(),
+                dataType: 'script',
+                success: () => game_log('Thank you for contributing your exchange data!', '#FFFF00'),
+                async: false
+            });
+        }
+    }
+    else {
+        console.error("Invalid API key") ;
+    }
+});
 }());

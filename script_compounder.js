@@ -7,8 +7,16 @@ parent.compoundit = (function() {
     var startitem;
 
     function compound(name, level) {
+        if(!parent) {
+            console.error("Unable to get parent object") ;
+            return;
+        }
         if(parent.waiting_for_log) {
             console.log("Waiting for log... (parent.waiting_for_log == true)");
+        }
+        if(API_KEY.length < 15) {
+            console.error("Invalid API key") ;
+            return;
         }
         let [slots,items] = find_all_items_namelevel(name, level);
         if(slots.length >= 3) {

@@ -19,6 +19,10 @@ parent.exchangeit = (function() {
             console.log("Waiting for log... (parent.waiting_for_log == true). If this persists, refresh the web page.");
             return;
         }
+        if(API_KEY.length < 15) {
+            console.error("Invalid API key") ;
+            return;
+        }
         startitem = character.items[slot];
         let baseitem = parent.G.items[startitem.name];
         if(!startitem) {

@@ -159,6 +159,14 @@ parent.upgradeit = (function() {
 
     /* eslint no-shadow:0 */
     function upgrade(item_name, max_level, options = {}) {
+        if(!parent) {
+            console.error("Unable to get parent object") ;
+            return;
+        }
+        if(API_KEY.length < 15) {
+            console.error("Invalid API key") ;
+            return;
+        }
         if (upgrade_running) return;
 
         options = Object.assign({}, {
