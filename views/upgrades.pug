@@ -42,7 +42,7 @@ block content
                                         if result
                                             - var chance = result.success / (result.success + result.fails);
                                             - cumul_chance *= chance;
-                                            - previous_cost = (previous_cost + scroll_cost(item.item, lvl)) / chance;
+                                            - previous_cost = (previous_cost + scroll_cost(item.item, lvl-1)) / chance;
                                             td.info.align-center
                                                 | #{Math.round(chance * 100)}%
                                                 br
