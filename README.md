@@ -68,7 +68,7 @@ setInterval(() => {
         
         Object.keys(compound_whitelist).some(function(item) {
             let maxLevel = compound_whitelist[item];
-            for(let level = 0; level <= maxLevel; level++) {
+            for(let level = 0; level < maxLevel; level++) {
                 if(character.items.filter(i => i && i.name == item && i.level == level).length >= 3) {
                     parent.compoundit(item, level);
                     return true;
