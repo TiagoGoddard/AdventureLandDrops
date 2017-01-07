@@ -2,6 +2,7 @@ parent.upgradeit = (function() {
     let COLLECTION_SERVER = 'http://adventurecode.club:13726';
     let COLLECTION_SERVER2 = window.aldc_second_server;
     let API_KEY = window.aldc_apikey;
+    let recursion_count = 0;
 
     function find_slot(starting_slot, filter) {
         if (typeof starting_slot == 'function') {
@@ -227,12 +228,16 @@ parent.upgradeit = (function() {
         }
 
         if (!missing_scrolls && item_found) {
+            recursion_count = 0;
             preemptive_upgrades(item_slot, scrolls.map(([s]) => s), max_level);
         }
         else if((!item_found && options.buy_item) || (missing_scrolls && options.buy_scrolls) && !G.maps[parent.current_map].mount){
-            setTimeout(() => {
-                upgrade(item_name, max_level, options);
-            }, 500);
+            recursion_count++;
+            if(recursion_count < 5) {
+                setTimeout(() => {
+                    upgrade(item_name, max_level, options);
+                }, 500);
+            }
         }
     }
     parent.ui_success("Use the upgrade script with parent.upgradeit(item_name, max_level, options)");
