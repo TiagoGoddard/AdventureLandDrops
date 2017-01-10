@@ -49,6 +49,7 @@
   "wolfie": "/images/tiles/monsters/monster_wolf2.png",
   "ship": "/images/tiles/characters/ship2.png",
   "tf_template": "/images/tiles/characters/tf_template.png",
+  "pflow": "/images/tiles/characters/animation1i.png",
   "sidesword": "/images/tiles/characters/animation1i.png",
   "flute": "/images/tiles/characters/animation1i.png",
   "fancypots": "/images/tiles/characters/animation1i.png",
