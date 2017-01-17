@@ -33,11 +33,18 @@ parent.compoundit = (function() {
             slot : slots[0],
             level: item.level,
         };
+        
+        let item_base = parent.G.items[item.name];
+        let scroll_type = itemG.grades[0] <= item.level
+            ? itemG.grades[1] <= item.level
+                ? "cscroll2"
+                : "cscroll1"
+            : "cscroll0";
 
-        let [scroll_slot, scroll] = find_item(i => i.name == "cscroll0");
+        let [scroll_slot, scroll] = find_item(i => i.name == scroll_type);
         if(!scroll) {
-            if(parent.character.gold >= 6400 && !G.maps[parent.current_map].mount) {
-                parent.buy("cscroll0", 1);
+            if(parent.character.gold >= G.items[scroll_type].g && !G.maps[parent.current_map].mount) {
+                parent.buy(scroll_type, 1);
                 setTimeout(function() { compoundItems(slots); }, 500);
                 return;
             }
