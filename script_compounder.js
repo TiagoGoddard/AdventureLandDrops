@@ -34,9 +34,9 @@ parent.compoundit = (function() {
             level: item.level,
         };
         
-        let item_base = parent.G.items[item.name];
-        let scroll_type = itemG.grades[0] <= item.level
-            ? itemG.grades[1] <= item.level
+        let item_base = G.items[item.name];
+        let scroll_type = item_base.grades[0] <= item.level
+            ? item_base.grades[1] <= item.level
                 ? "cscroll2"
                 : "cscroll1"
             : "cscroll0";
