@@ -33,7 +33,7 @@ parent.compoundit = (function() {
             slot : slots[0],
             level: item.level,
         };
-        
+
         let item_base = G.items[item.name];
         let scroll_type = item_base.grades[0] <= item.level
             ? item_base.grades[1] <= item.level
@@ -107,7 +107,7 @@ parent.compoundit = (function() {
             key : API_KEY
         };
 
-        let data = new parent.FormData();
+        let data = new FormData();
         data.append('json', JSON.stringify(payload));
         let content = {
             method: 'POST',

@@ -140,7 +140,7 @@ parent.exchangeit = (function() {
             key : API_KEY
         };
 
-        let data = new parent.FormData();
+        let data = new FormData();
         data.append('json', JSON.stringify(payload));
         let content = { method: 'POST', body: data };
 

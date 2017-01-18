@@ -119,7 +119,7 @@ parent.upgradeit = (function() {
                 entries: upgrades
             };
 
-            let data = new parent.FormData();
+            let data = new FormData();
             data.append('json', JSON.stringify(payload));
 
             fetch(`${COLLECTION_SERVER}/upgrade`, {
