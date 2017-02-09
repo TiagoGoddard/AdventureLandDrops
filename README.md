@@ -111,8 +111,10 @@ Get the file data.js from: http://adventure.land/data.js and replace `var G` wit
 ```javascript
 show_json(parent.FC);
 ```
+Don't forget to add the Jrat and elementals.
 
 ## To update dimensions.json
 ```
 show_json(parent.D);
 ```
+Don't forget to add the Jrat and elementals.

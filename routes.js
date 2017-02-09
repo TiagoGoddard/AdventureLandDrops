@@ -79,15 +79,12 @@ const itemHandler = function (request, reply) {
         return reply().code(404);
     }
 
-    collection.db.getUpgradeInfo(itemType)
-    .then((table) => {
-        reply.view('item', {
-            item: itemData,
-            type: itemType,
-            dropped: reverseDropTable.get(itemType) || [],
-            upgrades: table,
-            sprites
-        });
+    reply.view('item', {
+        item: itemData,
+        type: itemType,
+        dropped: reverseDropTable.get(itemType) || [],
+        upgrades: upgradeTable,
+        sprites
     });
 };
 
