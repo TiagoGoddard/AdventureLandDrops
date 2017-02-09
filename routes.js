@@ -84,6 +84,7 @@ const itemHandler = function (request, reply) {
         type: itemType,
         dropped: reverseDropTable.get(itemType) || [],
         upgrades: upgradeTable,
+        scroll_cost : scroll_cost,
         sprites
     });
 };
@@ -156,16 +157,18 @@ function updateDropTable() {
                 if (!reverseDropTable.has(drop.item)) {
                     reverseDropTable.set(drop.item, []);
                 }
-
-                reverseDropTable.get(drop.item).push({
-                    monster: monster,
-                    name: data.monsters[monster].name,
-                    map: drop.map,
-                    mapName: drop.mapName,
-                    rate: drop.rate,
-                    drops: drop.drops,
-                    kills: drop.kills
-                });
+              
+                if(data.monsters[monster]) {
+                    reverseDropTable.get(drop.item).push({
+                        monster: monster,
+                        name: data.monsters[monster].name,
+                        map: drop.map,
+                        mapName: drop.mapName,
+                        rate: drop.rate,
+                        drops: drop.drops,
+                        kills: drop.kills
+                    });
+                }
             }
         }
     });
