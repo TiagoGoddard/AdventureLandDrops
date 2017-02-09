@@ -134,7 +134,7 @@ block content
                     tr
                         th
                         each i in levels
-                            th.align-right +#{i}
+                            th.align-center +#{i}
 
                 tbody
                     - let properties = Object.keys(scaling)
@@ -152,9 +152,9 @@ block content
 
                             each i in levels
                                 if isRounded
-                                    td.gray.align-right=formatNumber(acc)
+                                    td.gray.align-center=formatNumber(acc)
                                 else
-                                    td.gray.align-right=formatNumber(acc, 3)
+                                    td.gray.align-center=formatNumber(acc, 3)
 
                                 -
                                     if (property == 'stat') {
@@ -163,6 +163,36 @@ block content
                                     } else {
                                         acc += scaling[property] * multipliers[i]
                                     }
+            
+                    each group, group_type in upgrades                
+
+                        each citem in group.data
+                            if (citem.name == item.name)
+                                tr
+                                    td Chance
+                                    td
+                                    - var lvl = 1;
+                                    - var cumul_chance = 1;
+                                    - var previous_cost = 0;
+                                    while lvl <= 10
+                                        - var result = citem.results[lvl-1];
+                                        if result
+                                            - var chance = result.success / (result.success + result.fails);
+                                            - cumul_chance *= chance;
+                                            - previous_cost = (previous_cost + scroll_cost(citem.item, lvl-1)) / chance;
+                                            td.info.align-center
+                                                | #{Math.round(chance * 100)}%
+                                                br
+                                                span.gray #{Math.round(cumul_chance*10000)/100}%
+                                                br
+                                                span.gray.medsmall (#{result.success + result.fails})
+                                                br
+                                                span.gray.small #{formatNumber(Math.round(previous_cost))}
+                                        else
+                                            td.info.align-center N/A
+                                        - lvl++;
+
+
 
     if dropped.length
         .vmargin.border
@@ -193,52 +223,6 @@ block content
             };
             var list = new List('drops', options);
             list.sort('rate', { order: 'desc'});
-
-        .vmargin.border
-            each group, group_type in upgrades                
-                table.upgrades
-                    
-                        each citem in group.data
-                            if (citem.name == item.name)
-                              thead
-                                tr
-                                    th
-                                    th.align-center Item
-                                    - var lvl = 1;
-                                    while lvl <= group.max_level
-                                        th.align-center +#{lvl++}
-                                    while lvl++ <= 10
-                                        th
-                              tbody.list
-                                tr
-                                    td.dashed(colspan=12)
-                                tr
-                                    td
-                                        a(href=`/items/${citem.item}`).sprite-container.small
-                                            div(style=sprites.item(citem.item, 32))
-                                    td
-                                        a.name(href=`/items/${citem.item}`)=citem.name
-                                        - var lvl = 1;
-                                        - var cumul_chance = 1;
-                                        - var previous_cost = 0;
-                                        while lvl <= group.max_level
-                                            - var result = citem.results[lvl-1];
-                                            if result
-                                                - var chance = result.success / (result.success + result.fails);
-                                                - cumul_chance *= chance;
-                                                - previous_cost = (previous_cost + scroll_cost(citem.item, lvl-1)) / chance;
-                                                td.info.align-center
-                                                    | #{Math.round(chance * 100)}%
-                                                    br
-                                                    span.gray #{Math.round(cumul_chance*10000)/100}%
-                                                    br
-                                                    span.gray.medsmall (#{result.success + result.fails})
-                                                    br
-                                                    span.gray.small #{formatNumber(Math.round(previous_cost))}
-                                            else
-                                                td.info.align-center N/A
-                                            - lvl++;
-
 
         script.
             var options = {
