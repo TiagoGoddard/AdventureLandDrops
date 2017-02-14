@@ -1,3 +1,19 @@
+CREATE TABLE IF NOT EXISTS market (
+    id INTEGER PRIMARY KEY,
+    type TEXT NOT NULL,
+    price INTEGER NOT NULL,
+    items INTEGER NOT NULL,
+    player TEXT NOT NULL,
+    userkey INTEGER NOT NULL,
+    version INTEGER NOT NULL,
+    time DATETIME NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS player_idx ON market(player);
+CREATE INDEX IF NOT EXISTS items_price_idx ON drops(items, price);
+CREATE INDEX IF NOT EXISTS items_idx ON market(items);
+CREATE INDEX IF NOT EXISTS player_items_idx ON drops(player, items);
+
 CREATE TABLE IF NOT EXISTS drops (
     id INTEGER PRIMARY KEY,
     type TEXT NOT NULL,

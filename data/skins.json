@@ -40,11 +40,6 @@
   "armadillo": "/images/tiles/monsters/monster2.png?v=2",
   "goo": "/images/tiles/monsters/monster1.png",
   "rat": "/images/tiles/monsters/monster1.png",
-  "jrat": "/images/tiles/monsters/monster1.png",
-  "eelemental": "/images/tiles/monsters/monster1.png",
-  "felemental": "/images/tiles/monsters/monster1.png",
-  "nelemental": "/images/tiles/monsters/monster1.png",
-  "welemental": "/images/tiles/monsters/monster1.png",
   "spider": "/images/tiles/monsters/monster1.png",
   "scorpion": "/images/tiles/monsters/monster1.png",
   "bloodworm": "/images/tiles/monsters/monster1.png",
@@ -96,6 +91,7 @@
   "king2": "/images/tiles/characters/custom1.png?v=8",
   "mmage": "/images/tiles/characters/custom1.png?v=8",
   "mranger": "/images/tiles/characters/bonus1.png",
+  "holo": "/images/tiles/characters/bonus1.png",
   "fisherman": "/images/tiles/characters/npc1.png",
   "gemmerchant": "/images/tiles/characters/npc1.png",
   "showoff": "/images/tiles/characters/npc6.png",
@@ -139,5 +135,10 @@
   "splithair": "/images/tiles/characters/chara8.png",
   "king": "/images/tiles/characters/chara8.png",
   "pwincess": "/images/tiles/characters/chara8.png",
-  "greencap": "/images/tiles/characters/chara8.png"
+  "greencap": "/images/tiles/characters/chara8.png",
+  "jrat": "/images/tiles/monsters/monster1.png",
+  "eelemental": "/images/tiles/monsters/monster1.png",
+  "felemental": "/images/tiles/monsters/monster1.png",
+  "nelemental": "/images/tiles/monsters/monster1.png",
+  "welemental": "/images/tiles/monsters/monster1.png"
 }
