@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS market (
 );
 
 CREATE INDEX IF NOT EXISTS player_idx ON market(player);
-CREATE INDEX IF NOT EXISTS items_price_idx ON drops(items, price);
+CREATE INDEX IF NOT EXISTS items_price_idx ON market(items, price);
 CREATE INDEX IF NOT EXISTS items_idx ON market(items);
-CREATE INDEX IF NOT EXISTS player_items_idx ON drops(player, items);
+CREATE INDEX IF NOT EXISTS player_items_idx ON market(player, items);
 
 CREATE TABLE IF NOT EXISTS drops (
     id INTEGER PRIMARY KEY,
