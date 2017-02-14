@@ -195,6 +195,39 @@ block content
                                         - lvl++;
 
 
+    if show_exchanges
+        each itemdata, itemkey in exchanges
+            if items_data[itemkey].name == item.name
+                .horizontal-flex.vmargin
+                    .column.border
+                        table
+                            tbody
+                                tr
+                                    td Exchanges
+                        hr
+                        table.exchanges
+                            thead
+                                tr
+                                    th
+                                    th.align-center Item
+                                    th.align-center Amount
+                                    th.align-center Times Seen
+                                    th.align-center Chance
+                                td.dashed(colspan=11)
+                            tbody.list
+                                each record in itemdata
+                                    tr
+                                        td
+                                            a(href=`/items/${record.result}`).sprite-container.small
+                                                div(style=sprites.item(record.result, 32))
+                                        td
+                                            if (record.result == "gold")
+                                                .info Gold
+                                            else
+                                                a.name(href=`/items/${record.result}`)=items_data[record.result].name
+                                        td.align-center #{formatNumber(record.amount)}
+                                        td.align-center #{record.seen}
+                                        td.align-center #{ Math.round(record.seen/record.total * 10000)/100}%
 
     if dropped.length
         .vmargin.border

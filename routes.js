@@ -49,6 +49,7 @@ let monsterGoldTable = new Map();
 let reverseDropTable = new Map();
 let contribTable = new Map();
 let upgradeTable = {};
+let exchangeTable = {};
 
 const monsterHandler = function (request, reply) {
     const monsterType = request.params.monster;
@@ -84,6 +85,9 @@ const itemHandler = function (request, reply) {
         type: itemType,
         dropped: reverseDropTable.get(itemType) || [],
         upgrades: upgradeTable,
+        show_exchanges: Object.keys(exchangeTable).length === 0),
+        exchanges: exchangeTable,
+        items_data : data.items,
         scroll_cost : scroll_cost,
         sprites
     });
@@ -101,22 +105,6 @@ function scroll_cost(item, level) {
     }
 }
 
-/*function item_level_cost(item, level) {
-    let scroll0_cost = 1000, scroll1_cost = 40000, scroll2_cost = 1600000;
-    let item_cost = data.items[item].g ? data.items[item].g : 500000;
-    let item_grades = data.items[item].grades;
-    if(level == 1) return item_cost + scroll0_cost;
-    else {
-        if(level >= item_grades[1]) return scroll2_cost;
-        if(level >= item_grades[0]) return scroll1_cost;
-        return scroll0_cost;
-    }
-    let cost_sc0 = (level > item_grades[0] ? item_grades[0] : level) * scroll0_cost;
-    let cost_sc1 = (level > item_grades[0] ? level - item_grades[0] : 0) * scroll1_cost;
-    let cost_sc2 = (level > item_grades[1] ? 1 : 0) * scroll2_cost;
-    return item_cost + cost_sc0 + cost_sc1 + cost_sc2;
-}*/
-
 const upgradesHandler = function(request, reply) {
     reply.view('upgrades', {
         upgrades: upgradeTable,
@@ -126,17 +114,13 @@ const upgradesHandler = function(request, reply) {
 };
 
 const exchangesHandler = function(request, reply) {
-
-    collection.db.getExchangesTable()
-    .then((table) => {
-        if(Object.keys(table).length == 0) {
-            reply("No exchange data");
-        }
-        reply.view('exchanges', {
-            exchanges: table,
-            items_data : data.items,
-            sprites
-        });
+    if(Object.keys(exchangeTable).length === 0) {
+        reply("No exchange data");
+    }
+    reply.view('exchanges', {
+        exchanges: exchangeTable,
+        items_data : data.items,
+        sprites
     });
 };
 
@@ -244,10 +228,19 @@ function updateUpgradeTable() {
     });
 }
 
+function updateExchangeTable() {
+    collection.db.getExchangesTable()
+    .then((table) => {
+        exchangeTable = table;
+    });
+}
+
 setInterval(updateDropTable, 1000 * 60 * 10);
 setInterval(updateUpgradeTable, 1000 * 60);
+setInterval(updateExchangeTable, 1000 * 60);
 updateDropTable();
 updateUpgradeTable();
+updateExchangeTable();
 
 exports.root = rootHandler;
 
