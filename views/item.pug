@@ -7,6 +7,7 @@ block content
     -
         const propNames = new Map([
             ['lifesteal', 'Lifesteal'],
+            ['gold', 'Gold'],
             ['evasion', 'Evasion'],
             ['reflection', 'Reflection'],
             ['crit', 'Crit'],
@@ -86,6 +87,7 @@ block content
                     +attribute('lifesteal') #[+n]: #[span.gray #[+v]%]
                     +attribute('evasion') #[+n]: #[span.gray #[+v]%]
                     +attribute('reflection') #[+n]: #[span.gray #[+v]%]
+                    +attribute('gold') #[+n]: #[span.gray #[+v]%]
                     +attribute('crit') #[+n]: #[span.gray #[+v]%]
                     +attribute('attack') #[+n]: #[span.gray #[+v]]
                     +attribute('range') #[+n]: #[span.gray +#[+v]]
@@ -101,7 +103,7 @@ block content
                     +attribute('resistance') #[+n]: #[span.gray #[+v]]
                     +attribute('rpiercing') #[+n]: #[span.gray #[+v]]
                     +attribute('dreturn') #[+n]: #[span.gray #[+v]]
-                    +attribute('speed') #[+n]: #[span.gray +#[+v]]
+                    +attribute('speed') #[+n]: #[span.gray #[+v]]
 
                     if item.ability
                         - let text = abilityText.get(item.ability)
