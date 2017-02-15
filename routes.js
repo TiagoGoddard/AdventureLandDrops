@@ -76,14 +76,14 @@ const itemHandler = function (request, reply) {
     const itemType = request.params.item;
     const itemData = data.items[itemType];
 
-    var show_exchange = false;
+    var hide_exchange = true;
 
     if (!itemData) {
         return reply().code(404);
     }
 
     if(exchangeTable) {
-      show_exchange = (Object.keys(exchangeTable).length === 0);
+      hide_exchange = (Object.keys(exchangeTable).length === 0);
     }
 
     reply.view('item', {
@@ -91,7 +91,7 @@ const itemHandler = function (request, reply) {
         type: itemType,
         dropped: reverseDropTable.get(itemType) || [],
         upgrades: upgradeTable,
-        show_exchanges: show_exchange,
+        show_exchanges: !hide_exchange,
         exchanges: exchangeTable,
         items_data : data.items,
         scroll_cost : scroll_cost,
@@ -122,12 +122,13 @@ const upgradesHandler = function(request, reply) {
 const exchangesHandler = function(request, reply) {
     if(Object.keys(exchangeTable).length === 0) {
         reply("No exchange data");
+    } else {
+      reply.view('exchanges', {
+          exchanges: exchangeTable,
+          items_data : data.items,
+          sprites
+      });
     }
-    reply.view('exchanges', {
-        exchanges: exchangeTable,
-        items_data : data.items,
-        sprites
-    });
 };
 
 function updateDropTable() {

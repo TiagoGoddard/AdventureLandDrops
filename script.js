@@ -9,8 +9,20 @@ let SCRIPT_VERSION = 3;
 
 let last_error_time = 0;
 let tracked_entities = [];
+let dead_entities = {};
 let tracked_chests = {};
 let tracked_drops = null;
+
+clone_function = function(afunction) {
+    var that = afunction;
+    var temp = function temporary() { return that.apply(afunction, arguments); };
+    for(var key in afunction) {
+        if (afunction.hasOwnProperty(key)) {
+            temp[key] = afunction[key];
+        }
+    }
+    return temp;
+};
 
 if (parent.prev_handlers) {
     for (let [event, handler] of parent.prev_handlers) {
@@ -19,6 +31,17 @@ if (parent.prev_handlers) {
 }
 
 parent.prev_handlers = [];
+
+var callback_on_disappear = clone_function(on_disappear);
+	
+on_disappear = function(entity, data) {
+    //Add deaths as a monster disappear
+    if(data.death) {
+	    dead_entities[entity.id] = entity;
+    }
+
+    callback_on_disappear(entity, data);
+}
 
 function register_handler(event, handler) {
     parent.prev_handlers.push([event, handler]);
@@ -30,7 +53,14 @@ function register_handler(event, handler) {
 function death_handler(data) {
     if(!parent) return;
     let entity = parent.entities[data.id];
-    if (!entity) return;
+    if (!entity) {
+      entity = dead_entities[data.id];
+      if (!entity) {
+        return;
+      } else {
+        delete dead_entities[data.id];
+      }
+    }
 
     let entity_data = {
         x: entity.real_x,
