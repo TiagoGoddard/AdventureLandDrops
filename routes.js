@@ -1,6 +1,7 @@
 const data = require('./data');
 const collection = require('./collection');
 const sprites = require('./sprites');
+const sortOrder = require('./sortOrder');
 
 let monsters = [];
 let items = [];
@@ -20,7 +21,7 @@ for (let itemType in data.items) {
 }
 
 monsters.sort((a, b) => a.name.localeCompare(b.name));
-items.sort((a, b) => a.name.localeCompare(b.name));
+items.sort((a, b) => sortOrder[b.type]-sortOrder[a.type]);
 
 const rootHandler = function (request, reply) {
     reply.view('index', {
