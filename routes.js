@@ -205,9 +205,11 @@ function updateUpgradeTable() {
             let item = data.items[upgrade_info.name];
 
             let group_type = 'Misc';
-            for(let group in upgradeData) {
-                if(upgradeData[group].types.indexOf(item.type) > -1)
-                    group_type = group;
+            if(item) {
+              for(let group in upgradeData) {
+                  if(upgradeData[group].types.indexOf(item.type) > -1)
+                      group_type = group;
+              }
             }
 
             let new_info = {
