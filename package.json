@@ -4,7 +4,7 @@
   "description": "AdventureLand server side code from: https://gitlab.com/Draivin/adventure-drops/tree/master",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/jshint/bin/jshint app.js"
   },
   "author": "Draivin",
   "license": "ISC",
@@ -17,10 +17,7 @@
     "request": "^2.79.0"
   },
   "devDependencies": {
-    "jshint": "^2.6.0"
-  },
-  "scripts": {
-    "test": "./node_modules/jshint/bin/jshint app.js"
+    "jshint": "^2.9.5"
   },
   "repository": {
     "type": "git",
@@ -30,7 +27,6 @@
     "url": "https://github.com/TiagoGoddard/AdventureLandDrops/issues"
   },
   "homepage": "https://github.com/TiagoGoddard/AdventureLandDrops#readme",
-  "devDependencies": {},
   "keywords": [
     "AdventureLand"
   ]
