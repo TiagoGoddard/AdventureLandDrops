@@ -10,10 +10,10 @@ const listDropsQuery = fs.readFileSync(__dirname + '/queries/droprate.sql', 'utf
 db.exec(createQuery);
 
 const dropStatement = db.prepare('INSERT INTO drops (type, monster, map, gold, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-const itemStatement = db.prepare('INSERT INTO items VALUES (null, ?, ?)');
-const upgradeStatement = db.prepare('INSERT INTO upgrades VALUES (null, ?, ?, ?, ?, ?, ?, ?)');
+const itemStatement = db.prepare('INSERT INTO items (name, dropid) VALUES (?, ?)');
+const upgradeStatement = db.prepare('INSERT INTO upgrades (item, level, scroll, offering, success, userkey, time) VALUES (?, ?, ?, ?, ?, ?, ?)');
 const compoundStatement = db.prepare('INSERT INTO compounds (item, level, success, userkey, time) VALUES (?, ?, ?, ?, ?)');
-const exchangeStatement = db.prepare('INSERT INTO exchanges (item, result, amount, userkey, time) VALUES (?, ?, ?, ?, ?)');
+const exchangeStatement = db.prepare('INSERT INTO exchanges (item, result, amount, userkey, time, level) VALUES (?, ?, ?, ?, ?, ?)');
 const listDropsStatement = db.prepare(listDropsQuery);
 
 
@@ -139,6 +139,7 @@ const addExchange = function(exchangeData) {
             exchangeData.amount,
             exchangeData.key,
             time,
+            exchangeData.level,
             res
         );
     });

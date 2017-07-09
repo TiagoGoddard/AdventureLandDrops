@@ -6,6 +6,55 @@ parent.exchangeit = (function() {
     parent.waiting_for_log = false;
     var startitem, oldinventory = {};
 
+    let MESSAGE_REGEX = /Received (?:an? )?(.*)/;
+    let AMOUNT_REGEX = /(\d+)x (.*)/;
+    let GOLD_REGEX = /([\d,]+) gold/;
+  
+    let exchange_listener = (data) => {
+        if(!parent) return;
+        if (data.message.startsWith("Received")) {
+            let result_data = { source : startitem.name, level: startitem.level };
+            let result_info = MESSAGE_REGEX.exec(data.message);
+            // gives:
+            //  ["Received a Xmas Shoes",        "Xmas Shoes"]
+            //  ["Received 650,000 gold",        "650,000 gold"]
+            //  ["Received 8x Compound Scrolls", "8x Compound Scrolls"]
+            let obtained_name = result_info[1];  //    ^^^^^
+
+            let amount = AMOUNT_REGEX.exec(obtained_name);
+            let gold = GOLD_REGEX.exec(obtained_name);
+            if(gold) {
+                // ["650,000 gold", "650,000"]
+                result_data.result = "gold";
+                result_data.amount = gold[1].replace(/,/g, "");
+            }
+            else if(amount) {
+                // ["8x Compound Scrolls", "8", "Compound Scrolls"]
+                //result_data.itemname = amount[2];
+                obtained_name = amount[2];
+                result_data.amount = amount[1];
+                setTimeout(() => {
+                    result_data.result = find_itemkey_from_inventorydiff(obtained_name, amount[1]);
+                    finish(result_data);
+                }, 500);
+                return;
+            } else {
+                // ["Received a Xmas Shoes", "Xmas Shoes"]
+                // "Xmas Shoes"
+                //result_data.itemname = obtained_name;
+                result_data.result = find_itemkey_from_itemname(obtained_name);
+                result_data.amount = 1;
+            }
+            console.log(result_info);
+            console.log(" = ");
+            console.log(obtained_name);
+            console.log(" = ");
+            console.log(result_data);
+
+            finish(result_data);
+        }
+    };
+
     function exchange(slot) {
         if(!parent) {
             console.error("Unable to get parent object") ;
@@ -46,61 +95,6 @@ parent.exchangeit = (function() {
         }
     }
 
-    // <div class="gameentry" style="color: #85C76B">Received an Eggnog</div>
-    // <div class="gameentry" style="color: #85C76B">Received 8x Compound Scroll</div>
-    // <div class="gameentry" style="color: #85C76B">Received a Xmas Shoes</div>
-    // <div class="gameentry" style="color: gold">Received 200,000 gold</div>
-
-    let MESSAGE_REGEX = /Received (?:an? )?(.*)/;
-    let AMOUNT_REGEX = /(\d+)x (.*)/;
-    let GOLD_REGEX = /([\d,]+) gold/;
-
-    let exchange_listener = (data) => {
-        if(!parent) return;
-        if (data.message.startsWith("Received")) {
-            let result_data = { source : startitem.name };
-            let result_info = MESSAGE_REGEX.exec(data.message);
-            // gives:
-            //  ["Received a Xmas Shoes",        "Xmas Shoes"]
-            //  ["Received 650,000 gold",        "650,000 gold"]
-            //  ["Received 8x Compound Scrolls", "8x Compound Scrolls"]
-            let obtained_name = result_info[1];  //    ^^^^^
-
-            let amount = AMOUNT_REGEX.exec(obtained_name);
-            let gold = GOLD_REGEX.exec(obtained_name);
-            if(gold) {
-                // ["650,000 gold", "650,000"]
-                result_data.result = "gold";
-                result_data.amount = gold[1].replace(/,/g, "");
-            }
-            else if(amount) {
-                // ["8x Compound Scrolls", "8", "Compound Scrolls"]
-                //result_data.itemname = amount[2];
-                obtained_name = amount[2];
-                result_data.amount = amount[1];
-                setTimeout(() => {
-                    result_data.result = find_itemkey_from_inventorydiff(obtained_name, amount[1]);
-                    finish(result_data);
-                }, 500);
-                return;
-            }
-            else {
-                // ["Received a Xmas Shoes", "Xmas Shoes"]
-                // "Xmas Shoes"
-                //result_data.itemname = obtained_name;
-                result_data.result = find_itemkey_from_itemname(obtained_name);
-                result_data.amount = 1;
-            }
-            console.log(result_info);
-            console.log(" = ");
-            console.log(obtained_name);
-            console.log(" = ");
-            console.log(result_data);
-
-            finish(result_data);
-        }
-    };
-
     function finish(result_data) {
         if(startitem) {
             report_result(result_data);
@@ -136,6 +130,7 @@ parent.exchangeit = (function() {
         let payload = {
             item: result_data.source,
             result: result_data.result,
+            level: result_data.level,
             amount: result_data.amount,
             key : API_KEY
         };

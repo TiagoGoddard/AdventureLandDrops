@@ -70,7 +70,8 @@ CREATE TABLE IF NOT EXISTS exchanges (
     result TEXT NOT NULL,
     amount INTEGER NOT NULL,
     userkey INTEGER NOT NULL,
-    time DATETIME NOT NULL
+    time DATETIME NOT NULL,
+    level INTEGER NULL
 );
 
 UPDATE drops SET version = time, time = version WHERE version > 1000;
