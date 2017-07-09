@@ -8,49 +8,52 @@ block content
         .column.border
             .subtitle Item Upgrade Information
             .horizontal-flex
-
-    each group, group_type in upgrades
-        .horizontal-flex.vmargin
-            .column.border
-                .subtitle #{group_type}
-                .horizontal-flex
-                table.upgrades
-                    thead
-                        tr
-                            th
-                            th.align-center Item
-                            - var lvl = 1;
-                            while lvl <= group.max_level
-                                th.align-center +#{lvl++}
-                            while lvl++ <= 10
+    if(Object.keys(upgrades).length === 0)
+        .vmargin.border
+            .info Database is journaling, probably.
+    else
+        each group, group_type in upgrades
+            .horizontal-flex.vmargin
+                .column.border
+                    .subtitle #{group_type}
+                    .horizontal-flex
+                    table.upgrades
+                        thead
+                            tr
                                 th
-                    tbody.list
-                        each item in group.data
-                            tr
-                                td.dashed(colspan=12)
-                            tr
-                                td
-                                    a(href=`/items/${item.item}`).sprite-container.small
-                                        div(style=sprites.item(item.item, 32))
-                                td
-                                    a.name(href=`/items/${item.item}`)=item.name
-                                    - var lvl = 1;
-                                    - var cumul_chance = 1;
-                                    - var previous_cost = 0;
-                                    while lvl <= group.max_level
-                                        - var result = item.results[lvl-1];
-                                        if result
-                                            - var chance = result.success / (result.success + result.fails);
-                                            - cumul_chance *= chance;
-                                            - previous_cost = (previous_cost + scroll_cost(item.item, lvl-1)) / chance;
-                                            td.info.align-center
-                                                | #{Math.round(chance * 100)}%
-                                                br
-                                                span.gray #{Math.round(cumul_chance*10000)/100}%
-                                                br
-                                                span.gray.medsmall (#{result.success + result.fails})
-                                                br
-                                                span.gray.small #{formatNumber(Math.round(previous_cost))}
-                                        else
-                                            td.info.align-center N/A
-                                        - lvl++;
+                                th.align-center Item
+                                - var lvl = 1;
+                                while lvl <= group.max_level
+                                    th.align-center +#{lvl++}
+                                while lvl++ <= 10
+                                    th
+                        tbody.list
+                            each item in group.data
+                                tr
+                                    td.dashed(colspan=12)
+                                tr
+                                    td
+                                        a(href=`/items/${item.item}`).sprite-container.small
+                                            div(style=sprites.item(item.item, 32))
+                                    td
+                                        a.name(href=`/items/${item.item}`)=item.name
+                                        - var lvl = 1;
+                                        - var cumul_chance = 1;
+                                        - var previous_cost = 0;
+                                        while lvl <= group.max_level
+                                            - var result = item.results[lvl-1];
+                                            if result
+                                                - var chance = result.success / (result.success + result.fails);
+                                                - cumul_chance *= chance;
+                                                - previous_cost = (previous_cost + scroll_cost(item.item, lvl-1)) / chance;
+                                                td.info.align-center
+                                                    | #{Math.round(chance * 100)}%
+                                                    br
+                                                    span.gray #{Math.round(cumul_chance*10000)/100}%
+                                                    br
+                                                    span.gray.medsmall (#{result.success + result.fails})
+                                                    br
+                                                    span.gray.small #{formatNumber(Math.round(previous_cost))}
+                                            else
+                                                td.info.align-center N/A
+                                            - lvl++;

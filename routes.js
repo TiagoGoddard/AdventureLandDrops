@@ -121,15 +121,11 @@ const upgradesHandler = function(request, reply) {
 };
 
 const exchangesHandler = function(request, reply) {
-    if(Object.keys(exchangeTable).length === 0) {
-        reply("No exchange data");
-    } else {
-      reply.view('exchanges', {
-          exchanges: exchangeTable,
-          items_data : data.items,
-          sprites
-      });
-    }
+    reply.view('exchanges', {
+        exchanges: exchangeTable,
+        items_data : data.items,
+        sprites
+    });
 };
 
 function updateDropTable() {
