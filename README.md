@@ -23,7 +23,7 @@ $.getScript('http://adventurecode.club/script', function() {
 });
 ```
 
-Then you will be reporting kill/drops to the database and you can use `parent.upgradeit`, `parent.compoundit` and `parent.exchangeit` functions.
+Then you will be reporting kill/drops to the database and you can use `parent.updateit`, `parent.upgradeit`, `parent.compoundit` and `parent.exchangeit` functions.
 
 ## Example scripts for `upgradeit`/`compoundit`/`exchangeit`/`updateit`
 
@@ -105,12 +105,22 @@ if(parent.exchangeit) {
 
 ### Update market listing
 ```javascript
-//Should automatically collect all items for sale when character.stand and window.aldc_use_market are true after first execution.
-if(parent.updateit) {
-    parent.updateit();
-} else {
-    console.error("parent.updateit not available for the auto-market script");
-}
+var aldc_already_updated = false;
+var aldc_count = 0;
+setInterval(function(){
+  if(character.stand) {
+    if(parent.updateit && !aldc_already_updated) {
+      parent.updateit();
+      aldc_already_updated = true;
+    } else {
+      aldc_count += 1;
+      //15 minutes for a 1000/4 interval
+      if(aldc_count > 4*60*15) {
+        aldc_already_updated = false;
+      }
+    }
+  }
+},1000/4);
 ```
 
 # To update data and configure server
@@ -124,13 +134,11 @@ show_json(parent.FC);
 ```
 Don't forget to add the Jrat and elementals at end.
 ```
-{
-  "jrat": "/images/tiles/monsters/monster1.png",
-  "eelemental": "/images/tiles/monsters/monster1.png",
-  "felemental": "/images/tiles/monsters/monster1.png",
-  "nelemental": "/images/tiles/monsters/monster1.png",
-  "welemental": "/images/tiles/monsters/monster1.png"
-}
+"jrat": "/images/tiles/monsters/monster1.png",
+"eelemental": "/images/tiles/monsters/monster1.png",
+"felemental": "/images/tiles/monsters/monster1.png",
+"nelemental": "/images/tiles/monsters/monster1.png",
+"welemental": "/images/tiles/monsters/monster1.png"
 ```
 
 ## To update dimensions.json
