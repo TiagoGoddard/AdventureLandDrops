@@ -13,11 +13,15 @@ parent.updateit = (function() {
 
     function update() {
         if(!parent) {
-            console.error("Unable to get parent object") ;
+            console.error("Unable to get parent object");
+            return;
+        }
+		    if(parent.server_identifier === "HARDCORE") {
+            console.error("Market not avaliable on HARDCORE server");
             return;
         }
         if(API_KEY.length < 15) {
-            console.error("Invalid API key") ;
+            console.error("Invalid API key");
             return;
         }
         if(!character.stand) {
@@ -48,6 +52,7 @@ parent.updateit = (function() {
         let payload = {
             items: items,
             map: character.map,
+            server: parent.server_name,
             player: character.name,
             key: API_KEY,
             version: SCRIPT_VERSION

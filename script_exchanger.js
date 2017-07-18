@@ -60,6 +60,10 @@ parent.exchangeit = (function() {
             console.error("Unable to get parent object") ;
             return;
         }
+		    if(parent.server_identifier === "HARDCORE") {
+            console.error("Market not avaliable on HARDCORE server");
+            return;
+        }
         if(Object.values(parent.socket.listeners("game_log")).filter(l => l.name == "exchange_listener").length) {
             console.error("Can't exchange yet, there are still exchange listeners present. If this persists, refresh the web page.");
             return;

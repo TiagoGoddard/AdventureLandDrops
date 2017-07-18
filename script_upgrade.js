@@ -164,6 +164,10 @@ parent.upgradeit = (function() {
             console.error("Unable to get parent object") ;
             return;
         }
+		    if(parent.server_identifier === "HARDCORE") {
+            console.error("Market not avaliable on HARDCORE server");
+            return;
+        }
         if(API_KEY.length < 15) {
             console.error("Invalid API key") ;
             return;

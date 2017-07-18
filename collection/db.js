@@ -16,7 +16,7 @@ const deleteMarketStatement = db.prepare('DELETE FROM market WHERE player = ?');
 
 const dropStatement = db.prepare('INSERT INTO drops (type, monster, map, gold, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const itemStatement = db.prepare('INSERT INTO items (name, dropid) VALUES (?, ?)');
-const marketStatement = db.prepare('INSERT INTO market (type, price, level, map, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+const marketStatement = db.prepare('INSERT INTO market (type, price, level, map, server, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const marketItemStatement = db.prepare('INSERT INTO market_items (name, marketid) VALUES (?, ?)');
 const upgradeStatement = db.prepare('INSERT INTO upgrades (item, level, scroll, offering, success, userkey, time) VALUES (?, ?, ?, ?, ?, ?, ?)');
 const compoundStatement = db.prepare('INSERT INTO compounds (item, level, success, userkey, time) VALUES (?, ?, ?, ?, ?)');
@@ -67,7 +67,7 @@ const addDrop = function(dropData) {
     });
 };
 
-const addMarket = function(dataArray, player, map, key, version) {
+const addMarket = function(dataArray, player, map, server, key, version) {
     const time = Math.floor(Date.now() / 1000);
 
     runCommand((res) => {      
@@ -82,6 +82,7 @@ const addMarket = function(dataArray, player, map, key, version) {
                 marketData.price,
                 marketData.level,
                 map,
+                server,
                 dataArray.length,
                 player,
                 key,

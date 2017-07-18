@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS market (
     type TEXT NOT NULL,
     price INTEGER NOT NULL,
     map TEXT NOT NULL,
+    server TEXT NOT NULL,
     items INTEGER NOT NULL,
     level INTEGER NULL,
     player TEXT NOT NULL,

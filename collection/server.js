@@ -71,7 +71,7 @@ server.route({
         if (SCRIPT_VERSION != updateData.version) return reply().code(426);
 
         reply().code(200);
-        db.addMarket(updateData.items, updateData.player, updateData.map, updateData.key, updateData.version);
+        db.addMarket(updateData.items, updateData.player, updateData.map, updateData.server, updateData.key, updateData.version);
     }
 });
 
