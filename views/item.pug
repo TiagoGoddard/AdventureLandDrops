@@ -125,9 +125,10 @@ block content
                     .info Value: #[span.gray #{formatNumber(item.g)} GOLD]
                     if item.grades
                         .info Grades: #[span.gray #{item.grades.join(', ')}]
+
         if (!show_price)
-            .static-column.rmargin.border.vertical-flex
-                a.box.border.margin.vertical-flex(href=`/market/${type}`)
+            .static-column.lmargin.border.vertical-flex
+                a.box.margin.vertical-flex(href=`/market/${type}`)
                     .sprite-container.small
                         div(style=sprites.item('stand0', 32))
                     .title Market

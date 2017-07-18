@@ -1,1 +1,38 @@
 extends item.pug
+
+- let scaling = item.upgrade || item.compound
+if scaling
+    .vmargin.border
+        table.scaling
+            -
+                let levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                let multipliers = [1, 1, 1, 1, 1, 1, 1.25, 1.5, 2, 3]
+                let unrounded = ['evasion', 'reflection', 'lifesteal', 'dreturn', 'rpiercing', 'apiercing', 'attr0', 'attr1']
+
+                if (item.compound)
+                    multipliers = [1, 1, 1, 1, 1.25, 1.5, 2, 3, 3, 3]
+
+            thead
+                tr
+                    th Levels
+                    th Listed Items                     
+
+            tbody
+                each i in levels
+                    tr
+                        th.align-center +#{i}
+                        td
+                          table
+                            thead
+                                tr
+                                    th Price
+                                    th Player
+                                    th Map
+                            tbody
+                                each price_item in price_data
+                                    if type == price_item.item && i == price_item.level
+                                        td price_item.price
+                                        td price_item.player
+                                        td price_item.map
+
+else

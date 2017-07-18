@@ -78,6 +78,10 @@ a {
     margin-right: 10px;
 }
 
+.lmargin {
+    margin-left: 10px;
+}
+
 .title {
     display: inline-block;
     font-size: 35px;

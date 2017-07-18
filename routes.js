@@ -39,9 +39,9 @@ for (let itemType in data.items) {
   }
 
   let group_type = 'Misc';
-  if(item) {
+  if(itemType) {
     for(let group in itemsData) {
-        if(itemsData[group].types.indexOf(item.type) > -1)
+        if(itemsData[group].types.indexOf(itemType.type) > -1)
             group_type = group;
     }
   }
@@ -156,12 +156,6 @@ const priceHandler = function (request, reply) {
         return reply().code(404);
     }
 
-    var hide_price = true;
-
-    if(priceTable) {
-      hide_price = (Object.keys(priceTable).length === 0);
-    }
-
     reply.view('price', {
         item: itemData,
         type: itemType,
@@ -171,7 +165,7 @@ const priceHandler = function (request, reply) {
         upgrades: [],
         show_exchanges: false,
         exchanges: [],
-        show_price: !hide_price,
+        show_price: true,
         price_data: priceTable,
         items_data : data.items,
         scroll_cost : scroll_cost,
