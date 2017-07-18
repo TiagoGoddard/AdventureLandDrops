@@ -283,7 +283,7 @@ const getPriceTable = function() {
                     if (!sells.has(item)) {
                         sells.set(item, []);
                     }
-                    sells.get(item).push({ price : row.price, level : row.level, player : row.player, map: row.map });
+                    sells.get(item).push({ price : row.price, level : row.level, player : row.player, map: row.map, server: row.server });
                 }
 
                 res(sells);
