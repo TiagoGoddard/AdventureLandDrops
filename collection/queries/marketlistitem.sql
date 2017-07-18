@@ -3,7 +3,7 @@ SELECT DISTINCT
     M.level level,
     M.price price,
     M.player player,
-    M.map server,
+    M.server server,
     M.map map,
     M.time
 FROM market M

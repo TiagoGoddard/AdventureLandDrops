@@ -16,7 +16,7 @@ const deleteMarketStatement = db.prepare('DELETE FROM market WHERE player = ?');
 
 const dropStatement = db.prepare('INSERT INTO drops (type, monster, map, gold, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const itemStatement = db.prepare('INSERT INTO items (name, dropid) VALUES (?, ?)');
-const marketStatement = db.prepare('INSERT INTO market (type, price, level, map, server, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+const marketStatement = db.prepare('INSERT INTO market (type, price, level, map, server, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const marketItemStatement = db.prepare('INSERT INTO market_items (name, marketid) VALUES (?, ?)');
 const upgradeStatement = db.prepare('INSERT INTO upgrades (item, level, scroll, offering, success, userkey, time) VALUES (?, ?, ?, ?, ?, ?, ?)');
 const compoundStatement = db.prepare('INSERT INTO compounds (item, level, success, userkey, time) VALUES (?, ?, ?, ?, ?)');
@@ -70,10 +70,17 @@ const addDrop = function(dropData) {
 const addMarket = function(dataArray, player, map, server, key, version) {
     const time = Math.floor(Date.now() / 1000);
 
-    runCommand((res) => {      
+    runCommand((res) => {
         deleteMarketStatement.run(
             player,
-            res
+            function(err) {
+                if(err) {
+                    console.error(err);
+                    res();
+                    return;
+                }
+                res();
+            }
         );
 
         for(let marketData of dataArray) {
@@ -262,7 +269,7 @@ const getPriceTable = function() {
                     if (!sells.has(item)) {
                         sells.set(item, []);
                     }
-                    sells.get(item).push({ price : row.price, level : row.level, player : row.player, map: row.map });
+                    sells.get(item).push({ price : row.price, level : row.level, player : row.player, map: row.map, server: row.server });
                 }
 
                 res(sells);
