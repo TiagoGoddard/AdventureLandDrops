@@ -74,7 +74,7 @@ const addMarket = function(dataArray, player, map, server, key, version) {
     const time = Math.floor(Date.now() / 1000);
 
     runCommand((res) => {
-        deleteMarketStatement.run(
+        deleteMarketItemStatement.run(
             player,
             function(err) {
                 if(err) {
@@ -85,7 +85,7 @@ const addMarket = function(dataArray, player, map, server, key, version) {
                 res();
             }
         );
-        deleteMarketItemStatement.run(
+        deleteMarketStatement.run(
             player,
             function(err) {
                 if(err) {
