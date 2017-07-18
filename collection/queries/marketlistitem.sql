@@ -1,4 +1,4 @@
-SELECT
+SELECT DISTINCT
     I.name item,
     M.level level,
     M.price price,

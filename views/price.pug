@@ -1,7 +1,7 @@
 extends item.pug
 block price
 
-    if(Object.keys(market).length === 0)
+    if(price_data.length === 0)
         .vmargin.border
             .info No market data for item.
     else 
@@ -28,14 +28,9 @@ block price
                                 th.align-center +#{i}
                                 td
                                   table
-                                    thead
-                                        tr
-                                            th Price
-                                            th Player
-                                            th Map
-                                    tbody
                                         each price_item in price_data
-                                            if type == price_item.item && i == price_item.level
-                                                td price_item.price
-                                                td price_item.player
-                                                td price_item.map
+                                            if i == price_item.level
+                                              tr
+                                                td #{price_item.price}
+                                                td #{price_item.player}
+                                                td #{price_item.map}

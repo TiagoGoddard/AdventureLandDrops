@@ -10,9 +10,8 @@ block content
             .info Database is journaling, probably.
     else
         .horizontal-flex.spread.vmargin
-            each listed in market
-                a.box.border.margin.vertical-flex(href=`/items/${listed.item}`)
+            each listed in Object.keys(market)
+                a.box.border.margin.vertical-flex(href=`/market/${listed}`)
                     .sprite-container.small
-                        div(style=sprites.item(listed.item, 32))
-                    span.align-center=item_data[listed.item].name
-                    span.align-center.gray.medsmall=item.avgprice
+                        div(style=sprites.item(listed, 32))
+                    span.align-center=items_data[listed].name
