@@ -4,17 +4,19 @@ Contribute your drop collection to the http://adventurecode.club/ database.
 
 ## Adventure Land CODE to contribute drop rates
 Once you have an API key (request one on the Discord), put this code block in your CODE, _**outside**_ of any kind of loop like setInterval:
-```javacript
+```javascript
 window.aldc_apikey = 'API_KEY'; // Replace API_KEY with your API key => Ask me for one, on discord, PM or email
 window.aldc_use_upgrade = true;
 window.aldc_use_compound = true;
 window.aldc_use_exchange = true;
+window.aldc_use_market = true;
 // USAGE INFORMATION:
 // When aldc_use_upgrade = true, use parent.upgradeit(item_name, max_level, options_object) to upgrade items.
 //      options_object defaults to { buy_item: false, buy_scrolls: true, stop_on_success: false }
 // When aldc_use_compound = true, use parent.compoundit(item_name, item_level_to_compound); to compound items togeter.
 //      i.e parent.compoundit('hpbelt', 0) tries to create an hpbelt+1 with 3 hpbelt+0
 // When aldc_use_exchange = true, use parent.exchangeit(inventory_slot) to exchange 1 item in that inventory slot
+// When aldc_use_market = true, use parent.updateit() to update your market listing on adventurecode.club
 
 $.getScript('http://adventurecode.club/script', function() {
     game_log('Thank you for contributing your drop data!', '#FFFF00');
@@ -23,13 +25,13 @@ $.getScript('http://adventurecode.club/script', function() {
 
 Then you will be reporting kill/drops to the database and you can use `parent.upgradeit`, `parent.compoundit` and `parent.exchangeit` functions.
 
-## Example scripts for `upgradeit`/`compoundit`/`exchangeit`
+## Example scripts for `upgradeit`/`compoundit`/`exchangeit`/`updateit`
 
 All of these examples require that the code be loaded via the block mentioned above, and have the corresponding component set to `true`
 
 ### Upgrade xmas items to the desired level
 Note the `i_am_sure_i_want_to_do_upgrade_my_xmas_items` variable
-```
+```javascript
 let xmas_items = ['xmashat', 'xmassweater', 'xmaspants', 'xmasshoes', 'mittens' ];
 let level_desired = 6;
 let i_am_sure_i_want_to_do_upgrade_my_xmas_items = false;
@@ -50,12 +52,12 @@ if(parent.upgradeit) {
     setTimeout(seekAndUpgrade, 2000);
 }
 else {
-    console.error("parent.upgradeit not available for the auto-compound script");
+    console.error("parent.upgradeit not available for the auto-upgrade script");
 }
 ```
 
 ### Auto compound white-listed items as they appear in the inventory
-```
+```javascript
 setInterval(() => {
     if(parent.compoundit) {
         let compound_whitelist = {
@@ -83,7 +85,7 @@ setInterval(() => {
 ```
 
 ### Exchange all exchangable items in the inventory
-```
+```javascript
 function exchangeAll() {
     for(let slot in character.items) {
         let item = character.items[slot];
@@ -96,13 +98,22 @@ function exchangeAll() {
 }
 if(parent.exchangeit) {
     setTimeout(exchangeAll, 1000);
-}
-else {
-    console.error("parent.exchangeit not available for the auto-compound script");
+} else {
+    console.error("parent.exchangeit not available for the auto-exchange script");
 }
 ```
 
-# To update and configure server
+### Update market listing
+```javascript
+//Should automatically collect all items for sale when character.stand and window.aldc_use_market are true after first execution.
+if(parent.updateit) {
+    parent.updateit();
+} else {
+    console.error("parent.updateit not available for the auto-market script");
+}
+```
+
+# To update data and configure server
 
 ## To update data.js
 Get the file data.js from: http://adventure.land/data.js and replace `var G` with `module.exports`
@@ -111,10 +122,51 @@ Get the file data.js from: http://adventure.land/data.js and replace `var G` wit
 ```javascript
 show_json(parent.FC);
 ```
-Don't forget to add the Jrat and elementals.
+Don't forget to add the Jrat and elementals at end.
+```
+{
+  "jrat": "/images/tiles/monsters/monster1.png",
+  "eelemental": "/images/tiles/monsters/monster1.png",
+  "felemental": "/images/tiles/monsters/monster1.png",
+  "nelemental": "/images/tiles/monsters/monster1.png",
+  "welemental": "/images/tiles/monsters/monster1.png"
+}
+```
 
 ## To update dimensions.json
-```
+```javascript
 show_json(parent.D);
 ```
-Don't forget to add the Jrat and elementals.
+Don't forget to add the Jrat and elementals at end.
+```
+  "jrat": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "welemental": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "felemental": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "nelemental": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "eelemental": [
+    0,
+    0,
+    0,
+    0
+  ]
+```

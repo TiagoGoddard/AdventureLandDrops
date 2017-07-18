@@ -2,17 +2,28 @@ CREATE TABLE IF NOT EXISTS market (
     id INTEGER PRIMARY KEY,
     type TEXT NOT NULL,
     price INTEGER NOT NULL,
+    map TEXT NOT NULL,
     items INTEGER NOT NULL,
+    level INTEGER NULL,
     player TEXT NOT NULL,
     userkey INTEGER NOT NULL,
     version INTEGER NOT NULL,
     time DATETIME NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS player_idx ON market(player);
-CREATE INDEX IF NOT EXISTS items_price_idx ON market(items, price);
-CREATE INDEX IF NOT EXISTS items_idx ON market(items);
-CREATE INDEX IF NOT EXISTS player_items_idx ON market(player, items);
+CREATE INDEX IF NOT EXISTS market_player_idx ON market(player);
+CREATE INDEX IF NOT EXISTS items_level_price_idx ON market(type, level, price);
+CREATE INDEX IF NOT EXISTS player_items_idx ON market(player, type);
+CREATE INDEX IF NOT EXISTS market_time_idx ON market(time);
+
+CREATE TABLE IF NOT EXISTS market_items (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    marketid INTEGER NOT NULL,
+    FOREIGN KEY(marketid) REFERENCES market(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS market_item_idx ON market_items(name);
 
 CREATE TABLE IF NOT EXISTS drops (
     id INTEGER PRIMARY KEY,
@@ -73,5 +84,3 @@ CREATE TABLE IF NOT EXISTS exchanges (
     time DATETIME NOT NULL,
     level INTEGER NULL
 );
-
-UPDATE drops SET version = time, time = version WHERE version > 1000;

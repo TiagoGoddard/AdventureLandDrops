@@ -101,7 +101,6 @@ module.exports = {
     "molesteeth": 1000000,
 
     "strring": 900700,
-    "harbringer": 900600,
     "vitring": 900500,
     "ringsj": 900030,
     "dexring": 900200,

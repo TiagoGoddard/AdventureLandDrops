@@ -61,6 +61,12 @@ block content
     //-
     .horizontal-flex.vmargin
         .static-column.rmargin.border.vertical-flex
+            if show_price
+                a.box.border.margin.vertical-flex(href=`/items/${type}`)
+                    .sprite-container.small
+                        div(style=sprites.item(type, 32))
+                    .title=item.name
+            else
                 .sprite-container.small
                     div(style=sprites.item(type, 32))
                 .title=item.name
@@ -119,7 +125,12 @@ block content
                     .info Value: #[span.gray #{formatNumber(item.g)} GOLD]
                     if item.grades
                         .info Grades: #[span.gray #{item.grades.join(', ')}]
-
+        if (!show_price)
+            .static-column.rmargin.border.vertical-flex
+                a.box.border.margin.vertical-flex(href=`/market/${type}`)
+                    .sprite-container.small
+                        div(style=sprites.item('stand0', 32))
+                    .title Market
 
     - let scaling = item.upgrade || item.compound
     if scaling
@@ -166,39 +177,37 @@ block content
                                     } else {
                                         acc += scaling[property] * multipliers[i]
                                     }
-            
-                    each group, group_type in upgrades                
 
-                        each citem in group.data
-                            if (citem.name == item.name)
-                                tr
-                                    td Upgrade Chance
-                                    td
-                                    - var lvl = 1;
-                                    - var cumul_chance = 1;
-                                    - var previous_cost = 0;
-                                    while lvl <= 10
-                                        - var result = citem.results[lvl-1];
-                                        if result
-                                            - var chance = result.success / (result.success + result.fails);
-                                            - cumul_chance *= chance;
-                                            - previous_cost = (previous_cost + scroll_cost(citem.item, lvl-1)) / chance;
-                                            td.info.align-center
-                                                | #{Math.round(chance * 100)}%
-                                                br
-                                                span.gray #{Math.round(cumul_chance*10000)/100}%
-                                                br
-                                                span.gray.medsmall (#{result.success + result.fails})
-                                                br
-                                                span.gray.small #{formatNumber(Math.round(previous_cost))}
-                                        else
-                                            td.info.align-center N/A
-                                        - lvl++;
+                    if show_upgrades && upgrades.length
+                        each group, group_type in upgrades                
 
-    //
-      #{show_exchanges}
+                            each citem in group.data
+                                if (citem.name == item.name)
+                                    tr
+                                        td Upgrade Chance
+                                        td
+                                        - var lvl = 1;
+                                        - var cumul_chance = 1;
+                                        - var previous_cost = 0;
+                                        while lvl <= 10
+                                            - var result = citem.results[lvl-1];
+                                            if result
+                                                - var chance = result.success / (result.success + result.fails);
+                                                - cumul_chance *= chance;
+                                                - previous_cost = (previous_cost + scroll_cost(citem.item, lvl-1)) / chance;
+                                                td.info.align-center
+                                                    | #{Math.round(chance * 100)}%
+                                                    br
+                                                    span.gray #{Math.round(cumul_chance*10000)/100}%
+                                                    br
+                                                    span.gray.medsmall (#{result.success + result.fails})
+                                                    br
+                                                    span.gray.small #{formatNumber(Math.round(previous_cost))}
+                                            else
+                                                td.info.align-center N/A
+                                            - lvl++;
 
-    if show_exchanges
+    if show_exchanges && exchanges.length
         each itemdata, itemkey in exchanges
             if items_data[itemkey].name == item.name
                 .horizontal-flex.vmargin
@@ -232,7 +241,7 @@ block content
                                         td.align-center #{record.seen}
                                         td.align-center #{ Math.round(record.seen/record.total * 10000)/100}%
 
-    if dropped.length
+    if show_dropped && dropped.length
         .vmargin.border
             table.drops#drops
                 thead

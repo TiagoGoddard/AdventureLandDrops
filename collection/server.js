@@ -51,15 +51,27 @@ server.route({
                 }
             }
             db.addDrops(dataArray, dropData.key, dropData.version);
+        } else { // deprec old single-drop send
+            dropData.items = dropData.items.map(name => itemTypeByName[name]);
+            const dataValid = dropData.items.every(name => name != null);
+
+            if (!dataValid) return;
+
+            db.addDrop(dropData);
         }
-        else { // deprec old single-drop send
-        dropData.items = dropData.items.map(name => itemTypeByName[name]);
-        const dataValid = dropData.items.every(name => name != null);
-
-        if (!dataValid) return;
-
-        db.addDrop(dropData);
     }
+});
+
+server.route({
+    method: 'POST',
+    path: '/update',
+    handler: (request, reply) => {
+        const updateData = JSON.parse(request.payload.json);
+        if (!keys.includes(updateData.key)) return reply().code(403);
+        if (SCRIPT_VERSION != updateData.version) return reply().code(426);
+
+        reply().code(200);
+        db.addMarket(updateData.items, updateData.player, updateData.map, updateData.key, updateData.version);
     }
 });
 

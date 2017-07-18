@@ -7,6 +7,8 @@ let DROP_TIMEOUT = 500;
 let API_KEY = window.aldc_apikey; // REPLACE THIS WITH YOUR API KEY => Ask me for one, on discord, PM or email
 let SCRIPT_VERSION = 4;
 
+window.aldc_script_version = SCRIPT_VERSION;
+
 let last_error_time = 0;
 let tracked_entities = [];
 let dead_entities = {};
@@ -286,8 +288,15 @@ fetch(`${DROP_SERVER2}/apic`, {
                 async: false
             });
         }
-    }
-    else {
+        if(window.aldc_use_market) {
+            $.ajax({
+                url: 'http://adventurecode.club/marketscript?t='+(new Date).getTime(),
+                dataType: 'script',
+                success: () => game_log('Thank you for contributing your market data!', '#FFFF00'),
+                async: false
+            });
+        }
+    } else {
         console.error("Invalid API key") ;
     }
 });

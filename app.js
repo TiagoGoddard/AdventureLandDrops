@@ -41,6 +41,9 @@ server.register(Vision, (err) => {
     server.route({ method: 'GET', path: '/items', handler: routes.items });
     server.route({ method: 'GET', path: '/items/{item}', handler: routes.item });
 
+    server.route({ method: 'GET', path: '/market', handler: routes.market });
+    server.route({ method: 'GET', path: '/market/{item}', handler: routes.price });
+
     server.route({ method: 'GET', path: '/upgrades', handler: routes.upgrades });
 
     server.route({ method: 'GET', path: '/exchanges', handler: routes.exchanges });
@@ -80,6 +83,11 @@ server.register(Vision, (err) => {
     server.route({
         method: 'GET', path: '/exchangescript',
         handler: { file: "script_exchanger.js" }
+    });
+
+    server.route({
+        method: 'GET', path: '/marketscript',
+        handler: { file: "script_market.js" }
     });
 });
 

@@ -1,9 +1,24 @@
 extends layout.pug
 
+block title
+    title DB Land - Items
+
 block content
-    .horizontal-flex.spread.vmargin
-        each item in items
-            a.box.border.margin.vertical-flex(href=`/items/${item.type}`)
-                .sprite-container.small
-                    div(style=sprites.item(item.type, 32))
-                span.align-center=item.name
+    .horizontal-flex.vmargin
+        .column.border
+            .subtitle Items
+            .horizontal-flex
+    if(Object.keys(items).length === 0)
+        .vmargin.border
+            .info Something is really wrong.
+    else
+        each group, group_type in items
+            .horizontal-flex.vmargin
+                .column.border
+                    .subtitle #{group_type}
+                    .horizontal-flex.spread.vmargin
+                        each item in group.data
+                            a.box.border.margin.vertical-flex(href=`/items/${item.type}`)
+                                .sprite-container.small
+                                    div(style=sprites.item(item.type, 32))
+                                span.align-center=item.name

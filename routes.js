@@ -13,11 +13,49 @@ for (let monsterType in data.monsters) {
     });
 }
 
+let itemsData = {
+    'Weapons' : {
+        types : ['weapon', 'quiver', 'shield'],
+        data : []
+    },
+    'Armor' : {
+        types : ['helmet', 'chest', 'pants', 'gloves', 'shoes', 'cape'],
+        data : []
+    },
+    'Accessories' : {
+        types : ['amulet', 'ring', 'earring', 'tome', 'belt', 'source'],
+        data : []
+    },
+    'Misc' : {
+        types : [],
+        data : []
+    },
+};
+
 for (let itemType in data.items) {
-    items.push({
-        type: itemType,
-        name: data.items[itemType].name
-    });
+  let item = {
+    type: itemType,
+    name: data.items[itemType].name
+  }
+
+  let group_type = 'Misc';
+  if(item) {
+    for(let group in itemsData) {
+        if(itemsData[group].types.indexOf(item.type) > -1)
+            group_type = group;
+    }
+  }
+  itemsData[group_type].data.push(item);
+
+  items.push({
+      type: itemType,
+      group: itemType.type,
+      name: data.items[itemType].name
+  });
+}
+
+for (let group in itemsData) {
+  itemsData[group].data.sort((a, b) => sortOrder[b.type]-sortOrder[a.type]);
 }
 
 monsters.sort((a, b) => a.name.localeCompare(b.name));
@@ -40,7 +78,7 @@ const monstersHandler = function (request, reply) {
 
 const itemsHandler = function (request, reply) {
     reply.view('items', {
-        items,
+        items: itemsData,
         sprites
     });
 };
@@ -51,6 +89,8 @@ let reverseDropTable = new Map();
 let contribTable = new Map();
 let upgradeTable = {};
 let exchangeTable = {};
+let marketTable = {};
+let priceTable = {};
 
 const monsterHandler = function (request, reply) {
     const monsterType = request.params.monster;
@@ -78,6 +118,7 @@ const itemHandler = function (request, reply) {
     const itemData = data.items[itemType];
 
     var hide_exchange = true;
+    var hide_upgrades = true;
 
     if (!itemData) {
         return reply().code(404);
@@ -86,16 +127,62 @@ const itemHandler = function (request, reply) {
     if(exchangeTable) {
       hide_exchange = (Object.keys(exchangeTable).length === 0);
     }
+    if(upgradeTable) {
+      hide_upgrades = (Object.keys(upgradeTable).length === 0);
+    }
 
     reply.view('item', {
         item: itemData,
         type: itemType,
+        show_dropped: true,
         dropped: reverseDropTable.get(itemType) || [],
+        show_upgrades: !hide_upgrades,
         upgrades: upgradeTable,
         show_exchanges: !hide_exchange,
         exchanges: exchangeTable,
+        show_price: false,
+        price_data: [],
         items_data : data.items,
         scroll_cost : scroll_cost,
+        sprites
+    });
+};
+
+const priceHandler = function (request, reply) {
+    const itemType = request.params.item;
+    const itemData = data.items[itemType];
+
+    if (!itemData) {
+        return reply().code(404);
+    }
+
+    var hide_price = true;
+
+    if(priceTable) {
+      hide_price = (Object.keys(priceTable).length === 0);
+    }
+
+    reply.view('price', {
+        item: itemData,
+        type: itemType,
+        show_dropped: false,
+        dropped: [],
+        show_upgrades: false,
+        upgrades: [],
+        show_exchanges: false,
+        exchanges: [],
+        show_price: !hide_price,
+        price_data: priceTable,
+        items_data : data.items,
+        scroll_cost : scroll_cost,
+        sprites
+    });
+};
+
+const marketHandler = function (request, reply) {
+    reply.view('market', {
+        items: itemsData,
+        market: marketTable,
         sprites
     });
 };
@@ -186,7 +273,7 @@ function updateUpgradeTable() {
                 data : []
             },
             'Accessories' : {
-                types : ['amulet', 'ring', 'earring', 'tome'],
+                types : ['amulet', 'ring', 'earring', 'tome', 'belt', 'source'],
                 max_level : 5,
                 data : []
             },
@@ -226,11 +313,26 @@ function updateUpgradeTable() {
             if(a.name > b.name) return 1;
             return 0;
         }
+
         upgradeData['Weapons'].data.sort(compare);
         upgradeData['Armor'].data.sort(compare);
         upgradeData['Accessories'].data.sort(compare);
         upgradeData['Misc'].data.sort(compare);
         upgradeTable = upgradeData;
+    });
+}
+
+function updateMarketTable() {
+    collection.db.getMarketTable()
+    .then((table) => {
+        marketTable = table;
+    });
+}
+
+function updatePriceTable() {
+    collection.db.getPriceTable()
+    .then((table) => {
+        priceTable = table;
     });
 }
 
@@ -244,14 +346,21 @@ function updateExchangeTable() {
 setInterval(updateDropTable, 1000 * 60 * 10);
 setInterval(updateUpgradeTable, 1000 * 60);
 setInterval(updateExchangeTable, 1000 * 60);
+setInterval(updateMarketTable, 1000 * 30);
+setInterval(updatePriceTable, 1000 * 30);
 updateDropTable();
 updateUpgradeTable();
 updateExchangeTable();
+updateMarketTable();
+updatePriceTable();
 
 exports.root = rootHandler;
 
 exports.monsters = monstersHandler;
 exports.monster = monsterHandler;
+
+exports.market = marketHandler;
+exports.price = priceHandler;
 
 exports.items = itemsHandler;
 exports.item = itemHandler;

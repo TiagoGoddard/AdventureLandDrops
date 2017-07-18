@@ -15,6 +15,7 @@ html
 
         link(href='/static/css/style.css' rel='stylesheet')
         script(src='/static/js/list.min.js')
+        script(src='/static/js/angular.min.js')
     body
         .content
             #header.border.vmargin.horizontal-flex
@@ -34,6 +35,8 @@ html
                     a(href='/exchanges') Exchange Data
                 .divider.rmargin
                 .static-column.vertical-flex.rmargin
+                    a(href='/market') Market
+                .divider.rmargin
+                .static-column.vertical-flex.rmargin
                     a(href='https://github.com/TiagoGoddard/AdventureLandDrops') Contribute
-                .divider
             block content

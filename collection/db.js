@@ -6,16 +6,25 @@ const db = new sqlite3.Database(dbFile);
 
 const createQuery = fs.readFileSync(__dirname + '/queries/create.sql', 'utf-8');
 const listDropsQuery = fs.readFileSync(__dirname + '/queries/droprate.sql', 'utf-8');
+const listMarketQuery = fs.readFileSync(__dirname + '/queries/marketlist.sql', 'utf-8');
+const listMarketItemQuery = fs.readFileSync(__dirname + '/queries/marketlistitem.sql', 'utf-8');
+const listExchangeQuery = fs.readFileSync(__dirname + '/queries/exchanges.sql', 'utf-8');
 
 db.exec(createQuery);
 
+const deleteMarketStatement = db.prepare('DELETE FROM market WHERE player = ?');
+
 const dropStatement = db.prepare('INSERT INTO drops (type, monster, map, gold, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const itemStatement = db.prepare('INSERT INTO items (name, dropid) VALUES (?, ?)');
+const marketStatement = db.prepare('INSERT INTO market (type, price, level, map, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+const marketItemStatement = db.prepare('INSERT INTO market_items (name, marketid) VALUES (?, ?)');
 const upgradeStatement = db.prepare('INSERT INTO upgrades (item, level, scroll, offering, success, userkey, time) VALUES (?, ?, ?, ?, ?, ?, ?)');
 const compoundStatement = db.prepare('INSERT INTO compounds (item, level, success, userkey, time) VALUES (?, ?, ?, ?, ?)');
 const exchangeStatement = db.prepare('INSERT INTO exchanges (item, result, amount, userkey, time, level) VALUES (?, ?, ?, ?, ?, ?)');
 const listDropsStatement = db.prepare(listDropsQuery);
-
+const listMarketStatement = db.prepare(listMarketQuery);
+const listMarketItemStatement = db.prepare(listMarketItemQuery);
+const listExchangeStatement = db.prepare(listExchangeQuery);
 
 let currentCommand = Promise.resolve();
 
@@ -55,6 +64,48 @@ const addDrop = function(dropData) {
                 res();
             }
         );
+    });
+};
+
+const addMarket = function(dataArray, player, map, key, version) {
+    const time = Math.floor(Date.now() / 1000);
+
+    runCommand((res) => {      
+        deleteMarketStatement.run(
+            player,
+            res
+        );
+
+        for(let marketData of dataArray) {
+            marketStatement.run(
+                marketData.name,
+                marketData.price,
+                marketData.level,
+                map,
+                dataArray.length,
+                player,
+                key,
+                version,
+                time,
+
+                function(err) {
+                    if(err) {
+                        console.error(err);
+                        res();
+                        return;
+                    }
+                    const lastID = this.lastID;
+
+                    for (let item of marketData.items) {
+                        runCommand((res) => {
+                            marketItemStatement.run(item, lastID, res);
+                        });
+                    }
+                    res();
+                }
+            );
+        }
+        res();
     });
 };
 
@@ -169,6 +220,55 @@ const getDropTable = function() {
                 }
 
                 res(monsters);
+            });
+        });
+    });
+};
+
+const getMarketTable = function() {
+    return new Promise((res) => {
+        runCommand((cmdRes) => {
+            listMarketStatement.all((err, rows) => {
+                cmdRes();
+
+                const items = new Map();
+                for (let row of rows) {
+                    let item = row.item;
+
+                    if (!items.has(item)) {
+                        items.set(item, []);
+                    }
+
+                    items.get(item).push({
+                        item: row.item,
+                        level: row.level,
+                        avgprice: row.avgprice,
+                        avaliable: row.avaliable
+                    });
+                }
+
+                res(items);
+            });
+        });
+    });
+};
+
+const getPriceTable = function() {
+    return new Promise((res) => {
+        runCommand((cmdRes) => {
+            listMarketItemStatement.all((err, rows) => {
+                cmdRes();
+
+                const sells = new Map();
+                for (let row of rows) {
+                    let item = row.item;
+                    if (!sells.has(item)) {
+                        sells.set(item, []);
+                    }
+                    sells.get(item).push({ price : row.price, level : row.level, player : row.player, map: row.map });
+                }
+
+                res(sells);
             });
         });
     });
@@ -306,21 +406,7 @@ const getUpgradeInfo = function(item) {
 const getExchangesTable = function() {
     return new Promise((res) => {
         runCommand((cmdRes) => {
-            let query = `
-            SELECT exchanges.item, exchanges.result, COUNT(*) AS seen, AVG(amount) AS avg_amount, S.total FROM exchanges
-            LEFT OUTER JOIN (SELECT item, COUNT(*) AS total FROM exchanges GROUP BY item) S
-            ON exchanges.item=S.item
-            WHERE exchanges.result <> 'gold' GROUP BY exchanges.item, exchanges.result
-
-            UNION ALL
-
-            SELECT exchanges.item, exchanges.result, COUNT(*) AS seen, amount, S.total FROM exchanges
-            LEFT OUTER JOIN (SELECT item, COUNT(*) AS total FROM exchanges GROUP BY item) S
-            ON exchanges.item=S.item
-            WHERE exchanges.result == 'gold' GROUP BY exchanges.item, exchanges.amount;
-                `;
-
-            db.prepare(query).all((err, rows) => {
+            listExchangeStatement.all((err, rows) => {
                 cmdRes();
 
                 const exchanges = {};
@@ -342,6 +428,7 @@ exports.addDrops = addDrops;
 exports.addUpgrade = addUpgrade;
 exports.addCompound = addCompound;
 exports.addExchange = addExchange;
+exports.addMarket = addMarket;
 exports.getDropTable = getDropTable;
 exports.getGoldTable = getGoldTable;
 exports.getContribTable = getContribTable;
@@ -349,3 +436,5 @@ exports.getUpgradesTable = getUpgradesTable;
 exports.getUpgradeAndCompoundsTable = getUpgradeAndCompoundsTable;
 exports.getUpgradeInfo = getUpgradeInfo;
 exports.getExchangesTable = getExchangesTable;
+exports.getMarketTable = getMarketTable;
+exports.getPriceTable = getPriceTable;

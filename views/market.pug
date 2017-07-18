@@ -1,0 +1,10 @@
+extends layout.pug
+
+block content
+    .horizontal-flex.spread.vmargin
+        each item in market
+            a.box.border.margin.vertical-flex(href=`/items/${item.type}`)
+                .sprite-container.small
+                    div(style=sprites.item(item.type, 32))
+                span.align-center=item.name
+                span.align-center.gray.medsmall=item.avgprice
