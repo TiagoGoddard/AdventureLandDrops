@@ -33,26 +33,28 @@ let itemsData = {
 };
 
 for (let itemType in data.items) {
-  let item = {
+  let itemU = {
     type: itemType,
-    group: data.items[itemType].type,
-    name: data.items[itemType].name
+    name: data.items[itemType].name,
+    item : itemType.name
   }
+  let item = data.items[itemType];
 
   let group_type = 'Misc';
-  if(itemType) {
+  if(item) {
     for(let group in itemsData) {
-        if(itemsData[group].types.indexOf(itemType.group) > -1)
+        if(itemsData[group].types.indexOf(item.type) > -1) {
             group_type = group;
+        }
     }
   }
-  itemsData[group_type].data.push(item);
-
-  items.push({
-      type: itemType,
-      group: group_type,
-      name: data.items[itemType].name
-  });
+  let new_info = {
+      type : itemType,
+      name : item.name,
+      item : itemType.name
+  };
+  itemsData[group_type].data.push(new_info);
+  items.push(itemU);
 }
 
 for (let group in itemsData) {
