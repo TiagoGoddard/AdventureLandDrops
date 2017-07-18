@@ -13,6 +13,7 @@ const listExchangeQuery = fs.readFileSync(__dirname + '/queries/exchanges.sql', 
 db.exec(createQuery);
 
 const deleteMarketStatement = db.prepare('DELETE FROM market WHERE player = ?');
+const deleteMarketItemStatement = db.prepare('DELETE FROM market_items where marketid in ( SELECT id FROM market WHERE player = ?);');
 
 const dropStatement = db.prepare('INSERT INTO drops (type, monster, map, gold, items, player, userkey, version, time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const itemStatement = db.prepare('INSERT INTO items (name, dropid) VALUES (?, ?)');
@@ -21,6 +22,8 @@ const marketItemStatement = db.prepare('INSERT INTO market_items (name, marketid
 const upgradeStatement = db.prepare('INSERT INTO upgrades (item, level, scroll, offering, success, userkey, time) VALUES (?, ?, ?, ?, ?, ?, ?)');
 const compoundStatement = db.prepare('INSERT INTO compounds (item, level, success, userkey, time) VALUES (?, ?, ?, ?, ?)');
 const exchangeStatement = db.prepare('INSERT INTO exchanges (item, result, amount, userkey, time, level) VALUES (?, ?, ?, ?, ?, ?)');
+
+const listPlayerMarketStatement = db.prepare('SELECT id FROM market WHERE player = ?');
 const listDropsStatement = db.prepare(listDropsQuery);
 const listMarketStatement = db.prepare(listMarketQuery);
 const listMarketItemStatement = db.prepare(listMarketItemQuery);
@@ -72,6 +75,17 @@ const addMarket = function(dataArray, player, map, server, key, version) {
 
     runCommand((res) => {
         deleteMarketStatement.run(
+            player,
+            function(err) {
+                if(err) {
+                    console.error(err);
+                    res();
+                    return;
+                }
+                res();
+            }
+        );
+        deleteMarketItemStatement.run(
             player,
             function(err) {
                 if(err) {
@@ -269,7 +283,7 @@ const getPriceTable = function() {
                     if (!sells.has(item)) {
                         sells.set(item, []);
                     }
-                    sells.get(item).push({ price : row.price, level : row.level, player : row.player, map: row.map, server: row.server });
+                    sells.get(item).push({ price : row.price, level : row.level, player : row.player, map: row.map });
                 }
 
                 res(sells);
