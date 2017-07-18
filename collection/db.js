@@ -229,15 +229,13 @@ const getMarketTable = function() {
             listMarketStatement.all((err, rows) => {
                 cmdRes();
 
-                const items = new Map();
+                const items = {};
                 for (let row of rows) {
                     let item = row.item;
+                    if(!items[item])
+                        items[item] = [];
 
-                    if (!items.has(item)) {
-                        items.set(item, []);
-                    }
-
-                    items.get(item).push({
+                    items[item].push({
                         item: row.item,
                         level: row.level,
                         avgprice: row.avgprice,

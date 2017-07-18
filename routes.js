@@ -169,7 +169,7 @@ const priceHandler = function (request, reply) {
         show_exchanges: false,
         exchanges: [],
         show_price: true,
-        price_data: priceTable,
+        price_data: priceTable.get(itemType) || [],
         items_data : data.items,
         scroll_cost : scroll_cost,
         sprites
@@ -179,6 +179,7 @@ const priceHandler = function (request, reply) {
 const marketHandler = function (request, reply) {
     reply.view('market', {
         items: itemsData,
+        items_data : data.items,
         market: marketTable,
         sprites
     });
