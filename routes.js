@@ -35,13 +35,14 @@ let itemsData = {
 for (let itemType in data.items) {
   let item = {
     type: itemType,
+    group: data.items[itemType].type,
     name: data.items[itemType].name
   }
 
   let group_type = 'Misc';
   if(itemType) {
     for(let group in itemsData) {
-        if(itemsData[group].types.indexOf(itemType.type) > -1)
+        if(itemsData[group].types.indexOf(itemType.group) > -1)
             group_type = group;
     }
   }
@@ -49,7 +50,7 @@ for (let itemType in data.items) {
 
   items.push({
       type: itemType,
-      group: itemType.type,
+      group: group_type,
       name: data.items[itemType].name
   });
 }

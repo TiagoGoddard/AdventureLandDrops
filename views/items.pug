@@ -17,9 +17,9 @@ block content
                 .column.border
                     .subtitle #{group_type}
 
-            .horizontal-flex.spread.vmargin
-                each item in group.data
-                    a.box.border.margin.vertical-flex(href=`/items/${item.type}`)
-                        .sprite-container.small
-                            div(style=sprites.item(item.type, 32))
-                        span.align-center=item.name
+                .horizontal-flex.spread.vmargin
+                    each item in group.data
+                        a.box.border.margin.vertical-flex(href=`/items/${item.type}`)
+                            .sprite-container.small
+                                div(style=sprites.item(item.type, 32))
+                            span.align-center=item.name

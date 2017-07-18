@@ -85,10 +85,13 @@ parent.exchangeit = (function() {
             Object.assign(oldinventory, parent.character.items);
             parent.waiting_for_log = true;
             parent.socket.on('game_log', exchange_listener);
+
+            parent.e_item = slot;
             parent.socket.emit("exchange", {
                 item_num: slot,
                 q: startitem.q
             });
+
             setTimeout(() => {
                 parent.socket.removeListener("game_log", exchange_listener);
             }, 500);
