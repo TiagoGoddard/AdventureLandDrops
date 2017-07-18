@@ -4,13 +4,10 @@ block title
     title DB Land - Items
 
 block content
-    .horizontal-flex.vmargin
-        .column.border
-            .subtitle Items
-            .horizontal-flex
     if(Object.keys(items).length === 0)
-        .vmargin.border
-            .info Something is really wrong.
+        .horizontal-flex.vmargin
+            .vmargin.border
+                .info Something is really wrong.
     else
         each group, group_type in items
             .horizontal-flex.vmargin

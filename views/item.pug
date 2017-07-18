@@ -62,7 +62,7 @@ block content
     .horizontal-flex.vmargin
         .static-column.rmargin.border.vertical-flex
             if show_price
-                a.box.border.margin.vertical-flex(href=`/items/${type}`)
+                a.margin.vertical-flex(href=`/items/${type}`)
                     .sprite-container.small
                         div(style=sprites.item(type, 32))
                     .title=item.name
@@ -279,3 +279,6 @@ block content
             };
             var list = new List('drops', options);
             list.sort('rate', { order: 'desc'});
+
+    if show_price
+        block price

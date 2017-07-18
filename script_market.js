@@ -4,61 +4,47 @@ parent.updateit = (function() {
     let API_KEY = window.aldc_apikey;
     let SCRIPT_VERSION = window.aldc_script_version;
 
-    if (parent.prev_handlers) {
-        for (let [event, handler] of parent.prev_handlers) {
-            parent.socket.removeListener(event, handler);
-        }
-    }
+    let LAST_CALL = null;
 
     function register_handler(event, handler) {
         parent.prev_handlers.push([event, handler]);
         parent.socket.on(event, handler);
     }
 
-    parent.waiting_for_log = false;
-
-    let selling_listener = (data) => {
-        if(!parent) return;
-        if(!character.stand) {
-            console.log("Waiting for stand to open...");
-            return;
-        }
-
-        let items = [];
-        for(let key of Object.keys(character.slots)) { 
-          if(key.startsWith('trade')) {
-            if(character.slots(key)) {
-              items.push(character.slots(key));
-            }
-          }
-        }
-
-        finish(items);        
-    };
-    
-
     function update() {
         if(!parent) {
             console.error("Unable to get parent object") ;
-            return;
-        }
-        if(!character.stand) {
-            console.log("Waiting for stand to open... (character.stand == false). If this persists, refresh the web page.");
             return;
         }
         if(API_KEY.length < 15) {
             console.error("Invalid API key") ;
             return;
         }
-      
-        register_handler('merchant', selling_listener);
+        if(!character.stand) {
+            console.log("Waiting for stand to open...");
+            return;
+        }
+        if(LAST_CALL && mssince(LAST_CALL) < 5000) {
+            console.log("Let's not spam the server.");
+            return;          
+        }
+
+        update_market(get_character_items());
+    }
+  
+    function get_character_items() {
+        let items = [];
+        for(let key of Object.keys(character.slots)) { 
+          if(key.startsWith('trade')) {
+            if(character.slots[key]) {
+              items.push(character.slots[key]);
+            }
+          }
+        }
+        return items;
     }
 
-    function finish(items) {
-        report_result(items);
-    }
-
-    function report_result(items) {
+    function update_market(items) {
         let payload = {
             items: items,
             map: character.map,
@@ -76,8 +62,9 @@ parent.updateit = (function() {
         if(COLLECTION_SERVER2) {
             fetch(`${COLLECTION_SERVER2}/update`, content).catch(() => {});
         }
+        LAST_CALL = new Date(0);
     }
 
     parent.ui_success("Use the market script with parent.updateit()");
-    return exchange;
+    return update;
 }());
