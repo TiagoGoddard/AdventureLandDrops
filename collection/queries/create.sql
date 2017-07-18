@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS market (
     time DATETIME NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS market_player_idx ON market(player);
 CREATE INDEX IF NOT EXISTS items_level_price_idx ON market(type, level, price);
+CREATE INDEX IF NOT EXISTS list_price_idx ON market(type, level, price, map, server);
 CREATE INDEX IF NOT EXISTS player_items_idx ON market(player, type);
 CREATE INDEX IF NOT EXISTS market_time_idx ON market(time);
 

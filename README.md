@@ -105,23 +105,11 @@ if(parent.exchangeit) {
 
 ### Update market listing
 ```javascript
-var aldc_already_updated = false;
-var aldc_count = 0;
-setInterval(function(){
-  if(character.stand) {
-    if(parent.updateit && !aldc_already_updated) {
+setInterval(function() {
+  if(character.stand && parent.updateit) {
       parent.updateit();
-      aldc_already_updated = true;
-    } else {
-      aldc_count += 1;
-      //15 minutes for a 1000/4 interval
-      if(aldc_count > 4*60*15) {
-        aldc_already_updated = false;
-        aldc_count = 0;
-      }
-    }
   }
-},1000/4);
+},15000);
 ```
 
 # To update data and configure server

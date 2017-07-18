@@ -15,6 +15,7 @@ block content
             ['range', 'Range'],
             ['hp', 'Health'],
             ['mp', 'Mana'],
+            ['freeze', 'Freeze'],
             ['str', 'Strength'],
             ['int', 'Intelligence'],
             ['dex', 'Dexterity'],
@@ -42,6 +43,12 @@ block content
                 new Map([
                     ['attr0', 'Second Chance']
                 ])
+            ],
+            [
+                'freeze',
+                new Map([
+                    ['attr0', 'Freeze']
+                ])
             ]
         ])
 
@@ -53,6 +60,10 @@ block content
             [
                 'secondchance',
                 'Avoid death with %attr0% chance.'
+            ],
+            [
+                'freeze',
+                'Freeze with %attr0% chance.'
             ]
         ])
 

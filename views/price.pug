@@ -33,7 +33,30 @@ block price
                                           each price_item in price_data
                                               if i == price_item.level
                                                   tr
-                                                      td.align-center #{price_item.price}
+                                                      td.align-center #{formatNumber(price_item.price)}
                                                       td.align-center #{price_item.player}
                                                       td.align-center #{price_item.map}
                                                       td.align-center #{price_item.server}
+
+        else
+            .vmargin.border
+                table
+                    thead
+                        tr
+                            th.align-center Listed Items
+                    tbody
+                        tr
+                            td
+                                table.scaling
+                                    thead
+                                        th.align-center.medsmall.gray Price
+                                        th.align-center.medsmall.gray Player
+                                        th.align-center.medsmall.gray Map
+                                        th.align-center.medsmall.gray Server
+                                    tbody
+                                        each price_item in price_data
+                                            tr
+                                                td.align-center #{formatNumber(price_item.price)}
+                                                td.align-center #{price_item.player}
+                                                td.align-center #{price_item.map}
+                                                td.align-center #{price_item.server}
