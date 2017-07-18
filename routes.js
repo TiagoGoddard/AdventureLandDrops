@@ -89,11 +89,11 @@ const itemsHandler = function (request, reply) {
 let dropTable = new Map();
 let monsterGoldTable = new Map();
 let reverseDropTable = new Map();
+let priceTable = new Map();
 let contribTable = new Map();
 let upgradeTable = {};
 let exchangeTable = {};
 let marketTable = {};
-let priceTable = {};
 
 const monsterHandler = function (request, reply) {
     const monsterType = request.params.monster;
