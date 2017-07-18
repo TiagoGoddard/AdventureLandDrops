@@ -117,6 +117,7 @@ setInterval(function(){
       //15 minutes for a 1000/4 interval
       if(aldc_count > 4*60*15) {
         aldc_already_updated = false;
+        aldc_count = 0;
       }
     }
   }

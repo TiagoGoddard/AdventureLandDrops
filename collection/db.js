@@ -96,11 +96,9 @@ const addMarket = function(dataArray, player, map, key, version) {
                     }
                     const lastID = this.lastID;
 
-                    for (let item of marketData.items) {
-                        runCommand((res) => {
-                            marketItemStatement.run(item, lastID, res);
-                        });
-                    }
+                    runCommand((res) => {
+                        marketItemStatement.run(marketData.name, lastID, res);
+                    });
                     res();
                 }
             );
