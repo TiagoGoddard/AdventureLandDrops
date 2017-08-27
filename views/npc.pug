@@ -1,0 +1,17 @@
+extends layout.pug
+
+block title
+    title DB Land - #{npc.name}
+
+block content
+    .horizontal-flex.vmargin
+        .static-column.rmargin.border.vertical-flex
+                .sprite-container
+                    div(style=sprites.npc(type, 64))
+                .title=npc.name
+
+        .column.border
+            .subtitle Npc Information
+            .horizontal-flex
+                .column
+                    Under construction

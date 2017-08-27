@@ -1,0 +1,9 @@
+extends layout.pug
+
+block content
+    .horizontal-flex.spread.vmargin
+        each npc in npcs
+            a.box.border.margin.vertical-flex(href=`/npcs/${monster.type}`)
+                .sprite-container
+                    div(style=sprites.npc(npc.type, 64))
+                span.align-center=npc.name

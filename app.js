@@ -38,6 +38,9 @@ server.register(Vision, (err) => {
     server.route({ method: 'GET', path: '/monsters', handler: routes.monsters });
     server.route({ method: 'GET', path: '/monsters/{monster}', handler: routes.monster });
 
+    server.route({ method: 'GET', path: '/npcs', handler: routes.npcs });
+    server.route({ method: 'GET', path: '/npcs/{npc}', handler: routes.npc });
+
     server.route({ method: 'GET', path: '/items', handler: routes.items });
     server.route({ method: 'GET', path: '/items/{item}', handler: routes.item });
 

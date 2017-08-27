@@ -13,6 +13,7 @@ block content
             ['crit', 'Crit'],
             ['attack', 'Damage'],
             ['range', 'Range'],
+            ['ignore', 'Not Avaliable'],
             ['hp', 'Health'],
             ['mp', 'Mana'],
             ['freeze', 'Freeze'],
@@ -111,13 +112,14 @@ block content
                             .info
                                 block
 
+                    +attribute('range') #[+n]: #[span.gray +#[+v]]
                     +attribute('lifesteal') #[+n]: #[span.gray #[+v]%]
                     +attribute('evasion') #[+n]: #[span.gray #[+v]%]
                     +attribute('reflection') #[+n]: #[span.gray #[+v]%]
                     +attribute('gold') #[+n]: #[span.gray #[+v]%]
                     +attribute('crit') #[+n]: #[span.gray #[+v]%]
                     +attribute('attack') #[+n]: #[span.gray #[+v]]
-                    +attribute('range') #[+n]: #[span.gray +#[+v]]
+                    +attribute('ignore') #[+n]: #[span.gray #[+v]]
                     +attribute('hp') #[+n]: #[span.gray #[+v]]
                     +attribute('mp') #[+n]: #[span.gray #[+v]]
                     +attribute('str') #[+n]: #[span.gray #[+v]]

@@ -4,12 +4,21 @@ const sprites = require('./sprites');
 const sortOrder = require('./sortOrder');
 
 let monsters = [];
+let npcs = [];
 let items = [];
 
 for (let monsterType in data.monsters) {
     monsters.push({
         type: monsterType,
         name: data.monsters[monsterType].name
+    });
+}
+
+for (let npcType in data.npcs) {
+    npcs.push({
+        type: npcType,
+        name: data.npcs[npcType].name,
+        role: data.npcs[npcType].role
     });
 }
 
@@ -79,6 +88,13 @@ const monstersHandler = function (request, reply) {
     });
 };
 
+const npcsHandler = function (request, reply) {
+    reply.view('npcs', {
+        npcs,
+        sprites
+    });
+};
+
 const itemsHandler = function (request, reply) {
     reply.view('items', {
         items: itemsData,
@@ -112,6 +128,22 @@ const monsterHandler = function (request, reply) {
         avggold : mgt ? mgt.avggold : 0,
         kills : mgt ? mgt.kills : 0,
         contribs : contribTable.get(monsterType) || [],
+        sprites
+    });
+};
+
+const npcHandler = function (request, reply) {
+    const npcType = request.params.npc;
+    const npcData = data.npcs[npcType];
+
+    if (!npcData) {
+        return reply().code(404);
+    }
+
+    reply.view('npc', {
+        npc: npcData,
+        type: npcType,
+        items: itemsData,
         sprites
     });
 };
@@ -356,6 +388,9 @@ exports.root = rootHandler;
 
 exports.monsters = monstersHandler;
 exports.monster = monsterHandler;
+
+exports.npcs = npcsHandler;
+exports.npc = npcHandler;
 
 exports.market = marketHandler;
 exports.price = priceHandler;
