@@ -7,6 +7,9 @@ let monsters = [];
 let npcs = [];
 let items = [];
 
+let quest_items = [];
+let e_items = [];
+
 for (let monsterType in data.monsters) {
     monsters.push({
         type: monsterType,
@@ -18,6 +21,7 @@ for (let npcType in data.npcs) {
     npcs.push({
         type: npcType,
         name: data.npcs[npcType].name,
+        skin: data.npcs[npcType].skin,
         role: data.npcs[npcType].role
     });
 }
@@ -55,6 +59,12 @@ for (let itemType in data.items) {
         if(itemsData[group].types.indexOf(item.type) > -1) {
             group_type = group;
         }
+    }
+    if(item.quest) {
+      quest_items.push(item);
+    }
+    if(item.e){
+      e_items.push(item);      
     }
   }
   let new_info = {
@@ -143,7 +153,9 @@ const npcHandler = function (request, reply) {
     reply.view('npc', {
         npc: npcData,
         type: npcType,
-        items: itemsData,
+        items: data.items,
+        quest_items: quest_items,
+        e_items: e_items,
         sprites
     });
 };

@@ -1,17 +1,36 @@
 extends layout.pug
 
 block title
-    title DB Land - #{npc.name}
+    if npc.name
+        title DB Land - #{npc.name}
+    else
+        title DB Land - #{type}
 
 block content
     .horizontal-flex.vmargin
         .static-column.rmargin.border.vertical-flex
                 .sprite-container
-                    div(style=sprites.npc(type, 64))
-                .title=npc.name
+                    div(style=sprites.npc(npc.skin, 64))
+                if npc.name
+                    .title=npc.name
+                else
+                    .title=type
 
         .column.border
             .subtitle Npc Information
             .horizontal-flex
                 .column
-                    Under construction
+                    .info Role: #[span.gray=npc.role]
+                    if npc.type
+                        .info Type: #[span.gray=npc.type]
+    if npc.items
+        .horizontal-flex.vmargin
+            .column.border
+                .subtitle Sells
+        .horizontal-flex.spread.vmargin
+            each item in npc.items
+                if item
+                    a.box.border.margin.vertical-flex(href=`/items/${item}`)
+                        .sprite-container.small
+                            div(style=sprites.item(item, 32))
+                        span.align-center=items[item].name

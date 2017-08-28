@@ -3,7 +3,10 @@ extends layout.pug
 block content
     .horizontal-flex.spread.vmargin
         each npc in npcs
-            a.box.border.margin.vertical-flex(href=`/npcs/${monster.type}`)
+            a.box.border.margin.vertical-flex(href=`/npcs/${npc.type}`)
                 .sprite-container
-                    div(style=sprites.npc(npc.type, 64))
-                span.align-center=npc.name
+                    div(style=sprites.npc(npc.skin, 64))
+                if npc.name
+                    span.align-center=npc.name
+                else
+                    span.align-center=npc.type
