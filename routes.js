@@ -187,6 +187,7 @@ const itemHandler = function (request, reply) {
         upgrades: upgradeTable,
         show_exchanges: !hide_exchange,
         exchanges: exchangeTable,
+        npcs: npcs,
         show_price: false,
         price_data: [],
         items_data : data.items,

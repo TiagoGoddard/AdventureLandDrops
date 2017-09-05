@@ -336,5 +336,29 @@ block content
             var list = new List('drops', options);
             list.sort('rate', { order: 'desc'});
 
+    .horizontal-flex.vmargin
+        .column.border
+            table
+                tbody
+                    tr
+                        td Sells
+                        
+    .horizontal-flex.spread.vmargin
+        each npc in npcs
+            - var do_sell = false;
+            each item in npc.items
+                if item
+                    if item == type
+                        - do_sell = true;
+
+            if do_sell
+                a.box.border.margin.vertical-flex(href=`/npcs/${npc.type}`)
+                    .sprite-container
+                        div(style=sprites.npc(npc.skin, 64))
+                    if npc.name
+                        span.align-center=npc.name
+                    else
+                        span.align-center=npc.type
+
     if show_price
         block price
