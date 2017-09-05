@@ -42,8 +42,11 @@ block content
                     .subtitle Interaction
                     .horizontal-flex
                         .column
-                            each interaction in npc.interaction
-                                .info #[span.gray=interaction]
+                            if typeof npc.interaction === 'string'
+                                .info #[span.gray=npc.interaction]                                
+                            else
+                                each interaction in npc.interaction
+                                    .info #[span.gray=interaction]
     if npc.items
         .horizontal-flex.vmargin
             .column.border
