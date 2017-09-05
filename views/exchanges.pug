@@ -12,8 +12,8 @@ block content
         .vmargin.border
             .info Database is journaling, probably.
     else
-        each itemd, itemlevel in exchanges
-            each itemdata, itemkey in itemd[itemlevel]
+        each itemd, itemkey in exchanges
+            each itemdata, itemlevel in itemd
                 .horizontal-flex.vmargin
                     .column.border
                         table
@@ -22,7 +22,10 @@ block content
                                     td
                                         a(href=`/items/${itemkey}`).sprite-container.small
                                             span(style=sprites.item(itemkey, 32))
-                                    td #{items_data[itemkey].name} +#{itemlevel}
+                                    if itemd.length > 1
+                                        td #{items_data[itemkey].name} +#{itemlevel}
+                                    else
+                                        td #{items_data[itemkey].name}
                         hr
                         table.exchanges
                             thead
