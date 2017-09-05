@@ -431,11 +431,17 @@ const getExchangesTable = function() {
                 for (let row of rows) {
                     let item = row.item;
                     let level = row.level;
-                    if(!exchanges[item])
-                        exchanges[item] = [];
-                    if(!exchanges[item][level])
-                        exchanges[item][level] = [];
 
+                    if(!level) {
+                      level = 0;
+                    }
+
+                    if(!exchanges[item]) {
+                        exchanges[item] = [];
+                        if(!exchanges[item][level]) {
+                            exchanges[item][level] = [];
+                        }
+                    }
                     exchanges[item][level].push({result: row.result, amount : row.avg_amount, seen : row.seen, total : row.total});
                 }
 
