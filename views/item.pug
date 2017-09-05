@@ -202,7 +202,10 @@ block content
                                         acc += scaling[property] * multipliers[i]
                                     }
 
-                    if show_upgrades && upgrades.length
+            table.scaling
+
+                tbody
+
                         each group, group_type in upgrades                
 
                             each citem in group.data
@@ -231,15 +234,31 @@ block content
                                                 td.info.align-center N/A
                                             - lvl++;
 
-    if show_exchanges && exchanges.length
-        each itemdata, itemkey in exchanges
-            if items_data[itemkey].name == item.name
+    .horizontal-flex.vmargin
+        .column.border
+            table
+                tbody
+                    tr
+                        td Exchanges
+
+    each itemd, itemlevel in exchanges
+        each itemdata, itemkey in itemd[itemlevel]
+            - var has_data = false;
+            each record in itemdata
+                if record.result == type
+                    - has_data = true;
+
+            if has_data
+
                 .horizontal-flex.vmargin
                     .column.border
                         table
                             tbody
                                 tr
-                                    td Exchanges
+                                    td
+                                        a(href=`/items/${itemkey}`).sprite-container.small
+                                            span(style=sprites.item(itemkey, 32))
+                                    td #{items_data[itemkey].name} +#{itemlevel}
                         hr
                         table.exchanges
                             thead
@@ -252,18 +271,29 @@ block content
                                 td.dashed(colspan=11)
                             tbody.list
                                 each record in itemdata
-                                    tr
-                                        td
-                                            a(href=`/items/${record.result}`).sprite-container.small
-                                                div(style=sprites.item(record.result, 32))
-                                        td
-                                            if (record.result == "gold")
-                                                .info Gold
-                                            else
-                                                a.name(href=`/items/${record.result}`)=items_data[record.result].name
-                                        td.align-center #{formatNumber(record.amount)}
-                                        td.align-center #{record.seen}
-                                        td.align-center #{ Math.round(record.seen/record.total * 10000)/100}%
+                                    if record.result == type
+                                        tr.items
+                                            td
+                                                a(href=`/items/${record.result}`).sprite-container.small
+                                                    div(style=sprites.item(record.result, 32))
+                                            td
+                                                if (record.result == "gold")
+                                                    .info Gold
+                                                else
+                                                    a.name(href=`/items/${record.result}`)=items_data[record.result].name
+                                                if record.amount > 0
+                                                    td.align-center #{formatNumber(record.amount)}
+                                                if record.seen
+                                                    td.align-center #{record.seen}
+                                                if record.total
+                                                    td.align-center #{ Math.round(record.seen/record.total * 10000)/100}%
+
+    .horizontal-flex.vmargin
+        .column.border
+            table
+                tbody
+                    tr
+                        td Drops
 
     if show_dropped && dropped.length
         .vmargin.border

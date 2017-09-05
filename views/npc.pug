@@ -23,6 +23,27 @@ block content
                     .info Role: #[span.gray=npc.role]
                     if npc.type
                         .info Type: #[span.gray=npc.type]
+                    if npc.quest
+                        .info Quest: #[span.gray=npc.quest]
+    if npc.says || npc.interaction
+        .horizontal-flex.vmargin
+            if npc.says
+                .column.border(class=npc.interaction ? 'rmargin' : '')
+                    .subtitle Says
+                    .horizontal-flex
+                        .column
+                            if typeof npc.says === 'string'
+                                .info #[span.gray=npc.says]                                
+                            else
+                                each say in npc.says
+                                    .info #[span.gray=say]
+            if npc.interaction
+                .column.border
+                    .subtitle Interaction
+                    .horizontal-flex
+                        .column
+                            each interaction in npc.interaction
+                                .info #[span.gray=interaction]
     if npc.items
         .horizontal-flex.vmargin
             .column.border
@@ -34,3 +55,30 @@ block content
                         .sprite-container.small
                             div(style=sprites.item(item, 32))
                         span.align-center=items[item].name
+    if npc.quest 
+        .horizontal-flex.vmargin
+            .column.border
+                .subtitle Quest Item
+        .horizontal-flex.spread.vmargin
+                each item, type in items
+                    if item.quest == npc.quest
+                        a.box.border.margin.vertical-flex(href=`/items/${type}`)
+                            .sprite-container.small
+                                div(style=sprites.item(type, 32))
+                            span.align-center=item.name
+                            if item.e
+                                span.align-center=item.e
+    if npc.role == 'exchange'
+        .horizontal-flex.vmargin
+            .column.border
+                .subtitle Exchanges
+        .horizontal-flex.spread.vmargin
+                each item, type in items
+                    if !item.quest && item.e
+                        a.box.border.margin.vertical-flex(href=`/items/${type}`)
+                            .sprite-container.small
+                                div(style=sprites.item(type, 32))
+                            if item.e == 1
+                                span.align-center=item.name
+                            else 
+                                span.align-center=item.e+' '+item.name
