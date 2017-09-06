@@ -344,11 +344,11 @@ block content
                         td Sells
                         
     .horizontal-flex.spread.vmargin
-        each npc in npcs
-            - var do_sell = false;          
-            if npc.items && npc.items.length > 0
-                each item in npc.items
-                    <!-->#{item}<!-->
+        each npc, npcindex in npcs
+            - var do_sell = false;
+            - var c_npc = npcs_data[npcindex];
+            if c_npc.items && c_npc.items.length > 0
+                each item in c_npc.items
                     if item == type
                         - do_sell = true;
 
