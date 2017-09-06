@@ -345,9 +345,10 @@ block content
                         
     .horizontal-flex.spread.vmargin
         each npc in npcs
-            - var do_sell = false;
-            each item in npc.items
-                if item
+            - var do_sell = false;          
+            if npc.items && npc.items.length > 0
+                each item in npc.items
+                    <!-->#{item}<!-->
                     if item == type
                         - do_sell = true;
 

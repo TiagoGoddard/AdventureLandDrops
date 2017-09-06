@@ -190,6 +190,7 @@ const itemHandler = function (request, reply) {
         npcs: npcs,
         show_price: false,
         price_data: [],
+        npcs_data : data.npcs,
         items_data : data.items,
         scroll_cost : scroll_cost,
         sprites
