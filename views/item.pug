@@ -233,135 +233,137 @@ block content
                                             else
                                                 td.info.align-center N/A
                                             - lvl++;
+    if !show_price
+        .horizontal-flex.vmargin
+            .column.border
+                table
+                    tbody
+                        tr
+                            td Exchanges
 
-    .horizontal-flex.vmargin
-        .column.border
-            table
-                tbody
+        each itemd, itemkey in exchanges
+            each itemdata, itemlevel in itemd
+                - var has_data = false;
+                each record in itemdata
+                    if record.result == type
+                        - has_data = true;
+
+                if has_data
+
+                    .horizontal-flex.vmargin
+                        .column.border
+                            table
+                                tbody
+                                    tr
+                                        td
+                                            a(href=`/items/${itemkey}`).sprite-container.small
+                                                span(style=sprites.item(itemkey, 32))
+                                        if itemd.length > 1
+                                            td #{items_data[itemkey].name} +#{itemlevel}
+                                        else
+                                            td #{items_data[itemkey].name}
+                            hr
+                            table.exchanges
+                                thead
+                                    tr
+                                        th
+                                        th.align-center Item
+                                        th.align-center Amount
+                                        th.align-center Times Seen
+                                        th.align-center Chance
+                                    td.dashed(colspan=11)
+                                tbody.list
+                                    each record in itemdata
+                                        if record.result == type
+                                            tr.items
+                                                td
+                                                    a(href=`/items/${record.result}`).sprite-container.small
+                                                        div(style=sprites.item(record.result, 32))
+                                                td
+                                                    if (record.result == "gold")
+                                                        .info Gold
+                                                    else
+                                                        a.name(href=`/items/${record.result}`)=items_data[record.result].name
+                                                    if record.amount > 0
+                                                        td.align-center #{formatNumber(record.amount)}
+                                                    if record.seen
+                                                        td.align-center #{record.seen}
+                                                    if record.total
+                                                        td.align-center #{ Math.round(record.seen/record.total * 10000)/100}%
+
+    if !show_price
+        .horizontal-flex.vmargin
+            .column.border
+                table
+                    tbody
+                        tr
+                            td Drops
+
+        if show_dropped && dropped.length
+            .vmargin.border
+                table.drops#drops
+                    thead
+                        tr
+                            th
+                            th.sort(data-sort='monster') Monster
+                            th.sort(data-sort='map') Map
+                            th.sort(data-sort='count')  Count
+                            th.align-right.sort(data-sort='rate') %
                     tr
-                        td Exchanges
-
-    each itemd, itemkey in exchanges
-        each itemdata, itemlevel in itemd
-            - var has_data = false;
-            each record in itemdata
-                if record.result == type
-                    - has_data = true;
-
-            if has_data
-
-                .horizontal-flex.vmargin
-                    .column.border
-                        table
-                            tbody
+                        td.dashed(colspan=5)
+                    tbody.list
+                        each drop in dropped
+                            if drop.drops > 1
                                 tr
                                     td
-                                        a(href=`/items/${itemkey}`).sprite-container.small
-                                            span(style=sprites.item(itemkey, 32))
-                                    if itemd.length > 1
-                                        td #{items_data[itemkey].name} +#{itemlevel}
-                                    else
-                                        td #{items_data[itemkey].name}
-                        hr
-                        table.exchanges
-                            thead
-                                tr
-                                    th
-                                    th.align-center Item
-                                    th.align-center Amount
-                                    th.align-center Times Seen
-                                    th.align-center Chance
-                                td.dashed(colspan=11)
-                            tbody.list
-                                each record in itemdata
-                                    if record.result == type
-                                        tr.items
-                                            td
-                                                a(href=`/items/${record.result}`).sprite-container.small
-                                                    div(style=sprites.item(record.result, 32))
-                                            td
-                                                if (record.result == "gold")
-                                                    .info Gold
-                                                else
-                                                    a.name(href=`/items/${record.result}`)=items_data[record.result].name
-                                                if record.amount > 0
-                                                    td.align-center #{formatNumber(record.amount)}
-                                                if record.seen
-                                                    td.align-center #{record.seen}
-                                                if record.total
-                                                    td.align-center #{ Math.round(record.seen/record.total * 10000)/100}%
+                                        a(href=`/monsters/${drop.monster}`).sprite-container.small
+                                            div(style=sprites.monster(drop.monster, 32))
+                                    td
+                                        a.monster(href=`/monsters/${drop.monster}`)=drop.name
+                                    td.map=drop.mapName
+                                    td.count #{formatNumber(drop.drops)} out of #{formatNumber(drop.kills)}
+                                    td.rate.align-right #{formatNumber(drop.rate, 3)}
+            script.
+                var options = {
+                    valueNames: ['monster', 'map', 'count', 'rate']
+                };
+                var list = new List('drops', options);
+                list.sort('rate', { order: 'desc'});
 
-    .horizontal-flex.vmargin
-        .column.border
-            table
-                tbody
-                    tr
-                        td Drops
+            script.
+                var options = {
+                    valueNames: ['monster', 'map', 'count', 'rate']
+                };
+                var list = new List('drops', options);
+                list.sort('rate', { order: 'desc'});
+    
+    if npcs && !show_price
+        .horizontal-flex.vmargin
+            .column.border
+                table
+                    tbody
+                        tr
+                            td Sells
 
-    if show_dropped && dropped.length
-        .vmargin.border
-            table.drops#drops
-                thead
-                    tr
-                        th
-                        th.sort(data-sort='monster') Monster
-                        th.sort(data-sort='map') Map
-                        th.sort(data-sort='count')  Count
-                        th.align-right.sort(data-sort='rate') %
-                tr
-                    td.dashed(colspan=5)
-                tbody.list
-                    each drop in dropped
-                        if drop.drops > 1
-                            tr
-                                td
-                                    a(href=`/monsters/${drop.monster}`).sprite-container.small
-                                        div(style=sprites.monster(drop.monster, 32))
-                                td
-                                    a.monster(href=`/monsters/${drop.monster}`)=drop.name
-                                td.map=drop.mapName
-                                td.count #{formatNumber(drop.drops)} out of #{formatNumber(drop.kills)}
-                                td.rate.align-right #{formatNumber(drop.rate, 3)}
-        script.
-            var options = {
-                valueNames: ['monster', 'map', 'count', 'rate']
-            };
-            var list = new List('drops', options);
-            list.sort('rate', { order: 'desc'});
+        .horizontal-flex.spread.vmargin
+            each npc in npcs
+                - var do_sell = false;
+                - var c_npc = npcs_data[npc.type];
+                if c_npc.items
+                    each item in c_npc.items
+                        if item && item == type
+                            - do_sell = true;
 
-        script.
-            var options = {
-                valueNames: ['monster', 'map', 'count', 'rate']
-            };
-            var list = new List('drops', options);
-            list.sort('rate', { order: 'desc'});
+                if do_sell
+                    a.box.border.margin.vertical-flex(href=`/npcs/${npc.type}`)
+                        .sprite-container
+                            div(style=sprites.npc(npc.skin, 64))
+                        if npc.name
+                            span.align-center=npc.name
+                        else
+                            span.align-center=npc.type
 
-    .horizontal-flex.vmargin
-        .column.border
-            table
-                tbody
-                    tr
-                        td Sells
-                        
-    .horizontal-flex.spread.vmargin
-        each npc in npcs
-            - var do_sell = false;
-            - var c_npc = npcs_data[npc.type];
-            if c_npc.items
-                each item in c_npc.items
-                    if item && item == type
-                        - do_sell = true;
-
-            if do_sell
-                a.box.border.margin.vertical-flex(href=`/npcs/${npc.type}`)
-                    .sprite-container
-                        div(style=sprites.npc(npc.skin, 64))
-                    if npc.name
-                        span.align-center=npc.name
-                    else
-                        span.align-center=npc.type
-
-    if item.quest
+    if item.quest && !show_price
         .horizontal-flex.vmargin
             .column.border
                 table
