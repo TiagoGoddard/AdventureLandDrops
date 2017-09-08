@@ -216,6 +216,7 @@ const priceHandler = function (request, reply) {
         exchanges: [],
         show_price: true,
         price_data: priceTable.get(itemType) || [],
+        npcs_data : data.npcs,
         items_data : data.items,
         scroll_cost : scroll_cost,
         sprites

@@ -361,5 +361,32 @@ block content
                     else
                         span.align-center=npc.type
 
+    if item.quest
+        .horizontal-flex.vmargin
+            .column.border
+                table
+                    tbody
+                        tr
+                            td Trades
+
+        .horizontal-flex.spread.vmargin
+            each npc in npcs
+                - var do_sell = false;
+                - var c_npc = npcs_data[npc.type];
+                if c_npc.quest == item.quest
+
+                    a.box.border.margin.vertical-flex(href=`/npcs/${npc.type}`)
+                        .sprite-container
+                            div(style=sprites.npc(npc.skin, 64))
+                        if npc.name
+                            span.align-center=npc.name
+                            if item.e
+                                span.align-center=item.e
+                        else
+                            span.align-center=npc.type
+                            if item.e
+                                span.align-center=item.e
+
+
     if show_price
         block price
