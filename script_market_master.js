@@ -24,17 +24,13 @@ parent.updatemasterit = (function() {
             console.error("Invalid API key");
             return;
         }
-        if(!character.stand) {
-            console.log("Waiting for stand to open...");
-            return;
-        }
         if(LAST_CALL && mssince(LAST_CALL) < 5000) {
             console.log("Let's not spam the server.");
             return;          
         }
 
-				for (i in entities) {
-					var cplayer = entities[i];
+				for (i in parent.entities) {
+					var cplayer = parent.entities[i];
 					if (cplayer.ctype == 'merchant') {
 						update_market_master(get_character_items_master(cplayer), cplayer);
 					}
@@ -75,6 +71,6 @@ parent.updatemasterit = (function() {
         LAST_CALL = new Date(0);
     }
 
-    parent.ui_success("Use the market script with parent.updateit()");
+    parent.ui_success("Use the market script with parent.updatemasterit()");
     return updateMaster;
 }());
