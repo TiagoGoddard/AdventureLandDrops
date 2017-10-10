@@ -92,6 +92,11 @@ server.register(Vision, (err) => {
         method: 'GET', path: '/marketscript',
         handler: { file: "script_market.js" }
     });
+ 
+    server.route({
+        method: 'GET', path: '/marketmasterscript',
+        handler: { file: "script_market_master.js" }
+    });
 });
 
 server.register(Inert, (err) => {
