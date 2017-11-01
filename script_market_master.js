@@ -39,13 +39,15 @@ parent.updatemasterit = (function() {
   
     function get_character_items_master(entity) {
         let items = [];
-        for(let key of Object.keys(entity.slots)) { 
-          if(key.startsWith('trade')) {
-            if(entity.slots[key]) {
-              items.push(entity.slots[key]);
-            }
-          }
-        }
+				if(entity.stand) {
+					for(let key of Object.keys(entity.slots)) { 
+						if(key.startsWith('trade')) {
+							if(entity.slots[key]) {
+								items.push(entity.slots[key]);
+							}
+						}
+					}
+				}
         return items;
     }
 
