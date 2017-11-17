@@ -29,6 +29,7 @@ block content
             ['dreturn', 'D. Return'],
             ['speed', 'Speed'],
             ['xp', 'XP'],
+            ['frequency', 'A. Speed'],
         ])
 
         const attrNames = new Map([
@@ -161,12 +162,12 @@ block content
         .vmargin.border
             table.scaling
                 -
-                    let levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-                    let multipliers = [1, 1, 1, 1, 1, 1, 1.25, 1.5, 2, 3]
-                    let unrounded = ['evasion', 'reflection', 'lifesteal', 'dreturn', 'rpiercing', 'apiercing', 'attr0', 'attr1']
+                    let levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                    let multipliers = [1, 1, 1, 1, 1, 1, 1.25, 1.5, 2, 3, 1.25, 1.5]
+                    let unrounded = ['evasion', 'reflection', 'lifesteal', 'dreturn', 'rpiercing', 'apiercing', 'frequency', 'attr0', 'attr1']
 
                     if (item.compound)
-                        multipliers = [1, 1, 1, 1, 1.25, 1.5, 2, 3, 3, 3]
+                        multipliers = [1, 1, 1, 1, 1.25, 1.5, 2, 3, 3, 3, 2, 3]
 
                 thead
                     tr
