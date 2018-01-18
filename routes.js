@@ -309,22 +309,22 @@ function updateUpgradeTable() {
         let upgradeData = {
             'Weapons' : {
                 types : ['weapon', 'quiver', 'shield'],
-                max_level : 10,
+                max_level : 12,
                 data : []
             },
             'Armor' : {
                 types : ['helmet', 'chest', 'pants', 'gloves', 'shoes', 'cape'],
-                max_level : 10,
+                max_level : 12,
                 data : []
             },
             'Accessories' : {
                 types : ['amulet', 'ring', 'earring', 'tome', 'belt', 'source'],
-                max_level : 5,
+                max_level : 10,
                 data : []
             },
             'Misc' : {
                 types : [],
-                max_level : 10,
+                max_level : 12,
                 data : []
             },
         };
