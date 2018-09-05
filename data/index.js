@@ -7,7 +7,7 @@ for (let skin of Object.keys(skins)) {
     data.skins[skin] = {
         file: skins[skin],
         dimensions: dimensions[skin],
-        rdimensions: data.actual_dimensions[skin],
+        rdimensions: data.dimensions[skin],
     };
 }
 
