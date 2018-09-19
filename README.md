@@ -119,10 +119,11 @@ Get the file data.js from: http://adventure.land/data.js and replace `var G` wit
 
 ## To update skins.json
 ```javascript
-show_json(parent.FC);
+JSON.stringfy(parent.FC);
 ```
-Don't forget to add the Jrat and elementals at end.
+Don't forget to add the Franky, Jrat and elementals at end.
 ```
+"franky": "/images/tiles/monsters/monster1.png",
 "jrat": "/images/tiles/monsters/monster1.png",
 "eelemental": "/images/tiles/monsters/monster1.png",
 "felemental": "/images/tiles/monsters/monster1.png",
@@ -132,10 +133,16 @@ Don't forget to add the Jrat and elementals at end.
 
 ## To update dimensions.json
 ```javascript
-show_json(parent.D);
+JSON.stringfy(parent.XYWH);
 ```
-Don't forget to add the Jrat and elementals at end.
+Don't forget to add the Franky, Jrat and elementals at end.
 ```
+  "franky": [
+    0,
+    0,
+    0,
+    0
+  ],
   "jrat": [
     0,
     0,
