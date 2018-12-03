@@ -1,3 +1,8 @@
+process.on('uncaughtException', function (exception) {
+    console.log(exception);
+    console.log(exception.stack);
+});
+
 const Hapi = require('hapi');
 const Vision = require('vision');
 const Inert = require('inert');

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 
-const dbFile = __dirname + '/../db/drops.sqlite';
+const dbFile = "D:\\Backup\\old.drops.sqlite";
 const db = new sqlite3.Database(dbFile);
 
 const createQuery = fs.readFileSync(__dirname + '/queries/create.sql', 'utf-8');
@@ -30,7 +30,6 @@ const listMarketItemStatement = db.prepare(listMarketItemQuery);
 const listExchangeStatement = db.prepare(listExchangeQuery);
 
 let currentCommand = Promise.resolve();
-
 function runCommand(command) {
     const oldCommand = currentCommand;
     currentCommand = new Promise((res) => {
@@ -219,6 +218,7 @@ const addExchange = function(exchangeData) {
 const getDropTable = function() {
     return new Promise((res) => {
         runCommand((cmdRes) => {
+            console.log(listDropsStatement)
             listDropsStatement.all((err, rows) => {
                 cmdRes();
 
@@ -299,7 +299,7 @@ const getGoldTable = function() {
 
             db.prepare(avgGoldQuery).all((err, rows) => {
                 cmdRes();
-
+                console.log(rows)
                 const monstergold = new Map();
                 for (let row of rows) {
                     let monster = row.monster;
@@ -425,8 +425,7 @@ const getExchangesTable = function() {
     return new Promise((res) => {
         runCommand((cmdRes) => {
             listExchangeStatement.all((err, rows) => {
-                cmdRes();
-
+                console.log(err)
                 const exchanges = {};
                 for (let row of rows) {
                     let item = row.item;
