@@ -277,7 +277,6 @@ function startJournalProcess() {
             exchangeTable = m.data.exchangeTable;
             marketTable = m.data.marketTable;
             console.log("Journal completed "+((new Date().getTime()-start.getTime())/1000)+" seconds");
-            childProcess.kill('SIGKILL');
         }
     });
 }

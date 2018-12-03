@@ -1,7 +1,7 @@
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 
-const dbFile = "D:\\Backup\\old.drops.sqlite";
+const dbFile = "db/drops.sqlite";
 const db = new sqlite3.Database(dbFile);
 
 const createQuery = fs.readFileSync(__dirname + '/queries/create.sql', 'utf-8');
@@ -29,12 +29,13 @@ const listMarketStatement = db.prepare(listMarketQuery);
 const listMarketItemStatement = db.prepare(listMarketItemQuery);
 const listExchangeStatement = db.prepare(listExchangeQuery);
 
-let currentCommand = Promise.resolve();
-function runCommand(command) {
-    const oldCommand = currentCommand;
-    currentCommand = new Promise((res) => {
+let currentCallback = Promise.resolve();
+
+function runCommand(callback) {
+    const oldCommand = currentCallback;
+    currentCallback = new Promise((resolve) => {
         oldCommand.then(() => {
-            command(res);
+            callback(resolve);
         });
     });
 }
@@ -218,19 +219,18 @@ const addExchange = function(exchangeData) {
 const getDropTable = function() {
     return new Promise((res) => {
         runCommand((cmdRes) => {
-            console.log(listDropsStatement)
             listDropsStatement.all((err, rows) => {
                 cmdRes();
 
-                const monsters = new Map();
+                var monsters = {};
                 for (let row of rows) {
                     let monster = row.monster;
 
-                    if (!monsters.has(monster)) {
-                        monsters.set(monster, []);
+                    if (!monsters[monster]) {
+                        monsters[monster] = [];
                     }
 
-                    monsters.get(monster).push({
+                    monsters[monster].push({
                         item: row.item,
                         map: row.map,
                         rate: row.rate,
@@ -249,6 +249,7 @@ const getMarketTable = function() {
     return new Promise((res) => {
         runCommand((cmdRes) => {
             listMarketStatement.all((err, rows) => {
+
                 cmdRes();
 
                 const items = {};
@@ -277,13 +278,13 @@ const getPriceTable = function() {
             listMarketItemStatement.all((err, rows) => {
                 cmdRes();
 
-                const sells = new Map();
+                const sells = {};
                 for (let row of rows) {
                     let item = row.item;
-                    if (!sells.has(item)) {
-                        sells.set(item, []);
+                    if (!sells[item]) {
+                        sells[item] = [];
                     }
-                    sells.get(item).push({ price : row.price, level : row.level, player : row.player, map: row.map, server: row.server });
+                    sells[item].push({ price : row.price, level : row.level, player : row.player, map: row.map, server: row.server });
                 }
 
                 res(sells);
@@ -299,14 +300,13 @@ const getGoldTable = function() {
 
             db.prepare(avgGoldQuery).all((err, rows) => {
                 cmdRes();
-                console.log(rows)
-                const monstergold = new Map();
+                const monstergold = {};
                 for (let row of rows) {
                     let monster = row.monster;
                     let avggold = row.avggold;
                     let kills = row.kills;
 
-                    monstergold.set(monster, { avggold : avggold, kills : kills });
+                    monstergold[monster] = { avggold : avggold, kills : kills };
                 }
 
                 res(monstergold);
@@ -323,13 +323,13 @@ const getContribTable = function() {
             db.prepare(playerContribQuery).all((err, rows) => {
                 cmdRes();
 
-                const contribs = new Map();
+                const contribs = {};
                 for (let row of rows) {
                     let monster = row.monster;
-                    if (!contribs.has(monster)) {
-                        contribs.set(monster, []);
+                    if (!contribs[monster]) {
+                        contribs[monster] = [];
                     }
-                    contribs.get(monster).push({ kills : row.kills, player : row.player });
+                    contribs[monster].push({ kills : row.kills, player : row.player });
                 }
 
                 res(contribs);
@@ -425,7 +425,8 @@ const getExchangesTable = function() {
     return new Promise((res) => {
         runCommand((cmdRes) => {
             listExchangeStatement.all((err, rows) => {
-                console.log(err)
+                cmdRes();
+
                 const exchanges = {};
                 for (let row of rows) {
                     let item = row.item;

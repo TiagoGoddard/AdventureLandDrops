@@ -6,7 +6,7 @@ const collection = require('./collection');
 const data = require('./data');
 
 
-let dropTable = new Map();
+let dropTable = {};
 let monsterGoldTable = new Map();
 let reverseDropTable = new Map();
 let priceTable = new Map();
@@ -17,8 +17,8 @@ let marketTable = {};
 
 async function updateDropTable() {
     var table = await collection.db.getDropTable();
-    console.log(table);
-    for (let drops of table.values()) {
+    for (let key in table) {
+        let drops = table[key];
         for (let drop of drops) {
             drop.name = data.items[drop.item].name;
             drop.mapName = data.maps[drop.map].name;
@@ -27,14 +27,15 @@ async function updateDropTable() {
 
     dropTable = table;
     reverseDropTable = new Map();
-    for (let [monster, drops] of table.entries()) {
+    for (let monster in table) {
+        var drops = table[monster];
         for (let drop of drops) {
-            if (!reverseDropTable.has(drop.item)) {
-                reverseDropTable.set(drop.item, []);
+            if (!reverseDropTable[drop.item]) {
+                reverseDropTable[drop.item] = [];
             }
 
             if (data.monsters[monster]) {
-                reverseDropTable.get(drop.item).push({
+                reverseDropTable[drop.item].push({
                     monster: monster,
                     name: data.monsters[monster].name,
                     map: drop.map,
@@ -54,8 +55,6 @@ async function updateDropTable() {
 
 async function updateUpgradeTable() {
     var table = collection.db.getUpgradeAndCompoundsTable()
-
-
     let upgradeData = {
         'Weapons': {
             types: ['weapon', 'quiver', 'shield'],
@@ -148,8 +147,10 @@ async function main() {
             marketTable: marketTable,
         }
     });
-    process.exit(0);
+
+
 }
+
 main();
 
 
