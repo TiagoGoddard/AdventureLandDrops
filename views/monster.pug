@@ -41,7 +41,7 @@ block content
         .info Tracked Kills: #[span.gray=formatNumber(kills)]
         - let unknown = 0
         each contrib in contribs
-            if !contrib.player || contrib.player == '__unknown'
+            if !contrib.character_name || contrib.character_name == '__unknown'
                 - unknown += contrib.kills
 
         .info.gray.small Unknown Kills: #[span.gray.small=formatNumber(unknown)]
@@ -89,7 +89,7 @@ block content
                     td.dashed(colspan=5)
                 tbody.list
                     each contrib in contribs
-                        if contrib.player && contrib.player != '__unknown'
+                        if contrib.character_name && contrib.character_name != '__unknown'
                             tr
-                                td #{contrib.player}
+                                td #{contrib.character_name}
                                 td #{contrib.kills}

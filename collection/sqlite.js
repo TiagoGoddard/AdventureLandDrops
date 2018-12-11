@@ -1,14 +1,14 @@
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 
-const dbFile = "db/drops.sqlite";
+const dbFile = "D:/Backup/test1.sqlite";
 const db = new sqlite3.Database(dbFile);
 
-const createQuery = fs.readFileSync(__dirname + '/queries/create.sql', 'utf-8');
-const listDropsQuery = fs.readFileSync(__dirname + '/queries/droprate.sql', 'utf-8');
-const listMarketQuery = fs.readFileSync(__dirname + '/queries/marketlist.sql', 'utf-8');
-const listMarketItemQuery = fs.readFileSync(__dirname + '/queries/marketlistitem.sql', 'utf-8');
-const listExchangeQuery = fs.readFileSync(__dirname + '/queries/exchanges.sql', 'utf-8');
+const createQuery = fs.readFileSync(__dirname + '/sqlite_queries/create.sql', 'utf-8');
+const listDropsQuery = fs.readFileSync(__dirname + '/sqlite_queries/droprate.sql', 'utf-8');
+const listMarketQuery = fs.readFileSync(__dirname + '/sqlite_queries/marketlist.sql', 'utf-8');
+const listMarketItemQuery = fs.readFileSync(__dirname + '/sqlite_queries/marketlistitem.sql', 'utf-8');
+const listExchangeQuery = fs.readFileSync(__dirname + '/sqlite_queries/exchanges.sql', 'utf-8');
 
 db.exec(createQuery);
 
@@ -376,7 +376,7 @@ const getUpgradeAndCompoundsTable = function() {
             db.prepare(query).all((err, rows) => {
                 cmdRes();
 
-                const data = {};
+                var data = {};
                 for (let row of rows) {
                     let item = row.item;
                     if (!data[item]) {
@@ -466,3 +466,4 @@ exports.getUpgradeInfo = getUpgradeInfo;
 exports.getExchangesTable = getExchangesTable;
 exports.getMarketTable = getMarketTable;
 exports.getPriceTable = getPriceTable;
+exports.db = db;

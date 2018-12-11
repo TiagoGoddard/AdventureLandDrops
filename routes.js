@@ -2,6 +2,7 @@ const data = require('./data');
 const sprites = require('./sprites');
 const sortOrder = require('./sortOrder');
 const child_process = require('child_process');
+const mysql = require('./collection/mysql.js');
 
 let monsters = [];
 let npcs = [];
@@ -121,24 +122,31 @@ var upgradeTable = {};
 var exchangeTable = {};
 var marketTable = {};
 
-const monsterHandler = function (request, reply) {
+const monsterHandler = async function (request, reply) {
     const monsterType = request.params.monster;
     const monsterData = data.monsters[monsterType];
 
     if (!monsterData) {
         return reply().code(404);
     }
-
+    try{
+        var killTable = await mysql.getMonsterKills(monsterType);
+    } catch(e){
+        console.error(e);
+    }
+    console.log(killTable)
     let mgt = monsterGoldTable.get(monsterType);
     reply.view('monster', {
         monster: monsterData,
         type: monsterType,
-        drops: dropTable.get(monsterType) || [],
+        drops: killTable || [],
         avggold: mgt ? mgt.avggold : 0,
         kills: mgt ? mgt.kills : 0,
         contribs: contribTable.get(monsterType) || [],
         sprites
     });
+
+
 };
 
 const npcHandler = function (request, reply) {
@@ -265,7 +273,6 @@ function startJournalProcess() {
     let childProcess = child_process.fork("./indexer", {
         stdio: [0, 1, 2, 'ipc']
     });
-
     childProcess.on('message', (m) => {
         if (m.type === "done") {
             dropTable = new Map(Object.entries(m.data.dropTable));
@@ -273,16 +280,16 @@ function startJournalProcess() {
             reverseDropTable = new Map(Object.entries(m.data.reverseDropTable));
             priceTable = new Map(Object.entries(m.data.priceTable));
             contribTable = new Map(Object.entries(m.data.contribTable));
-            upgradeTable = new Map(Object.entries(m.data.upgradeTable));
+            upgradeTable = m.data.upgradeTable;
             exchangeTable = m.data.exchangeTable;
             marketTable = m.data.marketTable;
-            console.log("Journal completed "+((new Date().getTime()-start.getTime())/1000)+" seconds");
+            console.log("Journal completed " + ((new Date().getTime() - start.getTime()) / 1000) + " seconds");
         }
     });
 }
 
 startJournalProcess();
-setInterval(startJournalProcess, 1000 * 60 * 60);
+setInterval(startJournalProcess, 1000 * 60 * 60 * 24);
 
 
 exports.root = rootHandler;

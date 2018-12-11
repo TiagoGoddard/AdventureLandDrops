@@ -54,7 +54,7 @@ async function updateDropTable() {
 }
 
 async function updateUpgradeTable() {
-    var table = collection.db.getUpgradeAndCompoundsTable()
+    var table = await collection.db.getUpgradeAndCompoundsTable()
     let upgradeData = {
         'Weapons': {
             types: ['weapon', 'quiver', 'shield'],
@@ -77,7 +77,6 @@ async function updateUpgradeTable() {
             data: []
         },
     };
-
     for (let key in table) {
         let upgrade_info = table[key];
         let item = data.items[upgrade_info.name];
@@ -134,6 +133,7 @@ async function main() {
     await updateExchangeTable();
     await updateMarketTable();
     await updatePriceTable();
+    console.log(contribTable);
     process.send({
         type: "done",
         data: {
@@ -147,8 +147,6 @@ async function main() {
             marketTable: marketTable,
         }
     });
-
-
 }
 
 main();

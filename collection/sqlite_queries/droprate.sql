@@ -1,6 +1,7 @@
 SELECT
     D.monster monster,
-    D.map map, I.name item,
+    D.map map, 
+    I.name item,
     COUNT(I.name) drops,
     T.kills kills,
     COUNT(I.name)*100.0 / T.kills as rate
