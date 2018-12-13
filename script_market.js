@@ -1,5 +1,5 @@
 parent.updateit = (function() {
-    let COLLECTION_SERVER = 'http://adventurecode.club:13726';
+    let COLLECTION_SERVER = 'http://localhost:25326';
     let COLLECTION_SERVER2 = window.aldc_second_server;
     let API_KEY = window.aldc_apikey;
     let SCRIPT_VERSION = window.aldc_script_version;

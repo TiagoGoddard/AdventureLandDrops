@@ -20,48 +20,186 @@ connection.connect(function (err) {
 });
 
 const st = {
-    insert:{
+    insert: {
         kills: "INSERT INTO kills (monster_name, chest_type, map, monster_level, gold, items, character_name, api_key, version, time) VALUES (?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP());",
-        drops:"INSERT INTO drops (item_name, kill_id) VALUES (?,?);",
-        exchanges:"INSERT INTO exchanges (item_name, level, result, amount, api_key, time) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP());",
-        compounds:"INSERT INTO compounds (item_name, level, scroll_type, offering, success, api_key, time) VALUES (?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP());",
-        upgrades:"INSERT INTO upgrades (item_name, level, scroll_type, offering, success, api_key, time) VALUES (?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP());",
-        market:"",
-        api_key:"INSERT INTO api_keys (player, api_key, valid)",
+        drops: "INSERT INTO drops (item_name, kill_id) VALUES (?,?);",
+        exchanges: "INSERT INTO exchanges (item_name, item_level, result, amount, api_key, time) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP());",
+        compounds: "INSERT INTO compounds (item_name, item_level, scroll_type, offering, success, api_key, time) VALUES (?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP());",
+        upgrades: "INSERT INTO upgrades (item_name, item_level, scroll_type, offering, success, api_key, time) VALUES (?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP());",
+        market: "",
+        api_key: "INSERT INTO api_keys (player, api_key, valid)",
     },
-    limits:"SELECT \n" +
+    tables: ["drops", "exchanges", "upgrades", "compounds", "kills"],
+    limits: "SELECT \n" +
     "(SELECT id FROM ? ORDER BY id LIMIT 1) as 'first',\n" +
     "(SELECT id FROM ? ORDER BY id DESC LIMIT 1) as 'last'",
-    aggregate:{
-        items:"",
-        kills:"SELECT monster, COUNT(*) AS kills, character_name, map, SUM(gold) AS total_gold FROM (SELECT * FROM drops WHERE id > ? * 2500 AND id < 2500 * (? + 1)) GROUP BY monster, character_name, map;",
-        exchanges:"",
-        upgrades:"",
-        compounds:"",
+    aggregate: {
+        drop: "SELECT k.monster_name, d.item_name, k.map, k.monster_level, COUNT(*) AS seen FROM (SELECT * FROM drops WHERE id > ? * 2500 AND id < 2500 * (? + 1)) AS d INNER JOIN kills AS k ON d.kill_id = k.id GROUP BY k.monster_name, d.item_name, k.monster_level, k.map;",
+        kill: "SELECT i.monster_name, COUNT(*) AS kills, i.character_name, i.map, SUM(i.gold) AS total_gold FROM (SELECT * FROM kills WHERE id > ? * 2500 AND id < 2500 * (? + 1)) AS i GROUP BY i.monster_name, i.character_name, i.map;",
+        exchanges: "SELECT e.item_name, e.item_level, e.result, e.amount, COUNT(*) AS seen FROM (SELECT * FROM exchanges WHERE id > 0 * 2500 AND id < 2500 * (0 + 1)) AS e GROUP BY e.item_name, e.item_level, e.result, e.amount;",
+        upgrades: "SELECT u.item_name, u.item_level, COUNT(*) AS total, SUM(u.success) AS success FROM (SELECT * FROM upgrades WHERE id > 0 * 2500 AND id < 2500 * (0 + 1)) AS u GROUP BY u.item_name, u.item_level",
+        compounds: "SELECT c.item_name, c.item_level, COUNT(*) AS total, SUM(c.success) AS success FROM (SELECT * FROM compounds WHERE id > 0 * 2500 AND id < 2500 * (0 + 1)) AS c GROUP BY c.item_name, c.item_level"
     },
-    update_statistics:{
-        drop:"INSERT INTO drop_statistics (monster_name, item_name, map, level, seen) Values (?,?,?,?,?) ON DUPLICATE KEY Update `seen` = `seen` + ? ;",
-        kills:"INSERT INTO kill_statistics (character_name, monster_name, map, level, kills, total_gold) Values (?,?,?,?,?,?) ON DUPLICATE KEY Update `kills` = `kills` + ?, `total_gold` = `total_gold` + ?;",
-        exchange:"INSERT INTO exchange_statistics (item_name, level, result, amount, seen) Values (?,?,?,?,?) ON DUPLICATE KEY Update `seen` = `seen` + ? ;",
-        compounds:"INSERT INTO compounds_statistics (item_name, level, total, success) Values (?,?,?,?) ON DUPLICATE KEY Update `total` = `total` + ?, `success` = `success` + ? ;",
-        upgrades:"INSERT INTO upgrades_statistics (item_name, level, total, success) Values (?,?,?,?) ON DUPLICATE KEY Update `total` = `total` + ?, `success` = `success` + ? ;",
-        market:"",
+    update_statistics: {
+        drop: "INSERT INTO drop_statistics (monster_name, item_name, map, monster_level, seen) Values (?,?,?,?,?) ON DUPLICATE KEY Update `seen` = `seen` + ? ;",
+        kills: "INSERT INTO kill_statistics (character_name, monster_name, map, monster_level, kills, total_gold) Values (?,?,?,?,?,?) ON DUPLICATE KEY Update `kills` = `kills` + ?, `total_gold` = `total_gold` + ?;",
+        exchange: "INSERT INTO exchange_statistics (item_name, item_level, result, amount, seen) Values (?,?,?,?,?) ON DUPLICATE KEY Update `seen` = `seen` + ? ;",
+        compounds: "INSERT INTO compounds_statistics (item_name, item_level, total, success) Values (?,?,?,?) ON DUPLICATE KEY Update `total` = `total` + ?, `success` = `success` + ? ;",
+        upgrades: "INSERT INTO upgrades_statistics (item_name, item_level, total, success) Values (?,?,?,?) ON DUPLICATE KEY Update `total` = `total` + ?, `success` = `success` + ? ;",
+        market: ""
     },
-    get:{
-        api_key: "SELECT player, valid FROM api_keys WHERE api_key = ?",
+    get: {
         kills: "",
         drops: "",
-        exchange: ""
+        exchange: "",
+        api_key: "SELECT player, valid FROM api_keys WHERE api_key = ?"
     }
 };
+/**
+ *
+ * @param {string} monster_name
+ * @param {string} chest_type
+ * @param {string} map
+ * @param {number} monster_level
+ * @param {number} gold
+ * @param {number} items
+ * @param {string} character_name
+ * @param {string} api_key
+ * @param {number} version
+ * @returns {Promise<any>}
+ */
+const insertKills = async function (monster_name, chest_type, map, monster_level, gold, items, character_name, api_key, version) {
+    return new Promise(function (resolve, reject) {
+        if(!typeof monster_name === "string"){
+            reject("Monster name invalid!");
+            return;
+        }
+        if(!typeof chest_type === "string"){
+            reject("Chest type invalid!");
+            return;
+        }
+        if(!typeof map === "string"){
+            reject("Map invalid!");
+            return;
+        }
+        if(!typeof monster_level === "number" || monster_level < 1){
+            reject("Monster level invalid!");
+            return;
+        }
+        if(!typeof gold === "number" || gold < 0){
+            reject("Gold invalid!");
+            return;
+        }
+        if(!typeof items === "number" || items < 0){
+            reject("Items invalid!");
+            return;
+        }
+        if(!typeof character_name === "string"){
+            reject("Character name invalid!");
+            return;
+        }
+        if(!typeof api_key === "string" || api_key.length > 64){
+            reject("API key invalid!");
+            return;
+        }
+        if(!typeof version === "number" || version < 0){
+            reject("Version invalid!");
+            return;
+        }
 
+        connection.query(st.insert.kills,[monster_name, chest_type, map, monster_level, gold, items, character_name, api_key, version], function (err, result) {
+            if (err)
+                reject(err);
+            resolve(result);
+        });
+    });
+};
 
+/**
+ *
+ * @param {string} item_name
+ * @param {number} kill_id
+ * @returns {Promise<void>}
+ */
+
+const insertDrops = async function (item_name, kill_id) {
+    return new Promise(function (resolve,reject) {
+        if(!typeof item_name === "string"){
+            reject();
+            return;
+        }
+        if(!typeof kill_id === "number" || kill_id < 0){
+            reject();
+            return;
+        }
+        connection.query(st.insert.drops,[item_name, kill_id], function (err, result) {
+            if (err)
+                reject(err);
+            resolve(result);
+        });
+    });
+};
+
+/**
+ *
+ * @param {string} item_name
+ * @param {number} item_level
+ * @param {string} result
+ * @param {number} amount
+ * @param {string} api_key
+ * @returns {Promise<void>}
+ */
+
+const insertExchange = async function (item_name, item_level, result, amount, api_key) {
+    return new Promise(function (resolve, reject) {
+        if(!typeof item_name === "string"){
+           reject();
+           return;
+        }
+        if(!typeof item_level === "number"){
+            reject();
+            return;
+        }
+        if(!typeof result === "string"){
+            reject();
+            return;
+        }
+        if(!typeof amount === "number"){
+            reject();
+            return;
+        }
+        if(!typeof api_key === "string" || api_key.length > 64){
+            reject();
+            return;
+        }
+        connection.query(st.insert.exchanges,[item_name, item_level, result, amount, api_key], function (err, result) {
+            if (err)
+                reject(err);
+            resolve(result);
+        });
+    });
+};
 
 const createTables = fs.readFileSync(__dirname + '/mysql_queries/create.sql', 'utf-8');
 if (settings.install) {
     connection.query(createTables);
 }
 
+const validKey = async function (key) {
+    return new Promise(function (resolve, reject) {
+        if(typeof key === "string" && key.length < 64)
+            connection.query(st.get.api_key,[key], function (err, result) {
+                if (err)
+                    reject(err);
+                resolve(result);
+            });
+        else
+            reject("Invalid Input");
+    });
+};
+
+
+/*
 const updateDrop = async function (monster_name, item_name, map, level, seen) {
     return new Promise(function (resolve, reject) {
         monster_name = connection.escape(monster_name);
@@ -262,21 +400,21 @@ const insertUpgrade = async function (id, itemName, level, scroll, offering, suc
 const insertCompound = async function (itemName, level, scroll, offering, success, userkey, time) {
     return new Promise(function (resolve, reject) {
 
-            if (!isFinite(id) || id < 0)
-                reject("Invalid value for id");
-            if (!isFinite(level) || level < 0)
-                reject("Invalid value for level");
-            if (!isFinite(offering) || !(offering === 0 || offering === 1))
-                reject("Invalid value for offering");
-            if (!isFinite(success) || !(success === 0 || success === 1))
-                reject("Invalid value for success");
-            if (!isFinite(time) || time < 0)
-                reject("Invalid value for time");
-            connection.query("INSERT INTO compounds (item_name, level, scroll, offering, success, userkey, time) VALUES (" + id + ", " + itemName + ", " + level + ", " + scroll + ", " + offering + ", " + success + ", " + userkey + ", from_unixtime(" + time + "));", function (err) {
-                if (err)
-                    reject(err);
-                resolve();
-            });
+        if (!isFinite(id) || id < 0)
+            reject("Invalid value for id");
+        if (!isFinite(level) || level < 0)
+            reject("Invalid value for level");
+        if (!isFinite(offering) || !(offering === 0 || offering === 1))
+            reject("Invalid value for offering");
+        if (!isFinite(success) || !(success === 0 || success === 1))
+            reject("Invalid value for success");
+        if (!isFinite(time) || time < 0)
+            reject("Invalid value for time");
+        connection.query("INSERT INTO compounds (item_name, level, scroll, offering, success, userkey, time) VALUES (" + id + ", " + itemName + ", " + level + ", " + scroll + ", " + offering + ", " + success + ", " + userkey + ", from_unixtime(" + time + "));", function (err) {
+            if (err)
+                reject(err);
+            resolve();
+        });
 
     });
 };
@@ -316,16 +454,16 @@ const killsPage = async function (i) {
     });
 };
 
-const  getMonsterKills = async function(monsterName){
+const getMonsterKills = async function (monsterName) {
     return new Promise(function (resolve, reject) {
-        if(monsterName) {
-            connection.query("SELECT character_name, kills FROM character_statistics WHERE monster_name = "+mysql.escape(monsterName)+" ORDER BY kills DESC;", function (err, result) {
+        if (monsterName) {
+            connection.query("SELECT character_name, kills FROM character_statistics WHERE monster_name = " + mysql.escape(monsterName) + " ORDER BY kills DESC;", function (err, result) {
                 if (err)
                     reject(err);
                 var res = [];
-                for(let row of result){
+                for (let row of result) {
                     let tmp = {}
-                    for(let key in row)
+                    for (let key in row)
                         tmp[key] = row[key];
                     res.push(tmp)
                 }
@@ -335,20 +473,12 @@ const  getMonsterKills = async function(monsterName){
             reject("asdasd");
     });
 };
-
+*/
 module.exports = {
-    updateDrop: updateDrop,
-    updateKill: updateKill,
-    updateUpgrade: updateUpgrade,
-    updateCompound: updateCompound,
-    updateExchange: updateExchange,
-    addKey: addKey,
-    insertKill: insertKill,
-    insertItemDrop: insertItemDrop,
-    insertUpgrade: insertUpgrade,
-    insertCompound: insertCompound,
-    insertExchange: insertExchange,
-    getMonsterKills: getMonsterKills,
+    insertKills: insertKills,
+    insertDrops:insertDrops,
+    insertExchange:insertExchange,
+    validKey: validKey,
     connection: connection,
 }
 

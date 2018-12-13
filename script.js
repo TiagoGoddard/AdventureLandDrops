@@ -1,6 +1,6 @@
 /* eslint indent: 0 */
 (function() {
-let DROP_SERVER = 'http://adventurecode.club:13726';
+let DROP_SERVER = 'http://localhost:25326';
 let DROP_SERVER2 = window.aldc_second_server;
 let TRACKING_TIMEOUT = 5000;
 let DROP_TIMEOUT = 500;
@@ -43,7 +43,7 @@ on_disappear = function(entity, data) {
     }
 
     callback_on_disappear(entity, data);
-}
+};
 
 function register_handler(event, handler) {
     parent.prev_handlers.push([event, handler]);

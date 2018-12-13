@@ -3,10 +3,9 @@ const Hapi = require('hapi');
 const Request = require('request');
 const data = require('../data');
 const db = require('./sqlite');
+const mysql = require("./mysql");
 
-const keyFile = __dirname + '/keys.json';
-let keys = require(keyFile);
-let SCRIPT_VERSION = -1;
+let SCRIPT_VERSION = 4;
 
 const server = new Hapi.Server({
     debug: { request: ['error'] }
@@ -26,38 +25,34 @@ server.route({
     path: '/apic',
     handler: (request, reply) => {
         const data = JSON.parse(request.payload.json);
-        if (!keys.includes(data.key)) return reply().code(403);
-        if (SCRIPT_VERSION != data.version) return reply().code(426);
+        console.log(data)
+        if (!mysql.validKey(data.key)) return reply().code(401);
+        if (SCRIPT_VERSION !== data.version) return reply().code(426);
         reply().code(200);
     }
 });
 
 server.route({
     method: 'POST',
-    path: '/drop',
+    path: '/kill',
     handler: (request, reply) => {
-        const dropData = JSON.parse(request.payload.json);
-        if (!keys.includes(dropData.key)) return reply().code(403);
-        if (SCRIPT_VERSION != dropData.version) return reply().code(426);
+        const killData = JSON.parse(request.payload.json);
+        if (!mysql.validKey(killData.key)) return reply().code(401);
+        if (SCRIPT_VERSION !== killData.version) return reply().code(426);
         reply().code(200);
 
-        if(dropData.hasOwnProperty("data")) { // bulk multi-drop send
+        if(killData["data"] && Array.isArray(killData["data"])) { // bulk multi-drop send
             let dataArray = [];
-            for(let entry of dropData.data) {
+            for(let entry of killData.data) {
                 entry.items = entry.items.map(name => itemTypeByName[name]);
                 const dataValid = entry.items.every(name => name != null);
                 if (dataValid) {
                     dataArray.push(entry);
                 }
             }
-            db.addDrops(dataArray, dropData.key, dropData.version);
-        } else { // deprec old single-drop send
-            dropData.items = dropData.items.map(name => itemTypeByName[name]);
-            const dataValid = dropData.items.every(name => name != null);
 
-            if (!dataValid) return;
-
-            db.addDrop(dropData);
+            mysql.addKillStat(monster_name, killData.key, killData.version);
+            mysql.logKill();
         }
     }
 });
