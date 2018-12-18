@@ -21,7 +21,7 @@ for (let itemType of Object.keys(data.items)) {
 }
 
 server.route({
-    method: 'POST',
+    method: 'GET',
     path: '/apic',
     handler: (request, reply) => {
         const data = JSON.parse(request.payload.json);
@@ -35,28 +35,25 @@ server.route({
 server.route({
     method: 'POST',
     path: '/kill',
-    handler: (request, reply) => {
+    handler: async (request, reply) => {
         const killData = JSON.parse(request.payload.json);
         if (!mysql.validKey(killData.key)) return reply().code(401);
         if (SCRIPT_VERSION !== killData.version) return reply().code(426);
         reply().code(200);
-
+        console.log(killData)
         if(killData["data"] && Array.isArray(killData["data"])) { // bulk multi-drop send
             let dataArray = [];
             for(let entry of killData.data) {
                 entry.items = entry.items.map(name => itemTypeByName[name]);
                 const dataValid = entry.items.every(name => name != null);
                 if (dataValid) {
-                    dataArray.push(entry);
+                    await mysql.insertKill(entry.monster, entry.type, entry.map, 1,entry.gold, entry.items, entry.player, killData.key);
                 }
             }
-
-            mysql.addKillStat(monster_name, killData.key, killData.version);
-            mysql.logKill();
         }
     }
 });
-
+/*
 server.route({
     method: 'POST',
     path: '/update',
@@ -69,7 +66,7 @@ server.route({
         db.addMarket(updateData.items, updateData.player, updateData.map, updateData.server, updateData.key, updateData.version);
     }
 });
-
+*/
 server.route({
     method: 'POST',
     path: '/upgrade',

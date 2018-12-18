@@ -64,19 +64,9 @@ server.register(Vision, (err) => {
             file: "script.js"
         }
     });
-
     server.route({
-        method: 'GET',
-        path: '/script',
-        handler: function (request, reply) {
-            reply(
-                new Promise((res) => {
-                    Request('https://raw.githubusercontent.com/TiagoGoddard/AdventureLandDrops/master/script.js',
-                    function(err, resp, body) { res(body); });
-                })
-            )
-            .type('script/javascript');
-        }
+        method: 'GET', path: '/script',
+        handler: { file: "script.js" }
     });
 
     server.route({
