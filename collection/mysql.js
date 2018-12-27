@@ -23,7 +23,7 @@ connection.connect(function (err) {
 
 const st = {
     insert: {
-        kills: "INSERT INTO kills (monster_name, chest_type, map, monster_level, gold, items, character_name, api_key, version, time) VALUES (?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP());",
+        kills: "INSERT INTO kills (monster_name, map, monster_level, gold, items, character_name, api_key, time) VALUES (?,?,?,?,?,?,?,CURRENT_TIMESTAMP());",
         drops: "INSERT INTO drops (item_name, kill_id) VALUES (?,?);",
         exchanges: "INSERT INTO exchanges (item_name, item_level, result, amount, api_key, time) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP());",
         compounds: "INSERT INTO compounds (item_name, item_level, scroll_type, offering, success, api_key, time) VALUES (?,?,?,?,?,?,CURRENT_TIMESTAMP());",
@@ -36,7 +36,7 @@ const st = {
     "(SELECT id FROM ?? ORDER BY id LIMIT 1) as 'first',\n" +
     "(SELECT id FROM ?? ORDER BY id DESC LIMIT 1) as 'last'",
     aggregate: {
-        kills: "SELECT i.monster_name, COUNT(*) AS kills, i.character_name, i.map, SUM(i.gold) AS total_gold FROM (SELECT * FROM kills WHERE id >= ?  AND id < ?) AS i GROUP BY i.monster_name, i.character_name, i.map;",
+        kills: "SELECT i.monster_name, COUNT(*) AS kills, i.character_name, i.map, i.monster_level, SUM(i.gold) AS total_gold FROM (SELECT * FROM kills WHERE id >= ?  AND id < ?) AS i GROUP BY i.monster_name, i.character_name, i.map,i.monster_level;",
         drops: "SELECT k.monster_name, d.item_name, k.map, k.monster_level, COUNT(*) AS seen FROM (SELECT * FROM drops WHERE id >= ?  AND id < ? ) AS d INNER JOIN kills AS k ON d.kill_id = k.id GROUP BY k.monster_name, d.item_name, k.monster_level, k.map;",
         exchanges: "SELECT e.item_name, e.item_level, e.result, e.amount, COUNT(*) AS seen FROM (SELECT * FROM exchanges WHERE id >= ?  AND id < ? ) AS e GROUP BY e.item_name, e.item_level, e.result, e.amount;",
         upgrades: "SELECT u.item_name, u.item_level, COUNT(*) AS total, SUM(u.success) AS success FROM (SELECT * FROM upgrades WHERE id >= ?  AND id < ?) AS u GROUP BY u.item_name, u.item_level",
@@ -51,7 +51,7 @@ const st = {
         market: ""
     },
     get_statistics: {
-        kills: "SELECT * FROM kill_statistics WHERE monster_name = ?",
+        kills: "SELECT * FROM kill_statistics WHERE monster_name = ? AND monster_level = ? ORDER BY kills DESC",
         drops:  "SELECT * FROM drop_statistics WHERE monster_name = ?",
         exchanges:  "SELECT * FROM exchange_statistics WHERE item_name = ?",
         compounds:  "SELECT * FROM compound_statistics WHERE item_name = ?",
@@ -59,6 +59,13 @@ const st = {
     },
     get: {
         api_key: "SELECT player, valid FROM api_keys WHERE api_key = ?"
+    },
+    clear_statistics:{
+        kills: "DELETE FROM kill_statistics",
+        drops:  "DELETE FROM drop_statistics",
+        exchanges:  "DELETE FROM exchange_statistics",
+        compounds:  "DELETE FROM compound_statistics",
+        upgrades: "DELETE FROM upgrade_statistics",
     }
 };
 
@@ -75,41 +82,37 @@ const st = {
  * @param version
  * @returns {Promise<any>}
  */
-const insertKill = async function (monster_name, chest_type, map, monster_level, gold, items, character_name, api_key) {
+const insertKill = async function (monster_name, map, monster_level, gold, items, character_name, api_key) {
     return new Promise(function (resolve, reject) {
-        if (!typeof monster_name === "string") {
+        if (typeof monster_name !== "string") {
             reject("Monster name invalid!");
             return;
         }
-        if (!typeof chest_type === "string") {
-            reject("Chest type invalid!");
-            return;
-        }
-        if (!typeof map === "string") {
+        if (typeof map !== "string") {
             reject("Map invalid!");
             return;
         }
-        if (!typeof monster_level === "number" || monster_level < 1) {
+        if (typeof monster_level !== "number" || monster_level < 1) {
             reject("Monster level invalid!");
             return;
         }
-        if (!typeof gold === "number" || gold < 0) {
+        if (typeof gold !== "number" || gold < 0) {
             reject("Gold invalid!");
             return;
         }
-        if (!typeof items === "number" || items < 0) {
+        if (typeof items !== "number" || items < 0) {
             reject("Items invalid!");
             return;
         }
-        if (!typeof character_name === "string") {
+        if (typeof character_name !== "string") {
             reject("Character name invalid!");
             return;
         }
-        if (!typeof api_key === "string" || api_key.length > 64) {
-            reject("API key invalid!");
+        if (typeof api_key !== "string" || api_key.length > 64) {
+            reject("API "+api_key+" key invalid!");
             return;
         }
-        connection.query(st.insert.kills, [monster_name, chest_type, map, monster_level, gold, items, character_name, api_key, 5], function (err, result) {
+        connection.query(st.insert.kills, [monster_name, map, monster_level, gold, items, character_name, api_key], function (err, result) {
             if (err)
                 reject(err);
             resolve(result);
@@ -125,11 +128,11 @@ const insertKill = async function (monster_name, chest_type, map, monster_level,
  */
 const insertDrop = async function (item_name, kill_id) {
     return new Promise(function (resolve, reject) {
-        if (!typeof item_name === "string") {
+        if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
         }
-        if (!typeof kill_id === "number" || kill_id < 0) {
+        if (typeof kill_id !== "number" || kill_id < 0) {
             reject("kill id invalid!");
             return;
         }
@@ -152,23 +155,23 @@ const insertDrop = async function (item_name, kill_id) {
  */
 const insertExchange = async function (item_name, item_level, result, amount, api_key) {
     return new Promise(function (resolve, reject) {
-        if (!typeof item_name === "string") {
+        if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
         }
-        if (!typeof item_level === "number") {
+        if (typeof item_level !== "number") {
             reject("Item level invalid!");
             return;
         }
-        if (!typeof result === "string") {
+        if (typeof result !== "string") {
             reject("Result invalid!");
             return;
         }
-        if (!typeof amount === "number") {
+        if (typeof amount !== "number") {
             reject("Amount invalid!");
             return;
         }
-        if (!typeof api_key === "string" || api_key.length > 64) {
+        if (typeof api_key !== "string" || api_key.length > 64) {
             reject("API key invalid!");
             return;
         }
@@ -192,15 +195,15 @@ const insertExchange = async function (item_name, item_level, result, amount, ap
  */
 const insertCompound = async function (item_name, item_level, scroll_type, offering, success, api_key) {
     return new Promise(function (resolve, reject) {
-        if (!typeof item_name === "string") {
+        if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
         }
-        if (!typeof item_level === "number") {
+        if (typeof item_level !== "number") {
             reject("Item level invalid!");
             return;
         }
-        if (!typeof scroll_type === "string") {
+        if (typeof scroll_type !== "string") {
             reject("Scroll type invalid!");
             return;
         }
@@ -212,7 +215,7 @@ const insertCompound = async function (item_name, item_level, scroll_type, offer
             reject("Success invalid!");
             return;
         }
-        if (!typeof api_key === "string" || api_key.length > 64) {
+        if (typeof api_key !== "string" || api_key.length > 64) {
             reject("API key invalid!");
             return;
         }
@@ -236,19 +239,19 @@ const insertCompound = async function (item_name, item_level, scroll_type, offer
  */
 const insertUpgrade = async function (item_name, item_level, scroll_type, offering, success, api_key) {
     return new Promise(function (resolve, reject) {
-        if (!typeof item_name === "string") {
+        if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
         }
-        if (!typeof item_level === "number") {
+        if (typeof item_level !== "number") {
             reject("Item level invalid!");
             return;
         }
-        if (!typeof scroll_type === "string") {
+        if (typeof scroll_type !== "string") {
             reject("Scroll type invalid!");
             return;
         }
-        if (!(offering === 1 || offering === 0)) {
+        if ((offering === 1 || offering === 0)) {
             reject("Offering invalid!");
             return;
         }
@@ -256,7 +259,7 @@ const insertUpgrade = async function (item_name, item_level, scroll_type, offeri
             reject("Success invalid!");
             return;
         }
-        if (!typeof api_key === "string" || api_key.length > 64) {
+        if (typeof api_key !== "string" || api_key.length > 64) {
             reject("API key invalid!");
             return;
         }
@@ -277,11 +280,11 @@ const insertUpgrade = async function (item_name, item_level, scroll_type, offeri
  */
 const insertApiKey = async function (player, api_key, valid) {
     return new Promise(function (resolve, reject) {
-        if (!typeof player === "string") {
+        if (typeof player !== "string") {
             reject("Player name invalid!");
             return;
         }
-        if (!typeof api_key === "string" || api_key.length > 64) {
+        if (typeof api_key !== "string" || api_key.length > 64) {
             reject("API key invalid!");
             return;
         }
@@ -428,23 +431,23 @@ const aggregateCompounds = async function (start, end) {
  */
 const updateDropStatistics = function(monster_name, item_name, map, monster_level, seen){
     return new Promise(function(resolve, reject){
-        if (!typeof monster_name === "string") {
+        if (typeof monster_name !== "string") {
             reject("Monster name invalid!");
             return;
         }
-        if (!typeof item_name === "string") {
+        if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
         }
-        if (!typeof map === "string") {
+        if (typeof map !== "string") {
             reject("Map invalid!");
             return;
         }
-        if (!typeof monster_level === "number" || monster_level < 1) {
+        if (typeof monster_level !== "number" || monster_level < 1) {
             reject("Monster level invalid!");
             return;
         }
-        if (!typeof seen === "number" || seen < 1) {
+        if (typeof seen !== "number" || seen < 1) {
             reject("Seen invalid!");
             return;
         }
@@ -468,28 +471,28 @@ const updateDropStatistics = function(monster_name, item_name, map, monster_leve
  */
 const updateKillStatistics = function(character_name, monster_name, map, monster_level, kills, total_gold){
     return new Promise(function(resolve, reject){
-        if (!typeof character_name === "string") {
+        if (typeof character_name !== "string") {
             reject("Character name invalid!");
             return;
         }
-        if (!typeof monster_name === "string") {
+        if (typeof monster_name !== "string") {
             reject("Monster name invalid!");
             return;
         }
-        if (!typeof map === "string") {
+        if (typeof map !== "string") {
             reject("Map invalid!");
             return;
         }
-        if (!typeof monster_level === "number" || monster_level < 1) {
+        if (typeof monster_level !== "number" || monster_level < 1) {
             reject("Monster level invalid!");
             return;
         }
-        if (!typeof kills === "number" || kills < 1) {
-            reject("Monster level invalid!");
+        if (typeof kills !== "number" || kills < 1) {
+            reject("Kills invalid!");
             return;
         }
-        if (!typeof total_gold === "number" || total_gold < 1) {
-            reject("Monster level invalid!");
+        if (typeof total_gold !== "number" || total_gold < 1) {
+            reject("Total gold invalid!");
             return;
         }
         connection.query(st.update_statistics.kills, [character_name, monster_name, map, monster_level, kills, total_gold, kills, total_gold], function (err, result) {
@@ -511,24 +514,24 @@ const updateKillStatistics = function(character_name, monster_name, map, monster
  */
 const updateExchangeStatistics = function(item_name, item_level, result, amount, seen){
     return new Promise(function(resolve, reject){
-        if (!typeof item_name === "string") {
+        if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
         }
-        if (!typeof item_level === "number" || item_level < 1) {
-            reject("Monster level invalid!");
+        if (typeof item_level !== "number" || item_level < 0) {
+            reject("Item level invalid!");
             return;
         }
-        if (!typeof result === "string") {
+        if (typeof result !== "string") {
             reject("Result invalid!");
             return;
         }
-        if (!typeof amount === "number" || amount < 1) {
-            reject("Monster level invalid!");
+        if (typeof amount !== "number" || amount < 1) {
+            reject("Amount invalid!");
             return;
         }
-        if (!typeof seen === "number" || seen < 1) {
-            reject("Monster level invalid!");
+        if (typeof seen !== "number" || seen < 1) {
+            reject("Seen invalid!");
             return;
         }
         connection.query(st.update_statistics.exchanges, [item_name, item_level, result, amount, seen, seen], function (err, result) {
@@ -549,23 +552,23 @@ const updateExchangeStatistics = function(item_name, item_level, result, amount,
  */
 const updateUpgradesStatistics = function(item_name, item_level, total, success){
     return new Promise(function(resolve, reject){
-        if (!typeof item_name === "string") {
+        if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
         }
-        if (!typeof item_level === "number" || item_level < 1) {
-            reject("Monster level invalid!");
+        if (typeof item_level !== "number" || item_level < 0) {
+            reject("Item level invalid!");
             return;
         }
-        if (!typeof total === "number" || total < 1) {
+        if (typeof total !== "number" || total < 1) {
             reject("Total invalid!");
             return;
         }
-        if (!typeof success === "number" || success < 0) {
+        if (typeof success !== "number" || success < 0) {
             reject("Success invalid!");
             return;
         }
-        if(total <= success){
+        if(total < success){
             reject("Success has to smaller or equal to Total!");
             return;
         }
@@ -587,23 +590,23 @@ const updateUpgradesStatistics = function(item_name, item_level, total, success)
  */
 const updateCompoundsStatistics = function(item_name, item_level, total, success){
     return new Promise(function(resolve, reject){
-        if (!typeof item_name === "string") {
+        if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
         }
-        if (!typeof item_level === "number" || item_level < 1) {
-            reject("Monster level invalid!");
+        if (typeof item_level !== "number" || item_level < 0) {
+            reject("Item level invalid!");
             return;
         }
-        if (!typeof total === "number" || total < 1) {
+        if (typeof total !== "number" || total < 1) {
             reject("Total invalid!");
             return;
         }
-        if (!typeof success === "number" || success < 0) {
+        if (typeof success !== "number" || success < 0) {
             reject("Success invalid!");
             return;
         }
-        if(total <= success){
+        if(total < success){
             reject("Success has to smaller or equal to Total!");
             return;
         }
@@ -620,13 +623,13 @@ const updateCompoundsStatistics = function(item_name, item_level, total, success
  * @param {string} monsterName
  * @returns {Promise<any>}
  */
-const getKillsByMonster = function(monsterName){
+const getKillsByMonster = function(monsterName, level){
     return new Promise(function(resolve, reject){
-        if (!typeof monsterName === "string") {
+        if (typeof monsterName !== "string") {
             reject("Monster name invalid!");
             return;
         }
-        connection.query(st.get_statistics.kills, [monsterName], function (err, result) {
+        connection.query(st.get_statistics.kills, [monsterName, level], function (err, result) {
             if (err)
                 reject(err);
             resolve(result);
@@ -641,7 +644,7 @@ const getKillsByMonster = function(monsterName){
  */
 const getDropsByMonster = function(monsterName){
     return new Promise(function(resolve, reject){
-        if (!typeof monsterName === "string") {
+        if (typeof monsterName !== "string") {
             reject("Monster name invalid!");
             return;
         }
@@ -660,7 +663,7 @@ const getDropsByMonster = function(monsterName){
  */
 const getExchangesByItemName = function(itemName){
     return new Promise(function(resolve, reject){
-        if (!typeof itemName === "string") {
+        if (typeof itemName !== "string") {
             reject("Item name invalid!");
             return;
         }
@@ -679,7 +682,7 @@ const getExchangesByItemName = function(itemName){
  */
 const getUpgradesByItemName = function(itemName){
     return new Promise(function(resolve, reject){
-        if (!typeof itemName === "string") {
+        if (typeof itemName !== "string") {
             reject("Item name invalid!");
             return;
         }
@@ -697,7 +700,7 @@ const getUpgradesByItemName = function(itemName){
  */
 const getCompoundsByItemName = function(itemName){
     return new Promise(function(resolve, reject){
-        if (!typeof itemName === "string") {
+        if (typeof itemName !== "string") {
             reject("Item name invalid!");
             return;
         }
@@ -725,7 +728,48 @@ const validKey = async function (key) {
             reject("Invalid Input");
     });
 };
-
+/**
+ *
+ */
+const clearAllStatistics = function(){
+    return Promise.all([
+        new Promise(function (resolve, reject) {
+            connection.query(st.clear_statistics.kills, function (err, result) {
+                if (err)
+                    reject(err);
+                resolve(result);
+            });
+        }),
+        new Promise(function (resolve, reject) {
+            connection.query(st.clear_statistics.drops, function (err, result) {
+                if (err)
+                    reject(err);
+                resolve(result);
+            });
+        }),
+        new Promise(function (resolve, reject) {
+            connection.query(st.clear_statistics.exchanges, function (err, result) {
+                if (err)
+                    reject(err);
+                resolve(result);
+            });
+        }),
+        new Promise(function (resolve, reject) {
+            connection.query(st.clear_statistics.compounds, function (err, result) {
+                if (err)
+                    reject(err);
+                resolve(result);
+            });
+        }),
+        new Promise(function (resolve, reject) {
+            connection.query(st.clear_statistics.upgrades, function (err, result) {
+                if (err)
+                    reject(err);
+                resolve(result);
+            });
+        }),
+    ]);
+};
 module.exports = {
     insertKill: insertKill,
     insertDrop: insertDrop,
@@ -750,6 +794,7 @@ module.exports = {
     getUpgradesByItemName:getUpgradesByItemName,
     getCompoundsByItemName:getCompoundsByItemName,
     validKey: validKey,
+    clearAllStatistics:clearAllStatistics,
     connection: connection,
 }
 

@@ -124,29 +124,50 @@ var marketTable = {};
 
 const monsterHandler = async function (request, reply) {
     const monsterType = request.params.monster;
+    const monsterLevel = request.params.level ? request.params.level : 1;
     const monsterData = data.monsters[monsterType];
 
     if (!monsterData) {
         return reply().code(404);
     }
-    try{
-        var killTable = await mysql.getMonsterKills(monsterType);
-    } catch(e){
+    try {
+        var killTable = await mysql.getKillsByMonster(monsterType, monsterLevel);
+        var drops = await mysql.getDropsByMonster(monsterType);
+
+    } catch (e) {
         console.error(e);
     }
-    console.log(killTable)
+
+    //Sue me
+    var kills = {};
+    var total_kills = 0;
+    var total_gold = 0;
+    console.log(killTable);
+    for (let key in killTable) {
+        total_kills += killTable[key].kills;
+        total_gold += killTable[key].total_gold;
+        if (kills[killTable[key].map]) {
+            kills[killTable[key].map] += killTable[key].kills;
+        } else {
+            kills[killTable[key].map] = killTable[key].kills;
+        }
+
+    }
+    var avgGold = total_gold/total_kills;
+    for (let key in drops) {
+        drops[key].rate = drops[key].seen / (kills[drops[key].map]);
+        drops[key].kills = kills[drops[key].map];
+    }
     let mgt = monsterGoldTable.get(monsterType);
     reply.view('monster', {
         monster: monsterData,
         type: monsterType,
-        drops: killTable || [],
-        avggold: mgt ? mgt.avggold : 0,
-        kills: mgt ? mgt.kills : 0,
-        contribs: contribTable.get(monsterType) || [],
+        drops: drops || [],
+        avggold: avgGold ? avgGold : 0,
+        kills: total_kills? total_kills : 0,
+        contribs: killTable || [],
         sprites
     });
-
-
 };
 
 const npcHandler = function (request, reply) {

@@ -43,6 +43,7 @@ server.register(Vision, (err) => {
 
     server.route({ method: 'GET', path: '/monsters', handler: routes.monsters });
     server.route({ method: 'GET', path: '/monsters/{monster}', handler: routes.monster });
+    server.route({ method: 'GET', path: '/monsters/{monster}/{level}', handler: routes.monster });
 
     server.route({ method: 'GET', path: '/npcs', handler: routes.npcs });
     server.route({ method: 'GET', path: '/npcs/{npc}', handler: routes.npc });

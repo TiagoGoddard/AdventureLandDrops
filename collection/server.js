@@ -36,18 +36,31 @@ server.route({
     method: 'POST',
     path: '/kill',
     handler: async (request, reply) => {
-        const killData = JSON.parse(request.payload.json);
-        if (!mysql.validKey(killData.key)) return reply().code(401);
-        if (SCRIPT_VERSION !== killData.version) return reply().code(426);
+        const killData = JSON.parse(request.payload);
+        if (!mysql.validKey(killData.apiKey)) return reply().code(401);
         reply().code(200);
-        console.log(killData)
-        if(killData["data"] && Array.isArray(killData["data"])) { // bulk multi-drop send
+        console.log(killData);
+        if(killData["kills"]) { // bulk multi-drop send
             let dataArray = [];
-            for(let entry of killData.data) {
-                entry.items = entry.items.map(name => itemTypeByName[name]);
-                const dataValid = entry.items.every(name => name != null);
+            for(let key in killData.kills) {
+                var entity = killData.kills[key];
+                if(entity.items.length > 0){
+                    console.log(entity.items)
+                }
+                entity.items = entity.items.map(name => itemTypeByName[name]);
+                console.log(entity.items)
+                const dataValid = entity.items.every(name => name != null);
                 if (dataValid) {
-                    await mysql.insertKill(entry.monster, entry.type, entry.map, 1,entry.gold, entry.items, entry.player, killData.key);
+                    try{
+                        var status = await mysql.insertKill(entity.type, entity.map, entity.level, entity.gold, entity.items.length, killData.name, killData.apiKey);
+                        await mysql.updateKillStatistics(killData.name,entity.type, entity.map, entity.level,1,entity.gold);
+                        for(let item of entity.items){
+                            await mysql.insertDrop(item,status.insertId);
+                            await mysql.updateDropStatistics(entity.type,item, entity.map, entity.level, 1);
+                        }
+                    }catch(e){
+                        console.error(e);
+                    }
                 }
             }
         }
