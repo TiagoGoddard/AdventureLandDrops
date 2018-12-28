@@ -236,7 +236,14 @@ block content
                             else
                                 td.info.align-center N/A
                             - lvl++;
-    if !show_price
+    if show_exchanges
+        .horizontal-flex.vmargin
+            .column.border
+                table
+                    tbody
+                        tr
+                            td Exchanges into:
+    if show_exchanges
         .horizontal-flex.vmargin
             .vmargin.border
                 table.exchanges.scaling#exchanges
@@ -267,13 +274,13 @@ block content
                                     if exchange.total
                                         td.align-right #{Math.round(exchange.seen / exchange.total * 10000) / 100}%
 
-    if !show_price
+    if show_dropped
         .horizontal-flex.vmargin
             .column.border
                 table
                     tbody
                         tr
-                            td Drops
+                            td Dropped by:
 
         if show_dropped && dropped.length
             .vmargin.border
@@ -319,7 +326,7 @@ block content
                 table
                     tbody
                         tr
-                            td Sells
+                            td Sold by:
 
         .horizontal-flex.spread.vmargin
             each npc in npcs
@@ -345,7 +352,7 @@ block content
                 table
                     tbody
                         tr
-                            td Trades
+                            td Quest NPC:
 
         .horizontal-flex.spread.vmargin
             each npc in npcs

@@ -215,11 +215,10 @@ const itemHandler = async function (request, reply) {
     }
 
 
-    console.log(exchanges)
     reply.view('item', {
         item: itemData,
         type: itemName,
-        show_dropped: true,
+        show_dropped: (reverseDrop.length > 0),
         dropped: reverseDrop,
         show_upgrades: !hide_upgrades,
         upgrades: upgrades,
