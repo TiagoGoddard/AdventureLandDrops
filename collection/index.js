@@ -1,4 +1,4 @@
-exports.db = require('./sqlite');
+exports.db = require('./mysql');
 exports.server = require('./server');
 
 if (require.main === module) {

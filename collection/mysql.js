@@ -56,6 +56,7 @@ const st = {
         exchanges:  "SELECT * FROM exchange_statistics WHERE item_name = ?",
         compounds:  "SELECT * FROM compound_statistics WHERE item_name = ?",
         upgrades: "SELECT * FROM upgrade_statistics WHERE item_name = ?",
+        reverseDrop: "SELECT *, a.seen / a.kills AS rate FROM(SELECT i.monster_name, SUM( `kill_statistics`.`kills`) AS kills, i.seen, i.map FROM (SELECT * FROM `drop_statistics` WHERE item_name = ?) i INNER JOIN `kill_statistics` ON i.monster_name = `kill_statistics`.monster_name GROUP BY i.monster_name, i.map) a ORDER BY rate DESC"
     },
     get: {
         api_key: "SELECT player, valid FROM api_keys WHERE api_key = ?"
@@ -728,8 +729,23 @@ const validKey = async function (key) {
             reject("Invalid Input");
     });
 };
+
+const getReverseDrop = async function (itemName) {
+    return new Promise(function (resolve, reject) {
+        if (typeof itemName === "string")
+            connection.query(st.get_statistics.reverseDrop, [itemName], function (err, result) {
+                if (err)
+                    reject(err);
+                resolve(result);
+            });
+        else
+            reject("Item name invalid");
+    });
+};
+
+
 /**
- *
+ * Deletes all data in the statistics tables
  */
 const clearAllStatistics = function(){
     return Promise.all([
@@ -794,6 +810,7 @@ module.exports = {
     getUpgradesByItemName:getUpgradesByItemName,
     getCompoundsByItemName:getCompoundsByItemName,
     validKey: validKey,
+    getReverseDrop:getReverseDrop,
     clearAllStatistics:clearAllStatistics,
     connection: connection,
 }

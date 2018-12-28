@@ -1,7 +1,6 @@
 const data = require('./data');
 const sprites = require('./sprites');
 const sortOrder = require('./sortOrder');
-const child_process = require('child_process');
 const mysql = require('./collection/mysql.js');
 
 let monsters = [];
@@ -113,14 +112,6 @@ const itemsHandler = function (request, reply) {
     });
 };
 
-var dropTable = new Map();
-var monsterGoldTable = new Map();
-var reverseDropTable = new Map();
-var priceTable = new Map();
-var contribTable = new Map();
-var upgradeTable = {};
-var exchangeTable = {};
-var marketTable = {};
 
 const monsterHandler = async function (request, reply) {
     const monsterType = request.params.monster;
@@ -142,7 +133,6 @@ const monsterHandler = async function (request, reply) {
     var kills = {};
     var total_kills = 0;
     var total_gold = 0;
-    console.log(killTable);
     for (let key in killTable) {
         total_kills += killTable[key].kills;
         total_gold += killTable[key].total_gold;
@@ -151,14 +141,12 @@ const monsterHandler = async function (request, reply) {
         } else {
             kills[killTable[key].map] = killTable[key].kills;
         }
-
     }
     var avgGold = total_gold/total_kills;
     for (let key in drops) {
-        drops[key].rate = drops[key].seen / (kills[drops[key].map]);
+        drops[key].rate = drops[key].seen*100 / (kills[drops[key].map]);
         drops[key].kills = kills[drops[key].map];
     }
-    let mgt = monsterGoldTable.get(monsterType);
     reply.view('monster', {
         monster: monsterData,
         type: monsterType,
@@ -188,9 +176,9 @@ const npcHandler = function (request, reply) {
     });
 };
 
-const itemHandler = function (request, reply) {
-    const itemType = request.params.item;
-    const itemData = data.items[itemType];
+const itemHandler = async function (request, reply) {
+    const itemName = request.params.item;
+    const itemData = data.items[itemName];
 
     var hide_exchange = true;
     var hide_upgrades = true;
@@ -199,22 +187,44 @@ const itemHandler = function (request, reply) {
         return reply().code(404);
     }
 
-    if (exchangeTable) {
-        hide_exchange = (Object.keys(exchangeTable).length === 0);
+    try{
+        var exchanges = await mysql.getExchangesByItemName(itemName);
+        var upgrades;
+            if(itemData.compound)
+                upgrades = await mysql.getCompoundsByItemName(itemName);
+            else
+                upgrades = await mysql.getUpgradesByItemName(itemName);
+        var reverseDrop = await mysql.getReverseDrop(itemName);
+    }catch(e){
+        console.error(e);
     }
-    if (upgradeTable) {
-        hide_upgrades = (Object.keys(upgradeTable).length === 0);
+    if (exchanges) {
+        hide_exchange = (exchanges.length === 0);
+    }
+    if (upgrades) {
+        hide_upgrades = (upgrades.length === 0);
+    }
+    var total = 0;
+
+    //Sue me
+    for(let exchange of exchanges){
+        total += exchange.seen;
+    }
+    for(let exchange of exchanges){
+        exchange.total = total;
     }
 
+
+    console.log(exchanges)
     reply.view('item', {
         item: itemData,
-        type: itemType,
+        type: itemName,
         show_dropped: true,
-        dropped: reverseDropTable.get(itemType) || [],
+        dropped: reverseDrop,
         show_upgrades: !hide_upgrades,
-        upgrades: upgradeTable,
+        upgrades: upgrades,
         show_exchanges: !hide_exchange,
-        exchanges: exchangeTable,
+        exchanges: exchanges,
         npcs: npcs,
         show_price: false,
         price_data: [],
@@ -287,30 +297,6 @@ const exchangesHandler = function (request, reply) {
         sprites
     });
 };
-
-
-function startJournalProcess() {
-    let start = new Date();
-    let childProcess = child_process.fork("./indexer", {
-        stdio: [0, 1, 2, 'ipc']
-    });
-    childProcess.on('message', (m) => {
-        if (m.type === "done") {
-            dropTable = new Map(Object.entries(m.data.dropTable));
-            monsterGoldTable = new Map(Object.entries(m.data.monsterGoldTable));
-            reverseDropTable = new Map(Object.entries(m.data.reverseDropTable));
-            priceTable = new Map(Object.entries(m.data.priceTable));
-            contribTable = new Map(Object.entries(m.data.contribTable));
-            upgradeTable = m.data.upgradeTable;
-            exchangeTable = m.data.exchangeTable;
-            marketTable = m.data.marketTable;
-            console.log("Journal completed " + ((new Date().getTime() - start.getTime()) / 1000) + " seconds");
-        }
-    });
-}
-
-startJournalProcess();
-setInterval(startJournalProcess, 1000 * 60 * 60 * 24);
 
 
 exports.root = rootHandler;

@@ -156,7 +156,7 @@ th {
     width: 70px;
 }
 .upgrades th:first-child {
-    width: 16px;
+    width: 40px;
 }
 .upgrades th:nth-child(2) {
     width: 200px;
@@ -166,7 +166,7 @@ th {
     width: 150px;
 }
 .exchanges th:first-child {
-    width: 16px;
+    width: 40px;
 }
 
 .dashed {
