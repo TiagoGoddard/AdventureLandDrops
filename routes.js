@@ -142,17 +142,18 @@ const monsterHandler = async function (request, reply) {
             kills[killTable[key].map] = killTable[key].kills;
         }
     }
-    var avgGold = total_gold/total_kills;
+    var avgGold = total_gold / total_kills;
     for (let key in drops) {
-        drops[key].rate = drops[key].seen*100 / (kills[drops[key].map]);
+        drops[key].rate = drops[key].seen * 100 / (kills[drops[key].map]);
         drops[key].kills = kills[drops[key].map];
     }
+
     reply.view('monster', {
         monster: monsterData,
         type: monsterType,
         drops: drops || [],
         avggold: avgGold ? avgGold : 0,
-        kills: total_kills? total_kills : 0,
+        kills: total_kills ? total_kills : 0,
         contribs: killTable || [],
         sprites
     });
@@ -187,15 +188,15 @@ const itemHandler = async function (request, reply) {
         return reply().code(404);
     }
 
-    try{
+    try {
         var exchanges = await mysql.getExchangesByItemName(itemName);
-        var upgrades;
-            if(itemData.compound)
-                upgrades = await mysql.getCompoundsByItemName(itemName);
-            else
-                upgrades = await mysql.getUpgradesByItemName(itemName);
+        var upgrades = [];
+        if (itemData.compound)
+            upgrades = await mysql.getCompoundsByItemName(itemName);
+        else if (itemData.upgrade)
+            upgrades = await mysql.getUpgradesByItemName(itemName);
         var reverseDrop = await mysql.getReverseDrop(itemName);
-    }catch(e){
+    } catch (e) {
         console.error(e);
     }
     if (exchanges) {
@@ -207,13 +208,13 @@ const itemHandler = async function (request, reply) {
     var total = 0;
 
     //Sue me
-    for(let exchange of exchanges){
+    for (let exchange of exchanges) {
         total += exchange.seen;
     }
-    for(let exchange of exchanges){
+    for (let exchange of exchanges) {
         exchange.total = total;
     }
-
+    console.log(reverseDrop)
 
     reply.view('item', {
         item: itemData,
