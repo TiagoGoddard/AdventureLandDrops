@@ -56,7 +56,7 @@ const st = {
         exchanges:  "SELECT * FROM exchange_statistics WHERE item_name = ?",
         compounds:  "SELECT * FROM compound_statistics WHERE item_name = ?",
         upgrades: "SELECT * FROM upgrade_statistics WHERE item_name = ?",
-        reverseDrop: "SELECT *, a.seen / a.kills AS rate FROM(SELECT i.monster_name, SUM( `kill_statistics`.`kills`) AS kills, i.seen, i.map FROM (SELECT * FROM `drop_statistics` WHERE item_name = ?) i INNER JOIN `kill_statistics` ON i.monster_name = `kill_statistics`.monster_name GROUP BY i.monster_name, i.map) a ORDER BY rate DESC"
+        reverseDrop: "SELECT *, a.seen*100 / a.kills AS rate FROM(SELECT i.monster_name, SUM( `kill_statistics`.`kills`) AS kills, i.seen, i.map FROM (SELECT * FROM `drop_statistics` WHERE item_name = ?) i INNER JOIN `kill_statistics` ON i.monster_name = `kill_statistics`.monster_name GROUP BY i.monster_name, i.map) a ORDER BY rate DESC"
     },
     get: {
         api_key: "SELECT player, valid FROM api_keys WHERE api_key = ?"
