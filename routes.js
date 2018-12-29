@@ -214,7 +214,6 @@ const itemHandler = async function (request, reply) {
     for (let exchange of exchanges) {
         exchange.total = total;
     }
-    console.log(reverseDrop)
 
     reply.view('item', {
         item: itemData,
