@@ -41,7 +41,7 @@ block content
         .info Tracked Kills: #[span.gray=formatNumber(kills)]
         - let unknown = 0
         each contrib in contribs
-            if !contrib.player || contrib.player == '__unknown'
+            if !contrib.character_name || contrib.character_name == '__unknown'
                 - unknown += contrib.kills
 
         .info.gray.small Unknown Kills: #[span.gray.small=formatNumber(unknown)]
@@ -60,15 +60,15 @@ block content
                     td.dashed(colspan=5)
                 tbody.list
                     each drop in drops
-                        if(drop.drops > 1)
+                        if(drop.seen > 1)
                             tr
                                 td
-                                    a(href=`/items/${drop.item}`).sprite-container.small
-                                        div(style=sprites.item(drop.item, 32))
+                                    a(href=`/items/${drop.item_name}`).sprite-container.small
+                                        div(style=sprites.item(drop.item_name, 32))
                                 td
-                                    a.name(href=`/items/${drop.item}`)=drop.name
-                                td.map=drop.mapName
-                                td.count #{formatNumber(drop.drops)} out of #{formatNumber(drop.kills)}
+                                    a.name(href=`/items/${drop.item_name}`)=drop.item_name
+                                td.map=drop.map
+                                td.count #{formatNumber(drop.seen)} out of #{formatNumber(drop.kills)}
                                 td.rate.align-right #{formatNumber(drop.rate, 3)}
 
         script.
@@ -84,12 +84,14 @@ block content
                 thead
                     tr
                         th.scaling  Player
+                        th Level
                         th Amount
                 tr
                     td.dashed(colspan=5)
                 tbody.list
                     each contrib in contribs
-                        if contrib.player && contrib.player != '__unknown'
+                        if contrib.character_name && contrib.character_name != '__unknown'
                             tr
-                                td #{contrib.player}
+                                td #{contrib.character_name}
+                                td #{contrib.monster_level}
                                 td #{contrib.kills}

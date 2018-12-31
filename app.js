@@ -1,3 +1,9 @@
+process.on('uncaughtException', function (exception) {
+    console.log(exception);
+    console.log(exception.stack);
+});
+
+
 const Hapi = require('hapi');
 const Vision = require('vision');
 const Inert = require('inert');
@@ -37,6 +43,7 @@ server.register(Vision, (err) => {
 
     server.route({ method: 'GET', path: '/monsters', handler: routes.monsters });
     server.route({ method: 'GET', path: '/monsters/{monster}', handler: routes.monster });
+    server.route({ method: 'GET', path: '/monsters/{monster}/{level}', handler: routes.monster });
 
     server.route({ method: 'GET', path: '/npcs', handler: routes.npcs });
     server.route({ method: 'GET', path: '/npcs/{npc}', handler: routes.npc });
@@ -44,12 +51,10 @@ server.register(Vision, (err) => {
     server.route({ method: 'GET', path: '/items', handler: routes.items });
     server.route({ method: 'GET', path: '/items/{item}', handler: routes.item });
 
-    server.route({ method: 'GET', path: '/market', handler: routes.market });
-    server.route({ method: 'GET', path: '/market/{item}', handler: routes.price });
+    //server.route({ method: 'GET', path: '/market', handler: routes.market });
+    //server.route({ method: 'GET', path: '/market/{item}', handler: routes.price });
 
-    server.route({ method: 'GET', path: '/upgrades', handler: routes.upgrades });
-
-    server.route({ method: 'GET', path: '/exchanges', handler: routes.exchanges });
+    //server.route({ method: 'GET', path: '/exchanges', handler: routes.exchanges });
 
     server.route({
         method: 'GET',
@@ -58,19 +63,9 @@ server.register(Vision, (err) => {
             file: "script.js"
         }
     });
-
     server.route({
-        method: 'GET',
-        path: '/script',
-        handler: function (request, reply) {
-            reply(
-                new Promise((res) => {
-                    Request('https://raw.githubusercontent.com/TiagoGoddard/AdventureLandDrops/master/script.js',
-                    function(err, resp, body) { res(body); });
-                })
-            )
-            .type('script/javascript');
-        }
+        method: 'GET', path: '/script',
+        handler: { file: "script.js" }
     });
 
     server.route({

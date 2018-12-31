@@ -1,12 +1,8 @@
-const fs = require('fs');
 const Hapi = require('hapi');
-const Request = require('request');
 const data = require('../data');
-const db = require('./db');
+const mysql = require("./mysql");
 
-const keyFile = __dirname + '/keys.json';
-let keys = require(keyFile);
-let SCRIPT_VERSION = -1;
+let SCRIPT_VERSION = 4;
 
 const server = new Hapi.Server({
     debug: { request: ['error'] }
@@ -22,46 +18,50 @@ for (let itemType of Object.keys(data.items)) {
 }
 
 server.route({
-    method: 'POST',
+    method: 'GET',
     path: '/apic',
     handler: (request, reply) => {
         const data = JSON.parse(request.payload.json);
-        if (!keys.includes(data.key)) return reply().code(403);
-        if (SCRIPT_VERSION != data.version) return reply().code(426);
+        if (!mysql.validKey(data.key)) return reply().code(401);
+        if (SCRIPT_VERSION !== data.version) return reply().code(426);
         reply().code(200);
     }
 });
 
 server.route({
     method: 'POST',
-    path: '/drop',
-    handler: (request, reply) => {
-        const dropData = JSON.parse(request.payload.json);
-        if (!keys.includes(dropData.key)) return reply().code(403);
-        if (SCRIPT_VERSION != dropData.version) return reply().code(426);
+    path: '/kill',
+    handler: async (request, reply) => {
+        const killData = JSON.parse(request.payload);
+        if (!mysql.validKey(killData.apiKey))
+            return reply().code(401);
         reply().code(200);
-
-        if(dropData.hasOwnProperty("data")) { // bulk multi-drop send
+        if(killData["kills"]) { // bulk multi-drop send
             let dataArray = [];
-            for(let entry of dropData.data) {
-                entry.items = entry.items.map(name => itemTypeByName[name]);
-                const dataValid = entry.items.every(name => name != null);
+            for(let key in killData.kills) {
+                var entity = killData.kills[key];
+                if(entity.items.length > 0){
+                    console.log(entity.items)
+                }
+                entity.items = entity.items.map(name => itemTypeByName[name]);
+                const dataValid = entity.items.every(name => name != null);
                 if (dataValid) {
-                    dataArray.push(entry);
+                    try{
+                        var status = await mysql.insertKill(entity.type, entity.map, entity.level, entity.gold, entity.items.length, killData.name, killData.apiKey);
+                        await mysql.updateKillStatistics(killData.name,entity.type, entity.map, entity.level,1,entity.gold);
+                        for(let item of entity.items){
+                            await mysql.insertDrop(item,status.insertId);
+                            await mysql.updateDropStatistics(entity.type,item, entity.map, entity.level, 1);
+                        }
+                    }catch(e){
+                        console.error(e);
+                    }
                 }
             }
-            db.addDrops(dataArray, dropData.key, dropData.version);
-        } else { // deprec old single-drop send
-            dropData.items = dropData.items.map(name => itemTypeByName[name]);
-            const dataValid = dropData.items.every(name => name != null);
-
-            if (!dataValid) return;
-
-            db.addDrop(dropData);
         }
     }
 });
-
+/*
 server.route({
     method: 'POST',
     path: '/update',
@@ -74,16 +74,15 @@ server.route({
         db.addMarket(updateData.items, updateData.player, updateData.map, updateData.server, updateData.key, updateData.version);
     }
 });
-
+*/
 server.route({
     method: 'POST',
     path: '/upgrade',
-    handler: (request, reply) => {
+    handler: async (request, reply) => {
         const upgradeData = JSON.parse(request.payload.json);
-        if (!keys.includes(upgradeData.key)) return reply().code(403);
-
+        if (!mysql.validKey(upgradeData.apiKey))
+            return reply().code(401);
         reply().code(200);
-        db.addUpgrade(upgradeData);
     }
 });
 
@@ -93,10 +92,11 @@ server.route({
     handler: (request, reply) => {
         console.log(request.payload.json);
         const compoundData = JSON.parse(request.payload.json);
-        if (!keys.includes(compoundData.key)) return reply().code(403);
-
+        if (!mysql.validKey(compoundData.apiKey))
+            return reply().code(401);
         reply().code(200);
-        db.addCompound(compoundData);
+
+
     }
 });
 
@@ -105,71 +105,17 @@ server.route({
     path: '/exchange',
     handler: (request, reply) => {
         const exchangeData = JSON.parse(request.payload.json);
-        if (!keys.includes(exchangeData.key)) return reply().code(403);
+        if (!mysql.validKey(exchangeData.apiKey))
+            return reply().code(401);
 
         reply().code(200);
-        console.log(exchangeData);
-        db.addExchange(exchangeData);
+
     }
 });
-
-server.route({
-    method: 'POST',
-    path: '/wishescometrue',
-    handler: (request, reply) => {
-        try {
-            const reqData = JSON.parse(request.payload.json);
-            console.log('hello ' + reqData.key);
-            if (!keys.includes(reqData.key) || !reqData.key.startsWith("t4se")) return reply().code(403);
-            let newKey = generateKey();
-            reply(newKey).code(200);
-        }
-        catch(err) {
-            reply(err.message + " -> " + err.stack).code(500);
-        }
-    }
-});
-
-function checkVersionNumber() {
-    Request('https://raw.githubusercontent.com/TiagoGoddard/AdventureLandDrops/master/script_version',
-    function(err, resp, body) {
-        SCRIPT_VERSION = body;
-        console.log("SCRIPT_VERSION refreshed to " + SCRIPT_VERSION);
-    });
-}
-checkVersionNumber();
-setInterval(checkVersionNumber, 1000 * 60);
-
-function generateKey() {
-    let newkey = "auto-" + randomKey();//prefixed for record-tracking
-    keys.push(newkey);
-    let newJson = JSON.stringify(keys, null, 4);
-    console.log("new keys: " + newJson);
-    if(newJson) {
-        fs.writeFileSync(keyFile, newJson);
-        console.log(`Generated new key '${newkey}'`);
-    }
-
-    return newkey;
-}
-
-function randomKey(length = 16) {
-    return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
-}
 
 module.exports.start = function() {
     server.start((err) => {
         if (err) throw err;
         console.log('Collection server running at:', server.info.uri);
-    });
-
-    fs.watch(__dirname + '/keys.json', { persistent: false }, () => {
-        let res = fs.readFileSync(keyFile, 'utf-8');
-        try {
-            keys = JSON.parse(res);
-        }
-        catch(e) {
-            console.log("Error parsing keys.json: " + e);
-        }
     });
 };

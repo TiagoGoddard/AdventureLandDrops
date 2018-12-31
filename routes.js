@@ -1,7 +1,7 @@
 const data = require('./data');
-const collection = require('./collection');
 const sprites = require('./sprites');
 const sortOrder = require('./sortOrder');
+const mysql = require('./collection/mysql.js');
 
 let monsters = [];
 let npcs = [];
@@ -27,61 +27,61 @@ for (let npcType in data.npcs) {
 }
 
 let itemsData = {
-    'Weapons' : {
-        types : ['weapon', 'quiver', 'shield'],
-        data : []
+    'Weapons': {
+        types: ['weapon', 'quiver', 'shield'],
+        data: []
     },
-    'Armor' : {
-        types : ['helmet', 'chest', 'pants', 'gloves', 'shoes', 'cape'],
-        data : []
+    'Armor': {
+        types: ['helmet', 'chest', 'pants', 'gloves', 'shoes', 'cape'],
+        data: []
     },
-    'Accessories' : {
-        types : ['amulet', 'ring', 'earring', 'tome', 'belt', 'source'],
-        data : []
+    'Accessories': {
+        types: ['amulet', 'ring', 'earring', 'tome', 'belt', 'source'],
+        data: []
     },
-    'Misc' : {
-        types : [],
-        data : []
+    'Misc': {
+        types: [],
+        data: []
     },
 };
 
 for (let itemType in data.items) {
-  let itemU = {
-    type: itemType,
-    name: data.items[itemType].name,
-    item : itemType.name
-  }
-  let item = data.items[itemType];
+    let itemU = {
+        type: itemType,
+        name: data.items[itemType].name,
+        item: itemType.name
+    }
+    let item = data.items[itemType];
 
-  let group_type = 'Misc';
-  if(item) {
-    for(let group in itemsData) {
-        if(itemsData[group].types.indexOf(item.type) > -1) {
-            group_type = group;
+    let group_type = 'Misc';
+    if (item) {
+        for (let group in itemsData) {
+            if (itemsData[group].types.indexOf(item.type) > -1) {
+                group_type = group;
+            }
+        }
+        if (item.quest) {
+            quest_items.push(item);
+        }
+        if (item.e) {
+            e_items.push(item);
         }
     }
-    if(item.quest) {
-      quest_items.push(item);
-    }
-    if(item.e){
-      e_items.push(item);      
-    }
-  }
-  let new_info = {
-      type : itemType,
-      name : item.name,
-      item : itemType.name
-  };
-  itemsData[group_type].data.push(new_info);
-  items.push(itemU);
+    let new_info = {
+        type: itemType,
+        name: item.name,
+        item: itemType.name
+    };
+    itemsData[group_type].data.push(new_info);
+    items.push(itemU);
 }
 
 for (let group in itemsData) {
-  itemsData[group].data.sort((a, b) => sortOrder[b.type]-sortOrder[a.type]);
+    itemsData[group].data.sort((a, b) => sortOrder[b.type] - sortOrder[a.type]);
 }
 
 monsters.sort((a, b) => a.name.localeCompare(b.name));
-items.sort((a, b) => sortOrder[b.type]-sortOrder[a.type]);
+items.sort((a, b) => sortOrder[b.type] - sortOrder[a.type]);
 
 const rootHandler = function (request, reply) {
     reply.view('index', {
@@ -112,32 +112,49 @@ const itemsHandler = function (request, reply) {
     });
 };
 
-let dropTable = new Map();
-let monsterGoldTable = new Map();
-let reverseDropTable = new Map();
-let priceTable = new Map();
-let contribTable = new Map();
-let upgradeTable = {};
-let exchangeTable = {};
-let marketTable = {};
 
-const monsterHandler = function (request, reply) {
+const monsterHandler = async function (request, reply) {
     const monsterType = request.params.monster;
+    const monsterLevel = request.params.level ? request.params.level : 1;
     const monsterData = data.monsters[monsterType];
 
     if (!monsterData) {
         return reply().code(404);
     }
+    try {
+        var killTable = await mysql.getKillsByMonster(monsterType, monsterLevel);
+        var drops = await mysql.getDropsByMonster(monsterType);
 
-    let mgt = monsterGoldTable.get(monsterType);
+    } catch (e) {
+        console.error(e);
+    }
+
+    //Sue me
+    var kills = {};
+    var total_kills = 0;
+    var total_gold = 0;
+    for (let key in killTable) {
+        total_kills += killTable[key].kills;
+        total_gold += killTable[key].total_gold;
+        if (kills[killTable[key].map]) {
+            kills[killTable[key].map] += killTable[key].kills;
+        } else {
+            kills[killTable[key].map] = killTable[key].kills;
+        }
+    }
+    var avgGold = total_gold / total_kills;
+    for (let key in drops) {
+        drops[key].rate = drops[key].seen * 100 / (kills[drops[key].map]);
+        drops[key].kills = kills[drops[key].map];
+    }
 
     reply.view('monster', {
         monster: monsterData,
         type: monsterType,
-        drops: dropTable.get(monsterType) || [],
-        avggold : mgt ? mgt.avggold : 0,
-        kills : mgt ? mgt.kills : 0,
-        contribs : contribTable.get(monsterType) || [],
+        drops: drops || [],
+        avggold: avgGold ? avgGold : 0,
+        kills: total_kills ? total_kills : 0,
+        contribs: killTable || [],
         sprites
     });
 };
@@ -160,9 +177,9 @@ const npcHandler = function (request, reply) {
     });
 };
 
-const itemHandler = function (request, reply) {
-    const itemType = request.params.item;
-    const itemData = data.items[itemType];
+const itemHandler = async function (request, reply) {
+    const itemName = request.params.item;
+    const itemData = data.items[itemName];
 
     var hide_exchange = true;
     var hide_upgrades = true;
@@ -171,28 +188,48 @@ const itemHandler = function (request, reply) {
         return reply().code(404);
     }
 
-    if(exchangeTable) {
-      hide_exchange = (Object.keys(exchangeTable).length === 0);
+    try {
+        var exchanges = await mysql.getExchangesByItemName(itemName);
+        var upgrades = [];
+        if (itemData.compound)
+            upgrades = await mysql.getCompoundsByItemName(itemName);
+        else if (itemData.upgrade)
+            upgrades = await mysql.getUpgradesByItemName(itemName);
+        var reverseDrop = await mysql.getReverseDrop(itemName);
+    } catch (e) {
+        console.error(e);
     }
-    if(upgradeTable) {
-      hide_upgrades = (Object.keys(upgradeTable).length === 0);
+    if (exchanges) {
+        hide_exchange = (exchanges.length === 0);
+    }
+    if (upgrades) {
+        hide_upgrades = (upgrades.length === 0);
+    }
+    var total = 0;
+
+    //Sue me
+    for (let exchange of exchanges) {
+        total += exchange.seen;
+    }
+    for (let exchange of exchanges) {
+        exchange.total = total;
     }
 
     reply.view('item', {
         item: itemData,
-        type: itemType,
-        show_dropped: true,
-        dropped: reverseDropTable.get(itemType) || [],
+        type: itemName,
+        show_dropped: (reverseDrop.length > 0),
+        dropped: reverseDrop,
         show_upgrades: !hide_upgrades,
-        upgrades: upgradeTable,
+        upgrades: upgrades,
         show_exchanges: !hide_exchange,
-        exchanges: exchangeTable,
+        exchanges: exchanges,
         npcs: npcs,
         show_price: false,
         price_data: [],
-        npcs_data : data.npcs,
-        items_data : data.items,
-        scroll_cost : scroll_cost,
+        npcs_data: data.npcs,
+        items_data: data.items,
+        scroll_cost: scroll_cost,
         sprites
     });
 };
@@ -216,9 +253,9 @@ const priceHandler = function (request, reply) {
         exchanges: [],
         show_price: true,
         price_data: priceTable.get(itemType) || [],
-        npcs_data : data.npcs,
-        items_data : data.items,
-        scroll_cost : scroll_cost,
+        npcs_data: data.npcs,
+        items_data: data.items,
+        scroll_cost: scroll_cost,
         sprites
     });
 };
@@ -226,7 +263,7 @@ const priceHandler = function (request, reply) {
 const marketHandler = function (request, reply) {
     reply.view('market', {
         items: itemsData,
-        items_data : data.items,
+        items_data: data.items,
         market: marketTable,
         sprites
     });
@@ -236,168 +273,30 @@ function scroll_cost(item, level) {
     let scroll0_cost = 1000, scroll1_cost = 40000, scroll2_cost = 1600000;
     let item_cost = data.items[item].g;
     let item_grades = data.items[item].grades;
-    if(level == 1) return item_cost + scroll0_cost;
+    if (level == 1) return item_cost + scroll0_cost;
     else {
-        if(level >= item_grades[1]) return scroll2_cost;
-        if(level >= item_grades[0]) return scroll1_cost;
+        if (level >= item_grades[1]) return scroll2_cost;
+        if (level >= item_grades[0]) return scroll1_cost;
         return scroll0_cost;
     }
 }
 
-const upgradesHandler = function(request, reply) {
+const upgradesHandler = function (request, reply) {
     reply.view('upgrades', {
         upgrades: upgradeTable,
-        scroll_cost : scroll_cost,
+        scroll_cost: scroll_cost,
         sprites
     });
 };
 
-const exchangesHandler = function(request, reply) {
+const exchangesHandler = function (request, reply) {
     reply.view('exchanges', {
         exchanges: exchangeTable,
-        items_data : data.items,
+        items_data: data.items,
         sprites
     });
 };
 
-function updateDropTable() {
-    collection.db.getDropTable().then((table) => {
-        for (let drops of table.values()) {
-            for (let drop of drops) {
-                drop.name = data.items[drop.item].name;
-                drop.mapName = data.maps[drop.map].name;
-            }
-        }
-
-        dropTable = table;
-
-        reverseDropTable = new Map();
-        for (let [monster, drops] of table.entries()) {
-            for (let drop of drops) {
-                if (!reverseDropTable.has(drop.item)) {
-                    reverseDropTable.set(drop.item, []);
-                }
-              
-                if(data.monsters[monster]) {
-                    reverseDropTable.get(drop.item).push({
-                        monster: monster,
-                        name: data.monsters[monster].name,
-                        map: drop.map,
-                        mapName: drop.mapName,
-                        rate: drop.rate,
-                        drops: drop.drops,
-                        kills: drop.kills
-                    });
-                }
-            }
-        }
-    });
-
-    collection.db.getGoldTable().then((table) => {
-        monsterGoldTable = table;
-    });
-
-    collection.db.getContribTable().then((table) => {
-        contribTable = table;
-    });
-}
-
-function updateUpgradeTable() {
-    collection.db.getUpgradeAndCompoundsTable()
-    .then((table) => {
-
-        let upgradeData = {
-            'Weapons' : {
-                types : ['weapon', 'quiver', 'shield'],
-                max_level : 12,
-                data : []
-            },
-            'Armor' : {
-                types : ['helmet', 'chest', 'pants', 'gloves', 'shoes', 'cape'],
-                max_level : 12,
-                data : []
-            },
-            'Accessories' : {
-                types : ['amulet', 'ring', 'earring', 'tome', 'belt', 'source'],
-                max_level : 10,
-                data : []
-            },
-            'Misc' : {
-                types : [],
-                max_level : 12,
-                data : []
-            },
-        };
-
-        for(let key in table) {
-            let upgrade_info = table[key];
-            let item = data.items[upgrade_info.name];
-
-            let group_type = 'Misc';
-            if(item) {
-              for(let group in upgradeData) {
-                  if(upgradeData[group].types.indexOf(item.type) > -1)
-                      group_type = group;
-              }
-            }
-
-            let new_info = {
-                name : item.name,
-                item : upgrade_info.name,
-                results : []
-            };
-
-            for(let level in upgrade_info.results) {
-                new_info.results[level] = upgrade_info.results[level];
-            }
-            upgradeData[group_type].data.push(new_info);
-        }
-
-        function compare(a,b) {
-            if(a.name < b.name) return -1;
-            if(a.name > b.name) return 1;
-            return 0;
-        }
-
-        upgradeData['Weapons'].data.sort(compare);
-        upgradeData['Armor'].data.sort(compare);
-        upgradeData['Accessories'].data.sort(compare);
-        upgradeData['Misc'].data.sort(compare);
-        upgradeTable = upgradeData;
-    });
-}
-
-function updateMarketTable() {
-    collection.db.getMarketTable()
-    .then((table) => {
-        marketTable = table;
-    });
-}
-
-function updatePriceTable() {
-    collection.db.getPriceTable()
-    .then((table) => {
-        priceTable = table;
-    });
-}
-
-function updateExchangeTable() {
-    collection.db.getExchangesTable()
-    .then((table) => {
-        exchangeTable = table;
-    });
-}
-
-setInterval(updateDropTable, 1000 * 60 * 10);
-setInterval(updateUpgradeTable, 1000 * 60);
-setInterval(updateExchangeTable, 1000 * 60);
-setInterval(updateMarketTable, 1000 * 30);
-setInterval(updatePriceTable, 1000 * 30);
-updateDropTable();
-updateUpgradeTable();
-updateExchangeTable();
-updateMarketTable();
-updatePriceTable();
 
 exports.root = rootHandler;
 

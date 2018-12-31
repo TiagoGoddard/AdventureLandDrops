@@ -1,5 +1,5 @@
 parent.exchangeit = (function() {
-    let COLLECTION_SERVER = 'http://adventurecode.club:13726';
+    let COLLECTION_SERVER = 'http://localhost:25326';
     let COLLECTION_SERVER2 = window.aldc_second_server;
     let API_KEY = window.aldc_apikey;
 
@@ -9,7 +9,7 @@ parent.exchangeit = (function() {
     let MESSAGE_REGEX = /Received (?:an? )?(.*)/;
     let AMOUNT_REGEX = /(\d+)x (.*)/;
     let GOLD_REGEX = /([\d,]+) gold/;
-  
+    let SHELLS_REGEX = /([\d,]+) SHELLS/;
     let exchange_listener = (data) => {
         if(!parent) return;
         if (data.message.startsWith("Received")) {
@@ -19,16 +19,21 @@ parent.exchangeit = (function() {
             //  ["Received a Xmas Shoes",        "Xmas Shoes"]
             //  ["Received 650,000 gold",        "650,000 gold"]
             //  ["Received 8x Compound Scrolls", "8x Compound Scrolls"]
+            //  ["Received 200 SHELLS",          "200 SHELLS"]
             let obtained_name = result_info[1];  //    ^^^^^
 
             let amount = AMOUNT_REGEX.exec(obtained_name);
             let gold = GOLD_REGEX.exec(obtained_name);
+            let shells = SHELLS_REGEX.exec(obtained_name);
             if(gold) {
                 // ["650,000 gold", "650,000"]
                 result_data.result = "gold";
                 result_data.amount = gold[1].replace(/,/g, "");
-            }
-            else if(amount) {
+            } else if(shells) {
+                // ["Received 200 SHELLS",          "200 SHELLS"]
+                result_data.result = "shells";
+                result_data.amount = shells[1].replace(/,/g, "");
+            } else if(amount) {
                 // ["8x Compound Scrolls", "8", "Compound Scrolls"]
                 //result_data.itemname = amount[2];
                 obtained_name = amount[2];

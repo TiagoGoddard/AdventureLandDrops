@@ -1,4 +1,4 @@
-exports.db = require('./db');
+exports.db = require('./mysql');
 exports.server = require('./server');
 
 if (require.main === module) {
