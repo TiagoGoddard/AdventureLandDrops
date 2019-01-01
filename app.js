@@ -16,7 +16,7 @@ const server = new Hapi.Server({
     debug: { request: ['error'] }
 });
 
-server.connection({ port: 8081 });
+server.connection({ port: 8081, routes: { cors: true }});
 
 const defaultContext = {
     formatNumber(number, precision = 0) {
