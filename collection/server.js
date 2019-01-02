@@ -8,7 +8,7 @@ const server = new Hapi.Server({
     debug: { request: ['error'] }
 });
 
-server.connection({ port: 25326, routes: { cors: true }});
+server.connection({ port: 8082, routes: { cors: true }});
 
 const itemTypeByName = {};
 for (let itemType of Object.keys(data.items)) {
@@ -37,10 +37,9 @@ server.route({
             return reply().code(401);
         reply().code(200);
         if(killData["kills"]) { // bulk multi-drop send
-            let dataArray = [];
             for(let key in killData.kills) {
                 var entity = killData.kills[key];
-                if(entity.items.length > 0){
+                if(entity.items.length != null){
                     console.log(entity.items)
                 }
                 entity.items = entity.items.map(name => itemTypeByName[name]);
@@ -61,28 +60,22 @@ server.route({
         }
     }
 });
-/*
-server.route({
-    method: 'POST',
-    path: '/update',
-    handler: (request, reply) => {
-        const updateData = JSON.parse(request.payload.json);
-        if (!keys.includes(updateData.key)) return reply().code(403);
-        if (SCRIPT_VERSION != updateData.version) return reply().code(426);
 
-        reply().code(200);
-        db.addMarket(updateData.items, updateData.player, updateData.map, updateData.server, updateData.key, updateData.version);
-    }
-});
-*/
+
 server.route({
     method: 'POST',
     path: '/upgrade',
     handler: async (request, reply) => {
-        const upgradeData = JSON.parse(request.payload.json);
+        const upgradeData = JSON.parse(request.payload);
         if (!mysql.validKey(upgradeData.apiKey))
             return reply().code(401);
         reply().code(200);
+        if(upgradeData.upgrades && Array.isArray(upgradeData.upgrades)){
+            for(let upgrade of upgradeData.upgrades){
+                await mysql.insertUpgrade(upgrade.item.name, upgrade.item.level, upgrade.scroll.name, upgrade.offering, upgrade.success?1:0, upgradeData.apiKey)
+                await mysql.updateUpgradesStatistics(upgrade.item.name, upgrade.item.level, 1, upgrade.success?1:0)
+            }
+        }
     }
 });
 
