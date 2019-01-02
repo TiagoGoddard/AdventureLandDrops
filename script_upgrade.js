@@ -1,4 +1,4 @@
-var dropServer = "http://adventurecode.club:8082";
+var dropServer = "https://adventurecode.club:8082";
 var apiKey = "YOUR_API_KEY";
 //^^ Adjust this to your own api key
 //If you don't already have on request one from me on discord. @NexusNull#6364
