@@ -1,175 +1,147 @@
-var dropServer = "http://localhost:25326";
-var apiKey = "t4seta6e7asetas3";
-//Put your api key here, if you don't have one yet request it from me on discord.
-//
+// This files contains that latest working version of all other collection script.
+// Currently still manually maintained
 
-var drops = {};
-var last_death;
-var last_drop;
+//To use this create save the code under "loot" and import it in your main code with load_code("loot")
 
-var last_gold;
-var last_opened;
-var last_items;
+var dropServer = "http://adventurecode.club:8082";
+var apiKey = "YOUR_API_KEY";
+//^^ Adjust this to your own api key
+//If you don't already have on request one from me on discord. @NexusNull#6364
 
-//Clean out an pre-existing listeners
-if (parent.prev_handlersgoldmeter) {
-    for (let [event, handler] of parent.prev_handlersgoldmeter) {
-        parent.socket.removeListener(event, handler);
-    }
-}
 
-parent.prev_handlersgoldmeter = [];
+var upgrade_data = [];
 
-//handler pattern shamelessly stolen from JourneyOver
-function register_goldmeterhandler(event, handler) {
-    parent.prev_handlersgoldmeter.push([event, handler]);
-    parent.socket.on(event, handler);
+var old_upgrade = upgrade;
+var inv = {};
+var lockTable = {};
+var inventory = character.items;
+
+var InventoryWatcher = {
+    listener: {
+        changed: [],
+        removed: [],
+        received: [],
+    },
 };
 
+InventoryWatcher.registerListener = function (event, callback) {
+    this.listener[event].push(callback);
+};
 
-setTimeout(function () {
-    console.log("Initializing Drop Tracking");
-    on_disappear = (function () {
+InventoryWatcher.removeListener = function (event, callback) {
+    for (let i = 0; i < this.listener[event].length; i++) {
+        if (this.listener[event][i] == callback) {
+            this.listener[event].splice(i, 1);
+        }
+    }
+};
 
-        var cached_function = on_disappear;
-
-        return function (entity, event) {
-            cached_function.apply(this, arguments); // use .apply() to call it
-            if (entity && entity.type == "monster" && event.death) {
-                last_death = {type: entity.mtype, id: entity.id, map: entity.in, level: entity.level, time: new Date()};
-
-                if (last_drop && Math.abs(last_drop.time - last_death.time) <= 1) {
-                    link_drop();
+function playerListener(player) {
+    let items = player.items;
+    //Detect changes
+    for (var i = 0; i < items.length; i++) {
+        if (items[i] && inventory[i]) {
+            var keys = Object.keys(items[i]).concat(Object.keys(inventory[i]));
+            var change = false;
+            for (let key of keys) {
+                if (items[i][key] != inventory[i][key]) {
+                    change = true;
+                    break;
                 }
             }
-        };
-    })();
-}, 1000);
-
-function on_disappear(entity, event) {
-    if (entity && entity.type == "monster" && event.death) {
-        last_death = {type: entity.mtype, id: entity.id, map: entity.in, level: entity.level, time: new Date()};
-
-        if (last_drop && Math.abs(last_drop.time - last_death.time) <= 1) {
-            link_drop();
+            if (change) {
+                for (let callback of InventoryWatcher.listener.changed)
+                    callback(i, inventory[i], items[i]);
+            }
+        } else if (!items[i] && inventory[i]) {
+            //Removed an item
+            for (let callback of InventoryWatcher.listener.removed)
+                callback(i, inventory[i]);
+        } else if (items[i] && !inventory[i]) {
+            //Received an item
+            for (let callback of InventoryWatcher.listener.received)
+                callback(i, items[i]);
         }
     }
+    inventory = player.items;
 }
 
-function drop_handler(event) {
-    last_drop = {id: event.id, time: new Date()}
 
-    if (last_death && Math.abs(last_death.time - last_drop.time) <= 1) {
-        link_drop();
-    }
-}
+inv.upgrade = async function (item_index, scroll_index, offering_index) {
+    return new Promise(function (resolve, reject) {
+        if (character.items[item_index] && G.items[character.items[item_index].name].upgrade) {
+            if (!lockTable[item_index]) {
+                lockTable[item_index] = true;
+                var iteM = character.items[item_index];
+                var scroll = character.items[scroll_index];
+                var offering = !!character.items[offering_index];
 
-//Item and Gold Received
-var goldSuffix = " gold";
-var personalPrefix = "Found";
-var groupPrefix = character.id + " found";
-
-function log_handler(event) {
-    if (event.message) {
-        if (event.message.includes(goldSuffix)) {
-            var gold = parseInt(event.message.replace(goldSuffix, "").replace(",", ""));
-            last_gold = {gold: gold, time: new Date()};
-
-            if (last_opened && Math.abs(last_opened.time - last_gold.time) <= 1) {
-                link_gold();
-            }
-        }
-        else if (event.message.includes(personalPrefix) || event.message.includes(groupPrefix)) {
-            var item = event.message.replace(personalPrefix, "").replace(groupPrefix, "").replace(" a ", "").replace(" an ", "");
-
-            if (last_opened && Math.abs(last_opened.time - new Date()) <= 1) {
-                console.log("Chest Opened: " + Math.abs(last_opened.time - new Date()));
-                link_item(item);
-            }
-            else {
-                if (!last_items) {
-                    last_items = [];
+                console.log("lock:" + item_index);
+                var listener = {
+                    changeListener : function (itemNum, item) {
+                        if (item_index == itemNum) {
+                            lockTable[item_index] = false;
+                            InventoryWatcher.removeListener("changed", listener.changeListener);
+                            InventoryWatcher.removeListener("removed", listener.removedListener);
+                            upgrade_data.push({
+                                item: iteM,
+                                scroll: scroll,
+                                offering: offering,
+                                success: true,
+                            });
+                        }
+                    },
+                    removedListener : function (itemNum, item) {
+                        if (item_index == itemNum) {
+                            lockTable[item_index] = false;
+                            InventoryWatcher.removeListener("removed", listener.removedListener);
+                            InventoryWatcher.removeListener("changed", listener.changeListener);
+                            upgrade_data.push({
+                                item: iteM,
+                                scroll: scroll,
+                                offering: offering,
+                                success: false,
+                            })
+                        }
+                    }
                 }
 
-                last_items.push({item: item, time: new Date()});
+
+                InventoryWatcher.registerListener("changed", listener.changeListener);
+                InventoryWatcher.registerListener("removed", listener.removedListener);
+                old_upgrade(item_index, scroll_index, offering_index);
+            } else {
+                reject("Item is locked");
             }
-
+        } else {
+            reject("Item is not upgradeable");
         }
-    }
+    });
+};
+
+if (!parent.upgradeData) {
+    parent.upgradeData = {};
 }
 
-//Track whenever a chest is opened
-function open_handler(event) {
-    last_opened = {id: event.id, time: new Date()};
-    console.log(event);
-    if (last_gold && Math.abs(last_opened.time - last_gold.time) <= 1) {
-        link_gold();
-    }
 
-    if (last_items) {
-        link_last_items();
-    }
+function new_upgrade(item_index, scroll_index, offering_index) {
+    inv.upgrade(item_index, scroll_index, offering_index);
 }
 
-function link_last_items() {
-    if (drops[last_opened.id]) {
-        for (id in last_items) {
-            var last_item = last_items[id];
-            console.log("Existing items: " + Math.abs(last_opened.time - last_item.time));
-            if (Math.abs(last_opened.time - last_item.time) <= 1) {
-                drops[last_opened.id].items.push(last_item.item);
-                console.log("Added " + last_item.item + " to " + drops[last_opened.id].type);
-            }
-        }
-    }
-    last_items = null;
-}
-
-function link_item(item) {
-    if (drops[last_opened.id]) {
-        drops[last_opened.id].items.push(item);
-        console.log("Added " + item.item + " to " + drops[last_opened.id].type);
-    }
-}
-
-function link_gold() {
-    if (drops[last_opened.id]) {
-        drops[last_opened.id].gold = last_gold.gold;
-
-        if (drops.items) {
-            last_opened = null;
-            last_gold = null;
-        }
-    }
-    console.log(drops);
-}
-
-function link_drop() {
-    var linked_drop = {
-        chest: last_drop.id,
-        type: last_death.type,
-        id: last_death.id,
-        map: last_death.map,
-        gold: 0,
-        items: []
-    };
-    drops[last_drop.id] = linked_drop;
-    console.log(last_death.type);
-    last_drop = null;
-    last_death = null;
-}
-
-register_goldmeterhandler("drop", drop_handler);
-register_goldmeterhandler("game_log", log_handler);
-register_goldmeterhandler("chest_opened", open_handler);
+upgrade = new_upgrade;
 
 setInterval(function () {
     let request = new XMLHttpRequest();
-    request.open("POST",dropServer+"/kill");
+    request.open("POST", dropServer + "/upgrade");
     var data = {
         apiKey: apiKey,
-        kills: drops,
+        upgrades: upgrade_data,
     }
+    upgrade_data = [];
     request.send(JSON.stringify(data));
-    drops = {};
-}, 1000 * 30);
+}, 1000*30);
+
+parent.socket.on("player", playerListener);
+on_destroy = function () {
+    parent.removeEventListener("player", playerListener);
+};
