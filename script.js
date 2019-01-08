@@ -3,7 +3,7 @@
 
 //To use this create save the code under "loot" and import it in your main code with load_code("loot")
 
-var dropServer = "http://adventurecode.club:8082";
+var dropServer = "https://drop.adventurecode.club";
 var apiKey = "YOUR_API_KEY";
 //^^ Adjust this to your own api key
 //If you don't already have on request one from me on discord. @NexusNull#6364
@@ -144,4 +144,12 @@ setInterval(function () {
 parent.socket.on("player", playerListener);
 on_destroy = function () {
     parent.removeEventListener("player", playerListener);
+    let request = new XMLHttpRequest();
+    request.open("POST", dropServer + "/upgrade",false);
+    var data = {
+        apiKey: apiKey,
+        upgrades: upgrade_data,
+    }
+    upgrade_data = [];
+    request.send(JSON.stringify(data));
 };

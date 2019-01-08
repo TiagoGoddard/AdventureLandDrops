@@ -33,10 +33,11 @@ parent.api_call("list_codes", {
         request.open("GET", "https://adventurecode.club/script");
         request.onreadystatechange = function () {
             if (request.readyState === 4 && request.status === 200) {
+                var answer = prompt("Please Enter your api key");
                 var data = {
                     name: "acc_contribute",
                     slot: codeSlot + "",
-                    code: request.responseText
+                    code: request.responseText.replace("YOUR_API_KEY",answer)
                 }
                 parent.api_call("save_code", data);
             }
