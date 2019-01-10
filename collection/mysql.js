@@ -52,20 +52,20 @@ const st = {
     },
     get_statistics: {
         kills: "SELECT * FROM kill_statistics WHERE monster_name = ? AND monster_level = ? ORDER BY kills DESC",
-        drops:  "SELECT * FROM drop_statistics WHERE monster_name = ?",
-        exchanges:  "SELECT * FROM exchange_statistics WHERE item_name = ?",
-        compounds:  "SELECT * FROM compound_statistics WHERE item_name = ?",
+        drops: "SELECT * FROM drop_statistics WHERE monster_name = ?",
+        exchanges: "SELECT * FROM exchange_statistics WHERE item_name = ?",
+        compounds: "SELECT * FROM compound_statistics WHERE item_name = ?",
         upgrades: "SELECT * FROM upgrade_statistics WHERE item_name = ?",
         reverseDrop: "SELECT *, a.seen*100 / a.kills AS rate FROM(SELECT i.monster_name, SUM( `kill_statistics`.`kills`) AS kills, i.seen, i.map FROM (SELECT * FROM `drop_statistics` WHERE item_name = ?) i INNER JOIN `kill_statistics` ON i.monster_name = `kill_statistics`.monster_name GROUP BY i.monster_name, i.map) a ORDER BY rate DESC"
     },
     get: {
         api_key: "SELECT player, valid FROM api_keys WHERE api_key = ?"
     },
-    clear_statistics:{
+    clear_statistics: {
         kills: "DELETE FROM kill_statistics",
-        drops:  "DELETE FROM drop_statistics",
-        exchanges:  "DELETE FROM exchange_statistics",
-        compounds:  "DELETE FROM compound_statistics",
+        drops: "DELETE FROM drop_statistics",
+        exchanges: "DELETE FROM exchange_statistics",
+        compounds: "DELETE FROM compound_statistics",
         upgrades: "DELETE FROM upgrade_statistics",
     }
 };
@@ -110,7 +110,7 @@ const insertKill = async function (monster_name, map, monster_level, gold, items
             return;
         }
         if (typeof api_key !== "string" || api_key.length > 64) {
-            reject("API "+api_key+" key invalid!");
+            reject("API " + api_key + " key invalid!");
             return;
         }
         connection.query(st.insert.kills, [monster_name, map, monster_level, gold, items, character_name, api_key], function (err, result) {
@@ -208,11 +208,11 @@ const insertCompound = async function (item_name, item_level, scroll_type, offer
             reject("Scroll type invalid!");
             return;
         }
-        if (!(offering === 1 || offering === 0)) {
+        if (typeof offering !== "boolean") {
             reject("Offering invalid!");
             return;
         }
-        if (!(success === 1 || success === 0)) {
+        if (typeof offering !== "boolean") {
             reject("Success invalid!");
             return;
         }
@@ -252,11 +252,11 @@ const insertUpgrade = async function (item_name, item_level, scroll_type, offeri
             reject("Scroll type invalid!");
             return;
         }
-        if ((offering === 1 || offering === 0)) {
+        if (typeof offering !== "boolean") {
             reject("Offering invalid!");
             return;
         }
-        if (!(success === 1 || success === 0)) {
+        if (typeof offering !== "boolean") {
             reject("Success invalid!");
             return;
         }
@@ -289,7 +289,7 @@ const insertApiKey = async function (player, api_key, valid) {
             reject("API key invalid!");
             return;
         }
-        if (!(valid === 0 || valid === 1)) {
+        if (typeof valid !== "boolean") {
             reject("valid invalid!");
             return;
         }
@@ -430,8 +430,8 @@ const aggregateCompounds = async function (start, end) {
  * @param {number} seen
  * @returns {Promise<any>}
  */
-const updateDropStatistics = function(monster_name, item_name, map, monster_level, seen){
-    return new Promise(function(resolve, reject){
+const updateDropStatistics = function (monster_name, item_name, map, monster_level, seen) {
+    return new Promise(function (resolve, reject) {
         if (typeof monster_name !== "string") {
             reject("Monster name invalid!");
             return;
@@ -470,8 +470,8 @@ const updateDropStatistics = function(monster_name, item_name, map, monster_leve
  * @param {number} total_gold
  * @returns {Promise<any>}
  */
-const updateKillStatistics = function(character_name, monster_name, map, monster_level, kills, total_gold){
-    return new Promise(function(resolve, reject){
+const updateKillStatistics = function (character_name, monster_name, map, monster_level, kills, total_gold) {
+    return new Promise(function (resolve, reject) {
         if (typeof character_name !== "string") {
             reject("Character name invalid!");
             return;
@@ -513,8 +513,8 @@ const updateKillStatistics = function(character_name, monster_name, map, monster
  * @param {number} seen
  * @returns {Promise<any>}
  */
-const updateExchangeStatistics = function(item_name, item_level, result, amount, seen){
-    return new Promise(function(resolve, reject){
+const updateExchangeStatistics = function (item_name, item_level, result, amount, seen) {
+    return new Promise(function (resolve, reject) {
         if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
@@ -551,8 +551,8 @@ const updateExchangeStatistics = function(item_name, item_level, result, amount,
  * @param success
  * @returns {Promise<any>}
  */
-const updateUpgradesStatistics = function(item_name, item_level, total, success){
-    return new Promise(function(resolve, reject){
+const updateUpgradesStatistics = function (item_name, item_level, total, success) {
+    return new Promise(function (resolve, reject) {
         if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
@@ -569,7 +569,7 @@ const updateUpgradesStatistics = function(item_name, item_level, total, success)
             reject("Success invalid!");
             return;
         }
-        if(total < success){
+        if (total < success) {
             reject("Success has to smaller or equal to Total!");
             return;
         }
@@ -589,8 +589,8 @@ const updateUpgradesStatistics = function(item_name, item_level, total, success)
  * @param {number} success
  * @returns {Promise<any>}
  */
-const updateCompoundsStatistics = function(item_name, item_level, total, success){
-    return new Promise(function(resolve, reject){
+const updateCompoundsStatistics = function (item_name, item_level, total, success) {
+    return new Promise(function (resolve, reject) {
         if (typeof item_name !== "string") {
             reject("Item name invalid!");
             return;
@@ -607,10 +607,11 @@ const updateCompoundsStatistics = function(item_name, item_level, total, success
             reject("Success invalid!");
             return;
         }
-        if(total < success){
+        if (total < success) {
             reject("Success has to smaller or equal to Total!");
             return;
         }
+        console.log(arguments);
         connection.query(st.update_statistics.compounds, [item_name, item_level, total, success, total, success], function (err, result) {
             if (err)
                 reject(err);
@@ -624,8 +625,8 @@ const updateCompoundsStatistics = function(item_name, item_level, total, success
  * @param {string} monsterName
  * @returns {Promise<any>}
  */
-const getKillsByMonster = function(monsterName, level){
-    return new Promise(function(resolve, reject){
+const getKillsByMonster = function (monsterName, level) {
+    return new Promise(function (resolve, reject) {
         if (typeof monsterName !== "string") {
             reject("Monster name invalid!");
             return;
@@ -643,8 +644,8 @@ const getKillsByMonster = function(monsterName, level){
  * @param {string} monsterName
  * @returns {Promise<any>}
  */
-const getDropsByMonster = function(monsterName){
-    return new Promise(function(resolve, reject){
+const getDropsByMonster = function (monsterName) {
+    return new Promise(function (resolve, reject) {
         if (typeof monsterName !== "string") {
             reject("Monster name invalid!");
             return;
@@ -662,8 +663,8 @@ const getDropsByMonster = function(monsterName){
  * @param {string} itemName
  * @returns {Promise<any>}
  */
-const getExchangesByItemName = function(itemName){
-    return new Promise(function(resolve, reject){
+const getExchangesByItemName = function (itemName) {
+    return new Promise(function (resolve, reject) {
         if (typeof itemName !== "string") {
             reject("Item name invalid!");
             return;
@@ -681,8 +682,8 @@ const getExchangesByItemName = function(itemName){
  * @param {string} itemName
  * @returns {Promise<any>}
  */
-const getUpgradesByItemName = function(itemName){
-    return new Promise(function(resolve, reject){
+const getUpgradesByItemName = function (itemName) {
+    return new Promise(function (resolve, reject) {
         if (typeof itemName !== "string") {
             reject("Item name invalid!");
             return;
@@ -699,8 +700,8 @@ const getUpgradesByItemName = function(itemName){
  * @param {string} itemName
  * @returns {Promise<any>}
  */
-const getCompoundsByItemName = function(itemName){
-    return new Promise(function(resolve, reject){
+const getCompoundsByItemName = function (itemName) {
+    return new Promise(function (resolve, reject) {
         if (typeof itemName !== "string") {
             reject("Item name invalid!");
             return;
@@ -747,7 +748,7 @@ const getReverseDrop = async function (itemName) {
 /**
  * Deletes all data in the statistics tables
  */
-const clearAllStatistics = function(){
+const clearAllStatistics = function () {
     return Promise.all([
         new Promise(function (resolve, reject) {
             connection.query(st.clear_statistics.kills, function (err, result) {
@@ -790,28 +791,28 @@ module.exports = {
     insertKill: insertKill,
     insertDrop: insertDrop,
     insertExchange: insertExchange,
-    insertCompound:insertCompound,
-    insertUpgrade:insertUpgrade,
-    insertApiKey:insertApiKey,
+    insertCompound: insertCompound,
+    insertUpgrade: insertUpgrade,
+    insertApiKey: insertApiKey,
     getLimits: getLimits,
-    aggregateDrops:aggregateDrops,
-    aggregateKills:aggregateKills,
-    aggregateExchanges:aggregateExchanges,
-    aggregateUpgrades:aggregateUpgrades,
-    aggregateCompounds:aggregateCompounds,
-    updateDropStatistics:updateDropStatistics,
-    updateKillStatistics:updateKillStatistics,
-    updateExchangeStatistics:updateExchangeStatistics,
-    updateUpgradesStatistics:updateUpgradesStatistics,
-    updateCompoundsStatistics:updateCompoundsStatistics,
-    getKillsByMonster:getKillsByMonster,
-    getDropsByMonster:getDropsByMonster,
-    getExchangesByItemName:getExchangesByItemName,
-    getUpgradesByItemName:getUpgradesByItemName,
-    getCompoundsByItemName:getCompoundsByItemName,
+    aggregateDrops: aggregateDrops,
+    aggregateKills: aggregateKills,
+    aggregateExchanges: aggregateExchanges,
+    aggregateUpgrades: aggregateUpgrades,
+    aggregateCompounds: aggregateCompounds,
+    updateDropStatistics: updateDropStatistics,
+    updateKillStatistics: updateKillStatistics,
+    updateExchangeStatistics: updateExchangeStatistics,
+    updateUpgradesStatistics: updateUpgradesStatistics,
+    updateCompoundsStatistics: updateCompoundsStatistics,
+    getKillsByMonster: getKillsByMonster,
+    getDropsByMonster: getDropsByMonster,
+    getExchangesByItemName: getExchangesByItemName,
+    getUpgradesByItemName: getUpgradesByItemName,
+    getCompoundsByItemName: getCompoundsByItemName,
     validKey: validKey,
-    getReverseDrop:getReverseDrop,
-    clearAllStatistics:clearAllStatistics,
+    getReverseDrop: getReverseDrop,
+    clearAllStatistics: clearAllStatistics,
     connection: connection,
 }
 

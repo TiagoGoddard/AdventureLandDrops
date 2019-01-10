@@ -5,10 +5,10 @@ const mysql = require("./mysql");
 let SCRIPT_VERSION = 4;
 
 const server = new Hapi.Server({
-    debug: { request: ['error'] }
+    debug: {request: ['error']}
 });
 
-server.connection({ port: 8082, routes: { cors: true }});
+server.connection({port: 8082, routes: {cors: true}});
 
 const itemTypeByName = {};
 for (let itemType of Object.keys(data.items)) {
@@ -16,6 +16,40 @@ for (let itemType of Object.keys(data.items)) {
     let itemName = item.name;
     itemTypeByName[itemName] = itemType;
 }
+
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: async (request, reply) => {
+        const data = JSON.parse(request.payload);
+        if (!mysql.validKey(data.apiKey))
+            return reply().code(401);
+        reply().code(200);
+
+        if (data.upgrades && Array.isArray(data.upgrades)) {
+            for (let upgrade of data.upgrades) {
+                try {
+                    await mysql.insertUpgrade(upgrade.item.name, upgrade.item.level, upgrade.scroll.name, upgrade.offering, upgrade.success ? 1 : 0, data.apiKey);
+                    await mysql.updateUpgradesStatistics(upgrade.item.name, upgrade.item.level, 1, upgrade.success ? 1 : 0)
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+        }
+
+        if (data.compounds && Array.isArray(data.compounds)) {
+            for (let compound of data.compounds) {
+                try {
+                    await mysql.insertCompound(compound.item.name, compound.item.level, compound.scroll.name, compound.offering, compound.success + 0, data.apiKey);
+                    await mysql.updateCompoundsStatistics(compound.item.name, compound.item.level, 1, compound.success + 0);
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+        }
+
+    }
+});
 
 server.route({
     method: 'GET',
@@ -36,23 +70,23 @@ server.route({
         if (!mysql.validKey(killData.apiKey))
             return reply().code(401);
         reply().code(200);
-        if(killData["kills"]) { // bulk multi-drop send
-            for(let key in killData.kills) {
+        if (killData["kills"]) { // bulk multi-drop send
+            for (let key in killData.kills) {
                 var entity = killData.kills[key];
-                if(entity.items.length != null){
+                if (entity.items.length != null) {
                     console.log(entity.items)
                 }
                 entity.items = entity.items.map(name => itemTypeByName[name]);
                 const dataValid = entity.items.every(name => name != null);
                 if (dataValid) {
-                    try{
+                    try {
                         var status = await mysql.insertKill(entity.type, entity.map, entity.level, entity.gold, entity.items.length, killData.name, killData.apiKey);
-                        await mysql.updateKillStatistics(killData.name,entity.type, entity.map, entity.level,1,entity.gold);
-                        for(let item of entity.items){
-                            await mysql.insertDrop(item,status.insertId);
-                            await mysql.updateDropStatistics(entity.type,item, entity.map, entity.level, 1);
+                        await mysql.updateKillStatistics(killData.name, entity.type, entity.map, entity.level, 1, entity.gold);
+                        for (let item of entity.items) {
+                            await mysql.insertDrop(item, status.insertId);
+                            await mysql.updateDropStatistics(entity.type, item, entity.map, entity.level, 1);
                         }
-                    }catch(e){
+                    } catch (e) {
                         console.error(e);
                     }
                 }
@@ -70,10 +104,10 @@ server.route({
         if (!mysql.validKey(upgradeData.apiKey))
             return reply().code(401);
         reply().code(200);
-        if(upgradeData.upgrades && Array.isArray(upgradeData.upgrades)){
-            for(let upgrade of upgradeData.upgrades){
-                await mysql.insertUpgrade(upgrade.item.name, upgrade.item.level, upgrade.scroll.name, upgrade.offering, upgrade.success?1:0, upgradeData.apiKey)
-                await mysql.updateUpgradesStatistics(upgrade.item.name, upgrade.item.level, 1, upgrade.success?1:0)
+        if (upgradeData.upgrades && Array.isArray(upgradeData.upgrades)) {
+            for (let upgrade of upgradeData.upgrades) {
+                await mysql.insertUpgrade(upgrade.item.name, upgrade.item.level, upgrade.scroll.name, upgrade.offering, upgrade.success ? 1 : 0, upgradeData.apiKey)
+                await mysql.updateUpgradesStatistics(upgrade.item.name, upgrade.item.level, 1, upgrade.success ? 1 : 0)
             }
         }
     }
@@ -82,14 +116,23 @@ server.route({
 server.route({
     method: 'POST',
     path: '/compound',
-    handler: (request, reply) => {
+    handler: async (request, reply) => {
         console.log(request.payload.json);
-        const compoundData = JSON.parse(request.payload.json);
+        const compoundData = JSON.parse(request.payload);
         if (!mysql.validKey(compoundData.apiKey))
             return reply().code(401);
         reply().code(200);
 
-
+        if (compoundData.compounds && Array.isArray(compoundData.compounds)) {
+            for (let compound of compoundData.compounds) {
+                try {
+                    await mysql.insertCompound(compound.item.name, compound.item.level, compound.scroll.name, compound.offering, compound.success + 0, compoundData.apiKey);
+                    await mysql.updateCompoundsStatistics(compound.item.name, compound.item.level, 1, compound.success + 0);
+                } catch (e) {
+                    console.error(e)
+                }
+            }
+        }
     }
 });
 
@@ -100,13 +143,12 @@ server.route({
         const exchangeData = JSON.parse(request.payload.json);
         if (!mysql.validKey(exchangeData.apiKey))
             return reply().code(401);
-
         reply().code(200);
 
     }
 });
 
-module.exports.start = function() {
+module.exports.start = function () {
     server.start((err) => {
         if (err) throw err;
         console.log('Collection server running at:', server.info.uri);
