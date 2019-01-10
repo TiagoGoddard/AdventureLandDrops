@@ -18,7 +18,7 @@ for (let itemType of Object.keys(data.items)) {
 }
 
 server.route({
-    method: 'GET',
+    method: 'POST',
     path: '/',
     handler: async (request, reply) => {
         const data = JSON.parse(request.payload);
