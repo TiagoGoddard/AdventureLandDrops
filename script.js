@@ -158,6 +158,8 @@ inv.compound = async function (item0, item1, item2, scroll_num, offering_num) {
         }
         if(character.items[offering_num] && character.items[offering_num].name === "offering"){
             var offering = true;
+        } else {
+            offering = false;
         }
 
         console.log("passed all tests");
@@ -180,10 +182,10 @@ inv.compound = async function (item0, item1, item2, scroll_num, offering_num) {
                         var data = {
                             item: itemM,
                             scroll: scroll,
-                            offering: offering_num,
+                            offering: offering,
                             success: true,
                         };
-                        compound_data.push(data)
+                        compound_data.push(data);
                         resolve(data)
                     }
                 },
@@ -197,10 +199,10 @@ inv.compound = async function (item0, item1, item2, scroll_num, offering_num) {
                         var data = {
                             item: itemM,
                             scroll: scroll,
-                            offering: offering_num,
+                            offering: offering,
                             success: false,
                         };
-                        compound_data.push(data)
+                        compound_data.push(data);
                         resolve(data);
                     }
                 }
@@ -219,20 +221,24 @@ if (!parent.upgradeData) {
 }
 
 
-function new_upgrade(item_index, scroll_index, offering_index) {
+upgrade = function(item_index, scroll_index, offering_index) {
     inv.upgrade(item_index, scroll_index, offering_index);
-}
+};
+compound = function(item0, item1, item2, scroll_num, offering_num) {
+    inv.compound(item0, item1, item2, scroll_num, offering_num);
+};
 
-upgrade = new_upgrade;
 
 setInterval(function () {
     let request = new XMLHttpRequest();
-    request.open("POST", dropServer + "/upgrade");
+    request.open("POST", dropServer + "/");
     var data = {
         apiKey: apiKey,
         upgrades: upgrade_data,
+        compounds: compound_data,
     }
     upgrade_data = [];
+    compound_data = [];
     request.send(JSON.stringify(data));
 }, 1000 * 30);
 
@@ -244,8 +250,9 @@ on_destroy = function () {
     var data = {
         apiKey: apiKey,
         upgrades: upgrade_data,
-        compounds: compounds,
+        compounds: compound_data,
     }
     upgrade_data = [];
+    compound_data = [];
     request.send(JSON.stringify(data));
 };
