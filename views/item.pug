@@ -146,9 +146,10 @@ block content
                     +attribute('speed') #[+n]: #[span.gray #[+v]]
 
                     if item.ability
-                        - let text = abilityText.get(item.ability)
-                        - text = text.replace('%attr0', item.attr0)
-                        - text = text.replace('%attr1', item.attr1)
+                        - var text = abilityText.get(item.ability)
+                        if (text)
+                            - text = text.replace('%attr0', item.attr0)
+                            - text = text.replace('%attr1', item.attr1)
                         div.gray.rmargin=text
 
                     +attribute('explanation') #[div.gray.rmargin #[+v]]

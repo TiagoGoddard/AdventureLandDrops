@@ -32,6 +32,7 @@ InventoryWatcher.removeListener = function (event, callback) {
         }
     }
 };
+
 function calculate_grade(item) {
     if(!item || !item.name || !G.items[item.name]){
         return 0;
@@ -49,6 +50,7 @@ function calculate_grade(item) {
     }
     return 0
 }
+
 function playerListener(player) {
     let items = player.items;
     //Detect changes
