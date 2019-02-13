@@ -1,4 +1,5 @@
-const data = require('./data');
+var data = require('./data');
+const dataFetcher = require("./data/DataFetcher");
 const sprites = require('./sprites');
 const sortOrder = require('./sortOrder');
 const mysql = require('./collection/mysql.js');
@@ -9,79 +10,90 @@ let items = [];
 
 let quest_items = [];
 let e_items = [];
-
-for (let monsterType in data.monsters) {
-    monsters.push({
-        type: monsterType,
-        name: data.monsters[monsterType].name
-    });
-}
-
-for (let npcType in data.npcs) {
-    npcs.push({
-        type: npcType,
-        name: data.npcs[npcType].name,
-        skin: data.npcs[npcType].skin,
-        role: data.npcs[npcType].role
-    });
-}
-
-let itemsData = {
-    'Weapons': {
-        types: ['weapon', 'quiver', 'shield'],
-        data: []
-    },
-    'Armor': {
-        types: ['helmet', 'chest', 'pants', 'gloves', 'shoes', 'cape'],
-        data: []
-    },
-    'Accessories': {
-        types: ['amulet', 'ring', 'earring', 'tome', 'belt', 'source'],
-        data: []
-    },
-    'Misc': {
-        types: [],
-        data: []
-    },
-};
-
-for (let itemType in data.items) {
-    let itemU = {
-        type: itemType,
-        name: data.items[itemType].name,
-        item: itemType.name
+var itemsData;
+function updateData(){
+    data = dataFetcher.getData();
+    console.log(data.monsters.prat.armor);
+    for (let monsterType in data.monsters) {
+        monsters.push({
+            type: monsterType,
+            name: data.monsters[monsterType].name
+        });
     }
-    let item = data.items[itemType];
+    for (let npcType in data.npcs) {
+        npcs.push({
+            type: npcType,
+            name: data.npcs[npcType].name,
+            skin: data.npcs[npcType].skin,
+            role: data.npcs[npcType].role
+        });
+    }
+    itemsData = {
+        'Weapons': {
+            types: ['weapon', 'quiver', 'shield'],
+            data: []
+        },
+        'Armor': {
+            types: ['helmet', 'chest', 'pants', 'gloves', 'shoes', 'cape'],
+            data: []
+        },
+        'Accessories': {
+            types: ['amulet', 'ring', 'earring', 'tome', 'belt', 'source'],
+            data: []
+        },
+        'Misc': {
+            types: [],
+            data: []
+        },
+    };
+    for (let itemType in data.items) {
+        let itemU = {
+            type: itemType,
+            name: data.items[itemType].name,
+            item: itemType.name
+        }
+        let item = data.items[itemType];
 
-    let group_type = 'Misc';
-    if (item) {
-        for (let group in itemsData) {
-            if (itemsData[group].types.indexOf(item.type) > -1) {
-                group_type = group;
+        let group_type = 'Misc';
+        if (item) {
+            for (let group in itemsData) {
+                if (itemsData[group].types.indexOf(item.type) > -1) {
+                    group_type = group;
+                }
+            }
+            if (item.quest) {
+                quest_items.push(item);
+            }
+            if (item.e) {
+                e_items.push(item);
             }
         }
-        if (item.quest) {
-            quest_items.push(item);
-        }
-        if (item.e) {
-            e_items.push(item);
-        }
+        let new_info = {
+            type: itemType,
+            name: item.name,
+            item: itemType.name
+        };
+        itemsData[group_type].data.push(new_info);
+        items.push(itemU);
     }
-    let new_info = {
-        type: itemType,
-        name: item.name,
-        item: itemType.name
-    };
-    itemsData[group_type].data.push(new_info);
-    items.push(itemU);
+
+    for (let group in itemsData) {
+        itemsData[group].data.sort((a, b) => sortOrder[b.type] - sortOrder[a.type]);
+    }
+
+    monsters.sort((a, b) => a.name.localeCompare(b.name));
+    items.sort((a, b) => sortOrder[b.type] - sortOrder[a.type]);
+
 }
 
-for (let group in itemsData) {
-    itemsData[group].data.sort((a, b) => sortOrder[b.type] - sortOrder[a.type]);
-}
-
-monsters.sort((a, b) => a.name.localeCompare(b.name));
-items.sort((a, b) => sortOrder[b.type] - sortOrder[a.type]);
+var currentVersion = dataFetcher.dataVersion();
+updateData();
+setInterval(function(){
+   if(currentVersion < dataFetcher.dataVersion()){
+        updateData();
+        currentVersion = dataFetcher.dataVersion();
+    }
+},10000);
 
 const rootHandler = function (request, reply) {
     reply.view('index', {
@@ -124,7 +136,6 @@ const monsterHandler = async function (request, reply) {
     try {
         var killTable = await mysql.getKillsByMonster(monsterType, monsterLevel);
         var drops = await mysql.getDropsByMonster(monsterType);
-
     } catch (e) {
         console.error(e);
     }
@@ -147,7 +158,6 @@ const monsterHandler = async function (request, reply) {
         drops[key].rate = drops[key].seen * 100 / (kills[drops[key].map]);
         drops[key].kills = kills[drops[key].map];
     }
-
     reply.view('monster', {
         monster: monsterData,
         type: monsterType,
@@ -234,40 +244,6 @@ const itemHandler = async function (request, reply) {
     });
 };
 
-const priceHandler = function (request, reply) {
-    const itemType = request.params.item;
-    const itemData = data.items[itemType];
-
-    if (!itemData) {
-        return reply().code(404);
-    }
-
-    reply.view('price', {
-        item: itemData,
-        type: itemType,
-        show_dropped: false,
-        dropped: [],
-        show_upgrades: false,
-        upgrades: [],
-        show_exchanges: false,
-        exchanges: [],
-        show_price: true,
-        price_data: priceTable.get(itemType) || [],
-        npcs_data: data.npcs,
-        items_data: data.items,
-        scroll_cost: scroll_cost,
-        sprites
-    });
-};
-
-const marketHandler = function (request, reply) {
-    reply.view('market', {
-        items: itemsData,
-        items_data: data.items,
-        market: marketTable,
-        sprites
-    });
-};
 
 function scroll_cost(item, level) {
     let scroll0_cost = 1000, scroll1_cost = 40000, scroll2_cost = 1600000;
@@ -281,23 +257,6 @@ function scroll_cost(item, level) {
     }
 }
 
-const upgradesHandler = function (request, reply) {
-    reply.view('upgrades', {
-        upgrades: upgradeTable,
-        scroll_cost: scroll_cost,
-        sprites
-    });
-};
-
-const exchangesHandler = function (request, reply) {
-    reply.view('exchanges', {
-        exchanges: exchangeTable,
-        items_data: data.items,
-        sprites
-    });
-};
-
-
 exports.root = rootHandler;
 
 exports.monsters = monstersHandler;
@@ -306,11 +265,5 @@ exports.monster = monsterHandler;
 exports.npcs = npcsHandler;
 exports.npc = npcHandler;
 
-exports.market = marketHandler;
-exports.price = priceHandler;
-
 exports.items = itemsHandler;
 exports.item = itemHandler;
-
-exports.upgrades = upgradesHandler;
-exports.exchanges = exchangesHandler;

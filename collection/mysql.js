@@ -1,7 +1,5 @@
 const settings = require("../settings");
-const fs = require("fs");
 const mysql = require('mysql');
-const G = require("./../data/data");
 
 var connection = mysql.createConnection({
     host: settings.database.hostname,

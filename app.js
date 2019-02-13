@@ -7,7 +7,6 @@ process.on('uncaughtException', function (exception) {
 const Hapi = require('hapi');
 const Vision = require('vision');
 const Inert = require('inert');
-const Request = require('request');
 
 const routes = require('./routes');
 const collection = require('./collection');
@@ -51,10 +50,6 @@ server.register(Vision, (err) => {
     server.route({ method: 'GET', path: '/items', handler: routes.items });
     server.route({ method: 'GET', path: '/items/{item}', handler: routes.item });
 
-    //server.route({ method: 'GET', path: '/market', handler: routes.market });
-    //server.route({ method: 'GET', path: '/market/{item}', handler: routes.price });
-
-    //server.route({ method: 'GET', path: '/exchanges', handler: routes.exchanges });
 
     server.route({
         method: 'GET',
@@ -66,31 +61,6 @@ server.register(Vision, (err) => {
     server.route({
         method: 'GET', path: '/script',
         handler: { file: "script.js" }
-    });
-
-    server.route({
-        method: 'GET', path: '/upgradescript',
-        handler: { file: "script_upgrade.js" }
-    });
-
-    server.route({
-        method: 'GET', path: '/compoundscript',
-        handler: { file: "script_compounder.js" }
-    });
-
-    server.route({
-        method: 'GET', path: '/exchangescript',
-        handler: { file: "script_exchanger.js" }
-    });
-
-    server.route({
-        method: 'GET', path: '/marketscript',
-        handler: { file: "script_market.js" }
-    });
- 
-    server.route({
-        method: 'GET', path: '/marketmasterscript',
-        handler: { file: "script_market_master.js" }
     });
 });
 

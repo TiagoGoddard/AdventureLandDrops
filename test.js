@@ -1,8 +1,8 @@
-const mysql = require("./collection/mysql");
+const fetcher = require("./data/DataFetcher");
 
 async function main() {
     try {
-        console.log(await mysql.getCompoundsByItemName("dexamulet"));
+        fetcher.getData();
     } catch (e) {
         console.error(e);
     }

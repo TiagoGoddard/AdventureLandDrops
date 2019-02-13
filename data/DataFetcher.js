@@ -6,6 +6,7 @@ var FC = {};
 var FM = {};
 var XYWH = {};
 var T = {};
+var version = 0;
 
 for (let name in G.sprites) {
     var g = G.sprites[name];
@@ -56,18 +57,20 @@ getGameData = async function () {
     var self = this;
     return new Promise(async function (resolve, reject) {
         try {
+            console.log("Fetching game data");
             let code = await request({
                 url: "https://adventure.land/data.js",
                 headers: {
                     "x-requested-with": "XMLHttpRequest",
                     "Accept": "application/json, text/javascript, */*; q=0.01",
                     "user-agent": "AdventureLandBot: (v1.0.0)",
-                    "cookie": "auth=" + self.sessionCookie,
+                    "cookie": "auth=;",
                 }
             });
             let sandbox = {};
             let context = vm.createContext(sandbox);
             vm.runInContext(code, context);
+            version++;
             resolve(sandbox.G)
         } catch (e) {
             reject("Could not retrieve game data");
@@ -75,12 +78,11 @@ getGameData = async function () {
     });
 };
 
-setInterval(async function () {
-    await updateGameData()
-}, 1000 * 60 * 60);// 1 hour
+
 function is_array(e){
     return Array.isArray(e);
 }
+
 function in_arr(b, d) {
     if (is_array(b)) {
         for (var a = 0; a < b.length; a++) {
@@ -150,9 +152,15 @@ async function updateGameData() {
         console.error(e)
     }
 }
+setInterval(async function () {
+    await updateGameData()
+}, 1000 * 60 * 60);
 
 module.exports = {
     getData: function(){
         return G;
+    },
+    dataVersion: function(){
+        return version;
     }
 };
