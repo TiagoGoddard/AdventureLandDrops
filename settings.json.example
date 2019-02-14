@@ -1,0 +1,10 @@
+{
+  "install":true,
+  "database":{
+    "username":"",
+    "password":"",
+    "hostname":"",
+    "port":3306,
+    "database":"drops_db"
+  }
+}

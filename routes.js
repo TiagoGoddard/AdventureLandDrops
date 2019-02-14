@@ -11,9 +11,14 @@ let items = [];
 let quest_items = [];
 let e_items = [];
 var itemsData;
+
 function updateData(){
     data = dataFetcher.getData();
-    console.log(data.monsters.prat.armor);
+    monsters = [];
+    npcs = [];
+    items = [];
+    quest_items = [];
+    e_items = [];
     for (let monsterType in data.monsters) {
         monsters.push({
             type: monsterType,
